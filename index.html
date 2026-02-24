@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeBasic — Pokédex & Type Chart</title>
+
+    <!-- SEO -->
+    <meta name="description" content="PokeBasic is a fast Pokémon reference tool. Look up type effectiveness, base stats, moves, and competitive tips for any Pokémon — Gens I–VII.">
+    <meta name="keywords" content="pokemon, pokedex, type chart, type effectiveness, competitive pokemon, pokemon moves, pokemon stats">
+    <meta name="author" content="PokeBasic">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PokeBasic — Pokédex & Type Chart">
+    <meta property="og:description" content="Fast Pokémon reference: type effectiveness chart, base stats, moves, and competitive tips for Gens I–VII.">
+    <meta property="og:image" content="/icon.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="PokeBasic — Pokédex & Type Chart">
+    <meta name="twitter:description" content="Fast Pokémon reference: type effectiveness chart, base stats, moves, and competitive tips for Gens I–VII.">
+    <meta name="twitter:image" content="/icon.png">
+
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script type="module" src="/src/main.ts"></script>
+</head>
+
+<body class="bg-slate-50 min-h-screen">
+
+    <!-- ══════════ HEADER ══════════ -->
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+        <div x-data="searchBar" class="max-w-screen-2xl mx-auto px-5 py-3 flex items-center gap-5 flex-wrap">
+
+            <!-- Brand -->
+            <div class="flex items-center gap-2.5 shrink-0">
+                <div
+                    class="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-md">
+                    <span class="text-white font-black text-lg">P</span>
+                </div>
+                <div class="leading-tight">
+                    <div class="font-black text-slate-800 text-base">PokeBasic</div>
+                    <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">Ultra Moon · Gen I–VII
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="flex-1 min-w-52 max-w-lg relative flex gap-2">
+                <div class="relative flex-1">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                    </svg>
+                    <input type="text" x-model="query" @input="handleInput()"
+                        @keypress="if($event.key==='Enter') select(query.trim().toLowerCase())"
+                        placeholder="Search Pokémon…"
+                        class="w-full pl-9 pr-4 py-2 text-sm border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 bg-slate-50 font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400"
+                        autocomplete="off">
+                    <!-- Autocomplete dropdown -->
+                    <div class="ac-dropdown" x-show="acOpen" x-cloak>
+                        <template x-for="p in acResults" :key="p.name">
+                            <div class="ac-item" @click="select(p.name)">
+                                <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`"
+                                    :alt="p.name">
+                                <span class="capitalize font-semibold text-sm text-slate-700" x-text="p.name"></span>
+                                <span class="text-slate-400 text-xs ml-auto"
+                                    x-text="'#'+String(p.id).padStart(3,'0')"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <button @click="select(query.trim().toLowerCase())"
+                    class="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-bold text-sm transition shadow-sm shrink-0">Search</button>
+                <button @click="window.location.href='/battle.html'"
+                    class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-sm transition shadow-sm shrink-0 flex items-center gap-1.5">⚔️ Battle</button>
+            </div>
+
+            <!-- History bar -->
+            <div class="w-full flex items-center gap-2 flex-wrap pb-1" x-show="history.length > 0">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Recent</span>
+                <template x-for="h in history" :key="h.name">
+                    <button class="hchip" @click="select(h.name)">
+                        <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${h.id}.png`"
+                            :alt="h.name">
+                        <span x-text="capitalize(h.name)"></span>
+                    </button>
+                </template>
+                <button @click="clearHistory()"
+                    class="text-[10px] font-black text-slate-400 hover:text-red-400 uppercase tracking-wide ml-auto transition">✕
+                    Clear</button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ══════════ TYPE CHART ══════════ -->
+    <main class="max-w-screen-2xl mx-auto px-4 py-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 overflow-x-auto">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="text-sm font-black text-slate-800">Type Effectiveness Chart</h2>
+                    <p class="text-xs text-slate-400 mt-0.5 font-medium">Row = Attacking · Column = Defending</p>
+                </div>
+                <!-- Legend -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                        <div class="leg-sw super-effective"></div>2× Super
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                        <div class="leg-sw not-very-effective"></div>½× Resist
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                        <div class="leg-sw no-effect"></div>0× Immune
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                        <div class="leg-sw normal-damage"></div>1× Normal
+                    </div>
+                </div>
+            </div>
+            <table class="mx-auto border-collapse" id="typeChart"></table>
+        </div>
+    </main>
+
+    <!-- ══════════ MODAL ══════════ -->
+    <div x-data="modal" x-show="open" x-cloak @click.self="close()"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 z-50">
+        <!-- Modal box -->
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl flex flex-col"
+            style="height:90vh; max-height:90vh;">
+
+            <!-- Close -->
+            <button @click="close()"
+                class="absolute top-3 right-3 z-50 w-8 h-8 rounded-full bg-black/25 hover:bg-black/50 text-white font-bold text-xl flex items-center justify-center transition leading-none"
+                style="position:fixed; top:1.75rem; right:calc((100vw - min(100vw - 1.5rem, 75rem)) / 2 + 0.75rem);">×</button>
+
+            <!-- Banner -->
+            <div class="rounded-t-2xl px-7 pt-5 pb-4 flex items-center gap-5 shrink-0 relative overflow-hidden"
+                :style="`background: linear-gradient(135deg, ${$store.pokemon.bannerColor ?? '#7c3aed'}, ${darkenColor($store.pokemon.bannerColor ?? '#7c3aed', -55)})`">
+                <div class="absolute inset-0 bg-linear-to-r from-black/20 to-transparent pointer-events-none"></div>
+                <div class="relative z-10 shrink-0">
+                    <img :src="$store.pokemon.spriteUrl || ''" :alt="$store.pokemon.pokemon?.name"
+                        class="w-28 h-28 object-contain drop-shadow-2xl cursor-pointer transition hover:scale-110"
+                        @click="window.dispatchEvent(new CustomEvent('toggle-shiny'))" title="Click for shiny ✨">
+                </div>
+                <div class="z-10 flex-1 min-w-0">
+                    <div class="flex items-center gap-3 flex-wrap mb-1.5">
+                        <h2 class="text-3xl font-black text-white capitalize tracking-tight"
+                            x-text="$store.pokemon.pokemon?.name ?? ''"></h2>
+                        <span class="text-white/55 font-bold text-lg"
+                            x-text="$store.pokemon.pokemon ? '#'+String($store.pokemon.pokemon.id).padStart(3,'0') : ''"></span>
+                    </div>
+                    <div class="flex gap-2 flex-wrap mb-2" id="bannerTypes"></div>
+                    <div class="flex gap-5 flex-wrap">
+                        <span class="text-white/60 text-xs font-semibold"
+                            x-text="$store.pokemon.pokemon ? `📏 ${($store.pokemon.pokemon.height/10).toFixed(1)} m` : ''"></span>
+                        <span class="text-white/60 text-xs font-semibold"
+                            x-text="$store.pokemon.pokemon ? `⚖️ ${($store.pokemon.pokemon.weight/10).toFixed(1)} kg` : ''"></span>
+                        <span class="text-white/60 text-xs font-semibold"
+                            x-text="$store.pokemon.pokemon ? `🧬 ${$store.pokemon.pokemon.base_experience ?? '?'} base XP` : ''"></span>
+                    </div>
+                </div>
+                <div class="z-10 flex flex-col items-end gap-2 shrink-0">
+                    <button @click="window.dispatchEvent(new CustomEvent('toggle-shiny'))"
+                        :class="$store.pokemon.isShiny ? 'bg-amber-400 border-amber-300 text-slate-900' : 'bg-white/20 border-white/30 text-white'"
+                        class="px-3 py-1.5 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition">✨
+                        Shiny</button>
+                    <div class="px-3 py-1 rounded-lg bg-white/20 border border-white/30 text-white text-xs font-bold"
+                        x-text="$store.pokemon.speedTierLabel ?? ''"></div>
+                    <div class="px-3 py-1 rounded-lg bg-white/20 border border-white/30 text-white text-xs font-bold"
+                        x-text="$store.pokemon.role?.label ?? ''"></div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-200 bg-white shrink-0 overflow-x-auto">
+                <template x-for="tab in tabs" :key="tab.id">
+                    <button :class="activeTab === tab.id ? 'tab-active' : 'tab-inactive'"
+                        class="px-5 py-3 font-bold text-sm whitespace-nowrap transition" @click="setTab(tab.id)"
+                        x-text="tab.label"></button>
+                </template>
+            </div>
+
+            <!-- Panel container -->
+            <div class="flex-1 min-h-0 overflow-hidden">
+
+                <!-- Loading -->
+                <div class="h-full flex items-center justify-center" x-show="$store.pokemon.loading">
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4">
+                        </div>
+                        <p class="text-slate-400 font-semibold text-sm">Loading Pokédex data…</p>
+                    </div>
+                </div>
+
+                <!-- Overview -->
+                <div class="h-full overflow-y-auto p-5" x-show="!$store.pokemon.loading && activeTab === 'overview'">
+                    <div id="overviewGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+                </div>
+
+                <!-- Defense -->
+                <div class="h-full overflow-y-auto p-5" x-show="!$store.pokemon.loading && activeTab === 'defense'">
+                    <div id="defenseContent"></div>
+                </div>
+
+                <!-- Moves -->
+                <div class="h-full overflow-y-auto p-5" x-show="!$store.pokemon.loading && activeTab === 'moves'">
+
+                    <!-- Move controls bar -->
+                    <div
+                        class="flex flex-wrap items-center gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200 top-0 z-10">
+                        <template x-for="f in moveFilters" :key="f.id">
+                            <button :class="moveFilter === f.id ? 'fchip-active' : ''" class="fchip"
+                                @click="setFilter(f.id)" x-text="f.label"></button>
+                        </template>
+                        <input type="text" placeholder="🔍 Filter by name…"
+                            class="ml-auto px-3 py-1.5 text-xs border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 font-semibold bg-white"
+                            x-model="moveSearch" @input="onMoveSearch()">
+                    </div>
+
+                    <!-- Coverage bar -->
+                    <div
+                        class="bg-linear-to-br from-slate-50 to-emerald-50 border border-slate-200 rounded-xl p-4 mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-black text-sm text-slate-700">🗺️ Offensive Coverage</span>
+                            <span class="font-black text-sm text-emerald-600"
+                                x-text="`${$store.pokemon.coverageCount} / 18 types · ${$store.pokemon.coveragePct}%`"></span>
+                        </div>
+                        <div class="stat-bar-track mb-3">
+                            <div class="cov-fill" :style="`width:${$store.pokemon.coveragePct}%`"></div>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5" id="coverageTypes"></div>
+                    </div>
+
+                    <div id="movesGrid"></div>
+                </div>
+
+                <!-- Trainer Tips -->
+                <div class="h-full overflow-y-auto p-5" x-show="!$store.pokemon.loading && activeTab === 'trainer'">
+                    <div id="trainerContent"></div>
+                </div>
+
+            </div><!-- end panel container -->
+        </div><!-- end modal box -->
+    </div><!-- end modal overlay -->
+
+    <!-- Inline helper for banner gradient (Alpine can't call imported TS functions in templates) -->
+    <script>
+        function darkenColor(hex, amt) {
+            if (!hex) return '#7c3aed'
+            const n = parseInt(hex.replace('#', ''), 16)
+            const r = Math.max(0, Math.min(255, (n >> 16) + amt))
+            const g = Math.max(0, Math.min(255, (n >> 8 & 255) + amt))
+            const b = Math.max(0, Math.min(255, (n & 255) + amt))
+            return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)
+        }
+    </script>
+
+</body>
+
+</html>
