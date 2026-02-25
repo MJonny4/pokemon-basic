@@ -3,7 +3,6 @@ import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-    base: '/pokemon-basic/',
     plugins: [tailwindcss()],
     build: {
         rollupOptions: {
