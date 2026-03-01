@@ -219,7 +219,6 @@ function renderFull(): void {
     if (!el || !_current) return
 
     const hasTypeFilter = _types.length > 1
-    const candidates = getCandidates()
     const typeLabel = _types.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join('/')
 
     const sortBtns = SORT_OPTIONS.map(
