@@ -85,7 +85,7 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
 
       <!-- Items -->
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 class="font-black text-slate-800 text-sm mb-1">🎒 Best Held Items</h3>
+        <h3 class="font-black text-slate-800 text-sm mb-1">🎒 Best Held Items (Basic Logic)</h3>
         <p class="text-xs text-slate-400 mb-4">Recommended for the <strong>${role.label}</strong> role</p>
         <div class="space-y-3">${itemCards}</div>
       </div>

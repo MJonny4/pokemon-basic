@@ -9,6 +9,7 @@ export function registerModal(): void {
             { id: 'defense', label: '🛡️ Defense' },
             { id: 'moves', label: '⚔️ Moves' },
             { id: 'trainer', label: '🎯 Trainer Tips' },
+            { id: 'compare', label: '🔄 Compare' },
         ],
         moveFilter: 'all',
         moveSearch: '',

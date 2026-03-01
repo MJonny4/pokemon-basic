@@ -15,6 +15,7 @@ export interface PokemonStore {
     bannerColor: string
     spriteUrl: string
     speedTierLabel: string
+    generation: string
     chartHighlighted: boolean
 }
 
@@ -34,6 +35,7 @@ export function registerStore(): void {
         bannerColor: '#7c3aed',
         spriteUrl: '',
         speedTierLabel: '',
+        generation: '',
         chartHighlighted: false,
     })
 }
