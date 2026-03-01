@@ -10,6 +10,7 @@ export default defineConfig({
             input: {
                 main: resolve(__dirname, 'index.html'),
                 battle: resolve(__dirname, 'battle.html'),
+                speeds: resolve(__dirname, 'speeds.html'),
             },
         },
     },

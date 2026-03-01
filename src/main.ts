@@ -10,6 +10,7 @@ import { buildOverview, appendEvoChain, flatEvo } from './components/tabs/Overvi
 import { buildDefense } from './components/tabs/DefenseTab'
 import { renderMoves } from './components/tabs/MovesTab'
 import { buildTrainer } from './components/tabs/TrainerTab'
+import { buildCompare } from './components/tabs/CompareTab'
 import { TYPE_COLORS } from './data/constants'
 import { typeBadge } from './ui/components'
 
@@ -48,6 +49,9 @@ window.addEventListener('pokemon-search', async (e: Event) => {
         const spd = statMap['speed'] ?? 0
         store.speedTierLabel = spd >= 110 ? '⚡ Fast Tier' : spd >= 70 ? '🏃 Mid Tier' : '🐢 Slow Tier'
 
+        const genRaw = species?.generation?.name ?? ''
+        store.generation = genRaw ? 'Gen ' + genRaw.split('-')[1].toUpperCase() : ''
+
         const [moves, abilities] = await Promise.all([fetchMoves(pokemon.moves), fetchAbilities(pokemon.abilities)])
 
         store.pokemon = pokemon
@@ -65,6 +69,7 @@ window.addEventListener('pokemon-search', async (e: Event) => {
         buildDefense(pokemon)
         renderMoves(moves, types, 'all', '')
         buildTrainer(pokemon, role, species)
+        buildCompare(pokemon)
 
         // Add to search history
         window.dispatchEvent(new CustomEvent('history-add', { detail: { name: pokemon.name, id: pokemon.id } }))
@@ -129,6 +134,20 @@ window.rerenderMoves = (filter: string, search: string) => {
         )
     }
 }
+
+// Auto-search: URL param (?search=charizard) takes priority, then sessionStorage fallback
+window.addEventListener('load', () => {
+    const urlName = new URLSearchParams(window.location.search).get('search')
+    if (urlName) {
+        window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: urlName } }))
+        return
+    }
+    const autoSearch = sessionStorage.getItem('autoSearch')
+    if (autoSearch) {
+        sessionStorage.removeItem('autoSearch')
+        window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: autoSearch } }))
+    }
+})
 
 // Boot Alpine and chart
 window.Alpine = Alpine

@@ -51,6 +51,7 @@ export interface Species {
     genera: Array<{ genus: string; language: { name: string } }>
     evolution_chain: { url: string }
     is_baby: boolean
+    generation: { name: string }
 }
 
 export interface MoveDetail {
@@ -235,6 +236,25 @@ export async function fetchMoves(moveEntries: MoveEntry[], limit = 80): Promise<
         })
     }
     return results
+}
+
+const typeListCache = new Map<string, Array<{ name: string; id: number }>>()
+
+export async function fetchPokemonsByType(type: string): Promise<Array<{ name: string; id: number }>> {
+    const key = type.toLowerCase()
+    if (typeListCache.has(key)) return typeListCache.get(key)!
+    const r = await fetch(`${BASE}/type/${key}`)
+    if (!r.ok) return []
+    const d = await r.json()
+    const result = (d.pokemon as Array<{ pokemon: { name: string; url: string } }>)
+        .map((p) => ({
+            name: p.pokemon.name,
+            id: parseInt(p.pokemon.url.split('/').filter(Boolean).pop() ?? '9999'),
+        }))
+        .filter((p) => !isNaN(p.id) && p.id <= 1025)
+        .sort((a, b) => a.id - b.id)
+    typeListCache.set(key, result)
+    return result
 }
 
 export async function fetchAbilities(abilityEntries: AbilityEntry[]): Promise<AbilityDetail[]> {
