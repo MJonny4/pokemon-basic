@@ -1,8 +1,9 @@
 import Alpine from 'alpinejs'
 import './style.css'
+import { gsap } from 'gsap'
 import { registerStore } from './store/pokemon'
-import { registerSearchBar } from './components/SearchBar'
-import { registerModal } from './components/Modal'
+import { registerSearchBar } from './components/pokedex/SearchBar'
+import { registerModal } from './components/pokedex/Modal'
 import { buildTypeChart } from './ui/typeChart'
 import { fetchPokemon, fetchSpecies, fetchMoves, fetchAbilities, fetchEvolutionChain } from './api/pokeapi'
 import { detectRole } from './logic/roleDetect'
@@ -63,6 +64,22 @@ window.addEventListener('pokemon-search', async (e: Event) => {
         // Update banner type badges
         const bannerTypes = document.getElementById('bannerTypes')
         if (bannerTypes) bannerTypes.innerHTML = types.map((t) => typeBadge(t, 'md')).join('')
+
+        // Animate sprite bounce
+        requestAnimationFrame(() => {
+            const sprite = document.getElementById('modal-sprite')
+            if (sprite) {
+                gsap.fromTo(sprite,
+                    { scale: 0.4, opacity: 0, rotation: -8 },
+                    { scale: 1, opacity: 1, rotation: 0, duration: 0.45, ease: 'back.out(2.2)', clearProps: 'transform,opacity' },
+                )
+            }
+            // Stagger banner text + badges in
+            gsap.fromTo('#bannerTypes > span',
+                { opacity: 0, y: 6, scale: 0.85 },
+                { opacity: 1, y: 0, scale: 1, duration: 0.25, ease: 'back.out(1.4)', stagger: 0.07, clearProps: 'transform,opacity' },
+            )
+        })
 
         // Render all panels
         buildOverview(pokemon, species, abilities)
