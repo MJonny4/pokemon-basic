@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeBasic — Team Lab</title>
+
+    <!-- SEO -->
+    <meta name="description" content="PokeBasic Team Lab — build and analyze your competitive Pokémon team. Type coverage, synergy scores, speed tiers, and more.">
+    <meta name="keywords" content="pokemon team builder, pokemon team analysis, pokemon type coverage, competitive pokemon">
+    <meta name="author" content="PokeBasic">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PokeBasic — Team Lab">
+    <meta property="og:description" content="Build and analyze your competitive Pokémon team.">
+    <meta property="og:image" content="/icon.png">
+
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script type="module" src="/src/team.ts"></script>
+</head>
+
+<body class="bg-slate-50 min-h-screen">
+
+    <!-- ══════════ HEADER ══════════ -->
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+        <div class="max-w-screen-xl mx-auto px-5 py-3 flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2.5 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-md">
+                    <span class="text-white font-black text-lg">P</span>
+                </div>
+                <div class="leading-tight">
+                    <div class="font-black text-slate-800 text-base">PokeBasic</div>
+                    <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">Team Lab</div>
+                </div>
+            </div>
+            <div class="flex-1"></div>
+            <a href="./index.html"
+                class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-violet-100 hover:text-violet-700 font-bold text-sm transition shrink-0">← Pokédex</a>
+            <a href="./stats.html"
+                class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-sm transition shrink-0">📊 Stats</a>
+        </div>
+    </header>
+
+    <!-- ══════════ MAIN ══════════ -->
+    <main class="max-w-7xl mx-auto px-4 py-8" x-data="teamLab">
+
+        <!-- Page title -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-black text-slate-800 mb-1">🧪 Team Lab</h1>
+            <p class="text-sm text-slate-400 font-medium">Click an empty slot to search. Click a filled slot to edit moves, nature, item &amp; EVs.</p>
+        </div>
+
+        <!-- ══════════ TEAM SLOTS ══════════ -->
+        <div class="mb-6">
+            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Your Team</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <template x-for="(slot, i) in $store.team.slots" :key="i">
+                    <div class="relative">
+
+                        <!-- ── Filled slot ── -->
+                        <div x-show="slot !== null" :id="`slot-card-${i}`"
+                            @click="openSetEditor(i)"
+                            draggable="true"
+                            @dragstart="startDrag(i)"
+                            @dragend="dragSource = null"
+                            @dragover.prevent
+                            @drop.prevent="onDrop(i)"
+                            :class="$store.team.activeSlot === i
+                                ? 'border-violet-500 ring-2 ring-violet-200 shadow-md'
+                                : dragSource === i
+                                    ? 'border-violet-300 opacity-50'
+                                    : 'border-slate-200 hover:border-violet-300 hover:shadow-sm'"
+                            class="bg-white rounded-2xl border-2 p-3 flex flex-col items-center gap-1.5 transition group relative min-h-37 justify-center cursor-grab active:cursor-grabbing">
+                            <button @click.stop="removeSlot(i)"
+                                class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-red-100 text-slate-400 hover:text-red-500 text-xs font-bold transition opacity-0 group-hover:opacity-100 z-10">✕</button>
+                            <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${slot?.pokemonId}.png`"
+                                :alt="slot?.pokemonName"
+                                class="w-14 h-14 object-contain"
+                                style="image-rendering:pixelated">
+                            <span class="text-xs font-black text-slate-700 capitalize text-center leading-tight"
+                                x-text="slot?.pokemonName?.replace(/-/g, ' ')"></span>
+                            <span class="text-[9px] text-slate-400 font-semibold capitalize text-center"
+                                x-text="slot?.role?.replace(/_/g, ' ')"></span>
+                            <div class="flex gap-1 flex-wrap justify-center" x-show="slot?.nature || slot?.item">
+                                <span x-show="slot?.nature"
+                                    class="text-[9px] font-bold px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded-full capitalize"
+                                    x-text="slot?.nature"></span>
+                                <span x-show="slot?.item"
+                                    class="text-[9px] font-bold px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full truncate max-w-17"
+                                    x-text="slot?.item"></span>
+                            </div>
+                            <!-- Move count badge -->
+                            <div x-show="slot?.moves?.filter(Boolean).length > 0"
+                                class="text-[9px] font-bold text-slate-300 group-hover:text-violet-400 transition">
+                                <span x-text="slot?.moves?.filter(Boolean).length"></span>/4 moves
+                            </div>
+                            <div class="absolute bottom-1.5 right-2 text-[10px] text-slate-200 group-hover:text-violet-400 transition">✏️</div>
+                        </div>
+
+                        <!-- ── Empty slot ── -->
+                        <div x-show="slot === null" :id="`slot-card-${i}`"
+                            @dragover.prevent
+                            @drop.prevent="onDrop(i)"
+                            :class="searchSlot === i ? 'border-violet-400 bg-violet-50/40' : 'border-slate-200 hover:border-violet-300'"
+                            class="bg-white rounded-2xl border-2 border-dashed p-3 flex flex-col items-center justify-center gap-2 transition min-h-37">
+                            <div x-show="searchSlot !== i && addingSlot !== i"
+                                @click="openSearch(i)"
+                                class="flex flex-col items-center gap-2 cursor-pointer w-full justify-center">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 text-xl hover:bg-violet-100 hover:text-violet-400 transition">+</div>
+                                <span class="text-xs text-slate-300 font-semibold">Slot <span x-text="i + 1"></span></span>
+                            </div>
+                            <div x-show="addingSlot === i" class="flex flex-col items-center gap-2">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-violet-500"></div>
+                                <span class="text-xs text-slate-400 font-semibold">Adding…</span>
+                            </div>
+                            <div x-show="searchSlot === i" class="w-full px-1" @click.stop>
+                                <input :id="`slot-input-${i}`"
+                                    x-model="query"
+                                    @input="handleInput()"
+                                    @keydown.escape="closeSearch()"
+                                    @keydown.enter.prevent="results.length > 0 && selectResult(results[0].name, i)"
+                                    placeholder="Search…"
+                                    class="w-full text-xs px-2 py-1.5 border-2 border-violet-400 rounded-lg focus:outline-none font-semibold bg-white text-slate-700 placeholder:font-normal placeholder:text-slate-400">
+                                <button @click="closeSearch()"
+                                    class="mt-1 text-[10px] text-slate-400 hover:text-red-400 transition font-semibold">✕ Cancel</button>
+                            </div>
+                        </div>
+
+                        <!-- ── Search dropdown ── -->
+                        <div x-show="searchSlot === i && results.length > 0"
+                            class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-30"
+                            style="display:none">
+                            <template x-for="r in results" :key="r.name">
+                                <div @click="selectResult(r.name, i)"
+                                    class="flex items-center gap-2 px-2.5 py-2 hover:bg-violet-50 cursor-pointer transition border-b border-slate-50 last:border-0">
+                                    <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${r.id}.png`"
+                                        class="w-7 h-7 object-contain shrink-0" style="image-rendering:pixelated">
+                                    <span class="text-xs font-semibold text-slate-700 capitalize flex-1"
+                                        x-text="r.name.replace(/-/g, ' ')"></span>
+                                    <span class="text-[10px] text-slate-400 shrink-0"
+                                        x-text="'#' + String(r.id).padStart(3, '0')"></span>
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Copy Team button -->
+        <div class="flex justify-end px-1 pb-3" x-show="$store.team.slots.some(s => s && s.pokemonName)" style="display:none">
+            <button @click="copyTeam()"
+                :class="teamCopied ? 'bg-green-600 border-green-600 text-white' : 'bg-slate-800 border-slate-800 hover:bg-slate-700 text-white'"
+                class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl border-2 text-xs font-bold transition active:scale-95">
+                <span x-text="teamCopied ? '✅ Copied!' : '📋 Copy Team'"></span>
+            </button>
+        </div>
+
+        <!-- ══════════ SET EDITOR PANEL ══════════ -->
+        <div x-data="setEditor" x-show="$store.team.activeSlot !== null" id="set-editor-panel"
+            class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6"
+            style="display:none">
+
+            <!-- ── Panel header ── -->
+            <div class="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50/60 rounded-t-2xl overflow-hidden">
+                <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${slot?.pokemonId}.png`"
+                    class="w-10 h-10 object-contain shrink-0" style="image-rendering:pixelated">
+                <div class="flex-1 min-w-0">
+                    <p class="font-black text-sm text-slate-800 capitalize"
+                        x-text="slot?.pokemonName?.replace(/-/g, ' ')"></p>
+                    <p class="text-[10px] text-slate-400 font-semibold capitalize"
+                        x-text="slot?.role?.replace(/_/g, ' ')"></p>
+                </div>
+                <!-- Level -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-xs text-slate-400 font-bold">Lv.</span>
+                    <input type="number" min="1" max="100"
+                        :value="slot?.level ?? 50"
+                        @change="setLevel(Number($event.target.value))"
+                        class="w-14 text-center text-sm font-black border-2 border-slate-200 rounded-lg py-1 focus:outline-none focus:border-violet-400 bg-white">
+                </div>
+                <!-- Showdown export -->
+                <button @click="copyShowdown()"
+                    :class="copied ? 'bg-green-500 text-white border-green-500' : 'bg-white text-slate-500 border-slate-200 hover:border-violet-400 hover:text-violet-600'"
+                    class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition">
+                    <span x-text="copied ? '✓ Copied!' : '📋 Showdown'"></span>
+                </button>
+                <!-- Close -->
+                <button @click="closeEditor()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 font-bold transition shrink-0">✕</button>
+            </div>
+
+            <!-- ── Nature + EVs / IVs ── -->
+            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- LEFT: Nature + Item -->
+                <div class="space-y-5">
+
+                    <!-- NATURE -->
+                    <div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Nature</p>
+                        <div class="flex flex-wrap gap-1.5 mb-2">
+                            <template x-for="n in recommendedNatureNames" :key="n">
+                                <button @click="setNature(n)"
+                                    :class="slot?.nature === n
+                                        ? 'bg-violet-600 text-white border-violet-600 shadow-sm shadow-violet-200'
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-violet-400 hover:text-violet-700'"
+                                    class="px-2.5 py-1 rounded-full text-xs font-bold border transition-all">
+                                    <span x-text="n"></span>
+                                    <span x-show="naturePlus(n)"
+                                        class="text-[10px] opacity-60 ml-0.5"
+                                        x-text="naturePlus(n) ? ' +' + (STAT_LABELS[naturePlus(n)] ?? naturePlus(n)) + ' −' + (STAT_LABELS[natureMinus(n) ?? ''] ?? natureMinus(n)) : ''"></span>
+                                </button>
+                            </template>
+                        </div>
+                        <details class="group">
+                            <summary class="text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-violet-500 transition select-none list-none flex items-center gap-1">
+                                <span>All natures</span>
+                                <span class="group-open:rotate-180 transition-transform duration-200">▾</span>
+                            </summary>
+                            <div class="flex flex-wrap gap-1 mt-2">
+                                <template x-for="n in allNatures" :key="n">
+                                    <button @click="setNature(n)"
+                                        :class="slot?.nature === n
+                                            ? 'bg-violet-600 text-white border-violet-600'
+                                            : isRecommendedNature(n)
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:border-emerald-400'
+                                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-violet-300 hover:text-violet-600'"
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-bold border transition"
+                                        x-text="n"></button>
+                                </template>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- ITEM -->
+                    <div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Held Item</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <template x-for="item in allItemsWithFlag" :key="item.name">
+                                <button @click="setItem(item.name)"
+                                    :style="`background:${slot?.item === item.name ? item.border + '30' : item.color};border-color:${slot?.item === item.name ? item.border : item.border + '88'}`"
+                                    class="flex items-start gap-2 p-2 rounded-xl border-2 text-left transition hover:scale-[1.02] active:scale-95 relative">
+                                    <span x-show="item.recommended"
+                                        class="absolute top-1 right-1 text-[9px] leading-none" title="Recommended">⭐</span>
+                                    <img :src="item.emoji" class="w-6 h-6 object-contain shrink-0 mt-0.5">
+                                    <div class="min-w-0">
+                                        <p class="text-[10px] font-black leading-tight"
+                                            :class="item.textLight ? 'text-white' : 'text-slate-700'"
+                                            x-text="item.name"></p>
+                                        <p class="text-[9px] font-medium leading-tight mt-0.5 line-clamp-2"
+                                            :class="item.textLight ? 'text-white/70' : 'text-slate-400'"
+                                            x-text="item.desc"></p>
+                                    </div>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: EVs + final stat values + IVs (collapsible) -->
+                <div>
+                    <!-- EVs header -->
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">EVs</p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-black"
+                                :class="totalEvs >= 508 ? 'text-red-500' : totalEvs >= 400 ? 'text-amber-500' : 'text-slate-600'">
+                                <span x-text="totalEvs"></span><span class="text-slate-300 font-semibold"> / 508</span>
+                            </span>
+                            <button @click="resetEvs()"
+                                class="text-[10px] font-black text-slate-300 hover:text-red-400 uppercase tracking-widest transition">↺ Reset</button>
+                        </div>
+                    </div>
+                    <!-- Total EV bar -->
+                    <div class="h-1.5 bg-slate-100 rounded-full mb-4 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300"
+                            :class="totalEvs >= 508 ? 'bg-red-400' : 'bg-violet-500'"
+                            :style="`width:${Math.min(100, Math.round(totalEvs / 508 * 100))}%`"></div>
+                    </div>
+
+                    <!-- Per-stat EV sliders -->
+                    <!-- Layout: [label] [base] [────slider────] [EV] [→ final] -->
+                    <div class="space-y-3">
+                        <template x-for="key in statKeys" :key="key">
+                            <div class="flex items-center gap-2">
+                                <!-- Stat label (colored) -->
+                                <span class="text-[10px] font-black w-7 shrink-0 text-right"
+                                    :style="`color:${STAT_COLORS[key]}`"
+                                    x-text="STAT_LABELS[key]"></span>
+                                <!-- Base stat -->
+                                <span class="text-[10px] text-slate-300 font-semibold w-7 shrink-0 text-right"
+                                    x-text="slot?.stats[key] ?? 0"></span>
+                                <!-- Slider -->
+                                <input type="range" min="0" max="252" step="4"
+                                    :value="slot?.evs[key] ?? 0"
+                                    @input="setEv(key, Number($event.target.value))"
+                                    :style="`accent-color:${STAT_COLORS[key]}`"
+                                    class="flex-1 h-1.5 cursor-pointer">
+                                <!-- EV value -->
+                                <input type="number" min="0" max="252" step="4"
+                                    :value="slot?.evs[key] ?? 0"
+                                    @change="setEv(key, Number($event.target.value))"
+                                    @blur="$event.target.value = slot?.evs[key] ?? 0"
+                                    :class="(slot?.evs[key] ?? 0) >= 252 ? 'text-violet-600 border-red-300' : (slot?.evs[key] ?? 0) > 0 ? 'text-slate-600 border-transparent' : 'text-slate-200 border-transparent'"
+                                    class="text-[10px] font-bold w-9 shrink-0 text-right bg-transparent border rounded px-0.5 focus:outline-none focus:border-violet-400 focus:bg-white focus:text-slate-700 appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden [-moz-appearance:textfield]">
+                                <!-- Final calculated stat (→ value, colored) -->
+                                <div class="flex items-center gap-0.5 w-12 shrink-0 justify-end">
+                                    <!-- nature arrow indicator -->
+                                    <span x-show="natureEffect(key) !== 0"
+                                        class="text-[9px] font-black"
+                                        :class="natureEffect(key) === 1 ? 'text-rose-400' : 'text-blue-400'"
+                                        x-text="natureEffect(key) === 1 ? '▲' : '▼'"></span>
+                                    <span class="text-xs font-black"
+                                        :style="`color:${STAT_COLORS[key]}`"
+                                        x-text="statValue(key)"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- IVs (collapsible) -->
+                    <details class="group mt-4">
+                        <summary class="flex items-center justify-between cursor-pointer select-none list-none">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-violet-500 transition flex items-center gap-1">
+                                IVs
+                                <span class="group-open:rotate-180 transition-transform duration-200">▾</span>
+                            </span>
+                            <button @click.prevent="resetIvs()"
+                                class="text-[10px] font-black text-slate-300 hover:text-red-400 uppercase tracking-widest transition">↺ Reset 31</button>
+                        </summary>
+                        <div class="space-y-2.5 mt-3">
+                            <template x-for="key in statKeys" :key="key">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black w-7 shrink-0 text-right"
+                                        :style="`color:${STAT_COLORS[key]}`"
+                                        x-text="STAT_LABELS[key]"></span>
+                                    <input type="range" min="0" max="31" step="1"
+                                        :value="slot?.ivs?.[key] ?? 31"
+                                        @input="setIv(key, Number($event.target.value))"
+                                        :style="`accent-color:${STAT_COLORS[key]}`"
+                                        class="flex-1 h-1.5 cursor-pointer">
+                                    <input type="number" min="0" max="31" step="1"
+                                        :value="slot?.ivs?.[key] ?? 31"
+                                        @change="setIv(key, Number($event.target.value))"
+                                        @blur="$event.target.value = slot?.ivs?.[key] ?? 31"
+                                        :class="(slot?.ivs?.[key] ?? 31) < 31 ? 'text-amber-500 border-amber-300' : 'text-slate-300 border-transparent'"
+                                        class="text-xs font-bold w-8 shrink-0 text-right bg-transparent border rounded px-0.5 focus:outline-none focus:border-violet-400 focus:bg-white focus:text-slate-700 appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden [-moz-appearance:textfield]">
+                                    <!-- IV affects final stat, show updated value -->
+                                    <span class="text-[10px] font-bold w-8 shrink-0 text-right text-slate-300"
+                                        x-text="statValue(key)"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </details>
+                </div>
+
+            </div>
+
+            <!-- ══ MOVES SECTION ══ -->
+            <div class="px-5 pb-5 border-t border-slate-100 pt-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Moves</p>
+                    <div x-show="movesLoading" class="flex items-center gap-1">
+                        <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-violet-400"></div>
+                        <span class="text-[10px] text-slate-400">Loading learnset…</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <template x-for="mi in [0, 1, 2, 3]" :key="mi">
+                        <div class="relative" @keydown.escape="openMoveSlot === mi && (openMoveSlot = null)" @click.outside="openMoveSlot === mi && (openMoveSlot = null)">
+
+                            <!-- Move button — shows selected move or empty state -->
+                            <button @click="toggleMoveSearch(mi)"
+                                :class="openMoveSlot === mi
+                                    ? 'border-violet-400 bg-violet-50'
+                                    : slot?.moves[mi]
+                                        ? 'border-slate-200 hover:border-violet-300 bg-white'
+                                        : 'border-dashed border-slate-200 hover:border-violet-300 bg-slate-50/50'"
+                                class="w-full flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-left transition min-h-10">
+
+                                <!-- Filled move -->
+                                <template x-if="slot?.moves[mi]">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <span class="inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded text-white shrink-0 capitalize"
+                                            :style="`background:${moveColor(availableMoves.find(m => m.name === slot?.moves[mi])?.type?.name ?? 'normal')}`">
+                                            <img :src="typeIcon(availableMoves.find(m => m.name === slot?.moves[mi])?.type?.name ?? 'normal')" class="w-3 h-3 shrink-0" style="filter:brightness(0) invert(1)">
+                                            <span x-text="availableMoves.find(m => m.name === slot?.moves[mi])?.type?.name ?? '?'"></span>
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-700 capitalize truncate"
+                                            x-text="(slot?.moves[mi] ?? '').replace(/-/g, ' ')"></span>
+                                        <span x-show="isStab(slot?.moves[mi])"
+                                            class="text-[8px] font-black px-1 py-0.5 rounded bg-yellow-400 text-yellow-900 shrink-0 leading-none ml-auto">STAB</span>
+                                    </div>
+                                </template>
+
+                                <!-- Empty slot -->
+                                <template x-if="!slot?.moves[mi]">
+                                    <span class="text-xs text-slate-300 font-semibold">
+                                        — Move <span x-text="mi + 1"></span> —
+                                    </span>
+                                </template>
+                            </button>
+
+                            <!-- Move search dropdown -->
+                            <div x-show="openMoveSlot === mi"
+                                class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-40 overflow-hidden"
+                                style="display:none">
+                                <!-- Search input -->
+                                <div class="p-2 border-b border-slate-100">
+                                    <input :id="`move-input-${mi}`"
+                                        x-model="moveQuery"
+                                        placeholder="Search move…"
+                                        class="w-full text-xs px-2 py-1.5 border-2 border-violet-300 rounded-lg focus:outline-none font-semibold bg-white text-slate-700 placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <!-- Move list -->
+                                <div class="max-h-52 overflow-y-auto">
+                                    <template x-if="filteredMoves.length === 0 && !movesLoading">
+                                        <p class="text-xs text-slate-300 text-center py-4">No moves found</p>
+                                    </template>
+                                    <template x-for="m in filteredMoves" :key="m.name">
+                                        <div @click="selectMove(mi, m.name)"
+                                            class="flex items-center gap-2 px-3 py-2 hover:bg-violet-50 cursor-pointer transition border-b border-slate-50 last:border-0">
+                                            <!-- Type badge + icon -->
+                                            <span class="inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded text-white shrink-0 capitalize"
+                                                :style="`background:${moveColor(m.type?.name ?? 'normal')}`">
+                                                <img :src="typeIcon(m.type?.name ?? 'normal')" class="w-3 h-3 shrink-0" style="filter:brightness(0) invert(1)">
+                                                <span x-text="m.type?.name ?? '?'"></span>
+                                            </span>
+                                            <!-- Category icon -->
+                                            <span class="text-[11px] shrink-0" x-text="moveCategoryIcon(m.damage_class?.name ?? '')"></span>
+                                            <!-- Move name -->
+                                            <span class="text-xs font-semibold text-slate-700 capitalize flex-1 truncate"
+                                                x-text="m.name.replace(/-/g, ' ')"></span>
+                                            <!-- Power -->
+                                            <span class="text-[10px] text-slate-400 shrink-0 font-semibold"
+                                                x-text="m.power ? m.power : '—'"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                                <!-- Clear current move (only when a move is selected) -->
+                                <div x-show="slot?.moves[mi]"
+                                    @click="clearMove(mi); openMoveSlot = null"
+                                    class="flex items-center gap-2 px-3 py-2.5 hover:bg-red-50 cursor-pointer transition border-t border-slate-100 text-red-400 hover:text-red-500"
+                                    style="display:none">
+                                    <span class="text-[10px] font-black">✕</span>
+                                    <span class="text-xs font-semibold">Clear move</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════ ANALYSIS PANEL ══════════ -->
+        <div x-show="$store.team.slots.some(s => s !== null)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+            <!-- Synergy Score -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Synergy Score</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-4xl font-black"
+                        :class="($store.team.coverage?.synergyScore ?? 0) >= 70 ? 'text-green-500' : ($store.team.coverage?.synergyScore ?? 0) >= 40 ? 'text-amber-500' : 'text-red-500'"
+                        x-text="$store.team.coverage?.synergyScore ?? 0"></span>
+                    <span class="text-slate-400 text-sm font-semibold mb-1">/ 100</span>
+                </div>
+                <div class="h-2 bg-slate-100 rounded-full mt-2 mb-3">
+                    <div class="h-full rounded-full transition-all duration-500"
+                        :class="($store.team.coverage?.synergyScore ?? 0) >= 70 ? 'bg-green-400' : ($store.team.coverage?.synergyScore ?? 0) >= 40 ? 'bg-amber-400' : 'bg-red-400'"
+                        :style="`width:${$store.team.coverage?.synergyScore ?? 0}%`"></div>
+                </div>
+                <!-- Breakdown -->
+                <div class="space-y-1">
+                    <template x-for="line in ($store.team.coverage?.synergyBreakdown ?? [])" :key="line">
+                        <p class="text-[10px] font-semibold leading-snug"
+                            :class="line.startsWith('+') ? 'text-green-500' : line.startsWith('-') ? 'text-red-400' : 'text-slate-400'"
+                            x-text="line"></p>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Coverage Score -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Offensive Coverage</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-4xl font-black text-violet-600"
+                        x-text="($store.team.coverage?.coverageScore ?? 0) + '%'"></span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                    <span x-text="$store.team.coverage?.offensiveCoverage?.length ?? 0"></span> of 18 types covered via STAB
+                </p>
+            </div>
+
+            <!-- Common Weaknesses -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Common Weaknesses</p>
+                <template x-if="($store.team.coverage?.commonWeaknesses?.length ?? 0) === 0">
+                    <p class="text-sm text-green-500 font-bold">No shared weaknesses!</p>
+                </template>
+                <div class="flex flex-wrap gap-1.5" x-show="($store.team.coverage?.commonWeaknesses?.length ?? 0) > 0">
+                    <template x-for="type in ($store.team.coverage?.commonWeaknesses ?? [])" :key="type">
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full text-white capitalize border-2 border-red-500"
+                            :style="`background:${typeColor(type)}`">
+                            <img :src="typeIcon(type)" class="w-3 h-3 shrink-0" style="filter:brightness(0) invert(1)">
+                            <span x-text="type"></span>
+                        </span>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Immunities -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Team Immunities</p>
+                <template x-if="($store.team.coverage?.immunities?.length ?? 0) === 0">
+                    <p class="text-sm text-slate-300 font-bold italic">None</p>
+                </template>
+                <div class="flex flex-wrap gap-1.5" x-show="($store.team.coverage?.immunities?.length ?? 0) > 0">
+                    <template x-for="type in ($store.team.coverage?.immunities ?? [])" :key="type">
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full text-white capitalize border-2 border-emerald-400"
+                            :style="`background:${typeColor(type)}`">
+                            <img :src="typeIcon(type)" class="w-3 h-3 shrink-0" style="filter:brightness(0) invert(1)">
+                            <span x-text="type"></span>
+                        </span>
+                    </template>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════ SPEED TIERS ══════════ -->
+        <div x-show="$store.team.slots.some(s => s !== null)" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Base Speed Tiers</p>
+            <div class="grid grid-cols-3 gap-4">
+
+                <div>
+                    <p class="text-xs font-black text-violet-600 mb-2">⚡ Blazing (110+)</p>
+                    <template x-if="($store.team.coverage?.speedTiers?.blazing?.length ?? 0) === 0">
+                        <p class="text-xs text-slate-300 italic">None</p>
+                    </template>
+                    <div class="space-y-1">
+                        <template x-for="s in ($store.team.coverage?.speedTiers?.blazing ?? [])" :key="s.pokemonName">
+                            <p class="text-xs text-slate-600 font-semibold capitalize"
+                                x-text="s.pokemonName.replace(/-/g, ' ') + ' (' + s.stats.speed + ')'"></p>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-xs font-black text-blue-500 mb-2">🏃 Fast (80–109)</p>
+                    <template x-if="($store.team.coverage?.speedTiers?.fast?.length ?? 0) === 0">
+                        <p class="text-xs text-slate-300 italic">None</p>
+                    </template>
+                    <div class="space-y-1">
+                        <template x-for="s in ($store.team.coverage?.speedTiers?.fast ?? [])" :key="s.pokemonName">
+                            <p class="text-xs text-slate-600 font-semibold capitalize"
+                                x-text="s.pokemonName.replace(/-/g, ' ') + ' (' + s.stats.speed + ')'"></p>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-xs font-black text-red-400 mb-2">🐢 Slow (&lt;80)</p>
+                    <template x-if="($store.team.coverage?.speedTiers?.slow?.length ?? 0) === 0">
+                        <p class="text-xs text-slate-300 italic">None</p>
+                    </template>
+                    <div class="space-y-1">
+                        <template x-for="s in ($store.team.coverage?.speedTiers?.slow ?? [])" :key="s.pokemonName">
+                            <p class="text-xs text-slate-600 font-semibold capitalize"
+                                x-text="s.pokemonName.replace(/-/g, ' ') + ' (' + s.stats.speed + ')'"></p>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ EMPTY STATE ══════════ -->
+        <div x-show="$store.team.slots.every(s => s === null)"
+            class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center">
+            <div class="text-5xl mb-4">🧪</div>
+            <h2 class="text-lg font-black text-slate-700 mb-2">Your team is empty</h2>
+            <p class="text-sm text-slate-400 max-w-sm mx-auto mb-6">
+                Click any slot above to search, or open the Pokédex and use the "Add to Team Lab" button.
+            </p>
+            <a href="./index.html"
+                class="inline-block px-6 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 font-bold text-sm transition shadow-md">
+                Open Pokédex →
+            </a>
+        </div>
+
+        <!-- Toast notification -->
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+            x-show="toast.show"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-2"
+            style="display:none">
+            <div class="bg-slate-800 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-xl"
+                x-text="toast.message"></div>
+        </div>
+
+    </main>
+
+</body>
+
+</html>
