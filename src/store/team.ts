@@ -46,15 +46,30 @@ function makeSlot(pokemon: Pokemon): TeamSlot {
     }
 }
 
+interface TeamStore {
+    slots: (TeamSlot | null)[]
+    activeSlot: number | null
+    loading: boolean
+    coverage: TeamCoverage | null
+    addToSlot(slot: number, pokemon: Pokemon): void
+    removeFromSlot(slot: number): void
+    updateSlot(slot: number, updates: Partial<TeamSlot>): void
+    swapSlots(a: number, b: number): void
+    computeCoverage(): void
+    filledSlots(): TeamSlot[]
+    saveToLocal(): void
+    loadFromLocal(): void
+}
+
 export function registerTeamStore(): void {
-    Alpine.store('team', {
+    const store: TeamStore = {
         slots: Array(6).fill(null) as (TeamSlot | null)[],
-        activeSlot: null as number | null,
+        activeSlot: null,
         loading: false,
-        coverage: null as TeamCoverage | null,
+        coverage: null,
 
         addToSlot(slot: number, pokemon: Pokemon): void {
-            const newSlots = [...this.slots] as (TeamSlot | null)[]
+            const newSlots = [...this.slots]
             newSlots[slot] = makeSlot(pokemon)
             this.slots = newSlots
             this.computeCoverage()
@@ -62,7 +77,7 @@ export function registerTeamStore(): void {
         },
 
         removeFromSlot(slot: number): void {
-            const newSlots = [...this.slots] as (TeamSlot | null)[]
+            const newSlots = [...this.slots]
             newSlots[slot] = null
             this.slots = newSlots
             this.computeCoverage()
@@ -72,7 +87,7 @@ export function registerTeamStore(): void {
         updateSlot(slot: number, updates: Partial<TeamSlot>): void {
             const current = this.slots[slot]
             if (!current) return
-            const newSlots = [...this.slots] as (TeamSlot | null)[]
+            const newSlots = [...this.slots]
             newSlots[slot] = { ...current, ...updates }
             this.slots = newSlots
             this.computeCoverage()
@@ -80,7 +95,7 @@ export function registerTeamStore(): void {
         },
 
         swapSlots(a: number, b: number): void {
-            const newSlots = [...this.slots] as (TeamSlot | null)[]
+            const newSlots = [...this.slots]
             ;[newSlots[a], newSlots[b]] = [newSlots[b], newSlots[a]]
             this.slots = newSlots
             if (this.activeSlot === a) this.activeSlot = b
@@ -90,11 +105,11 @@ export function registerTeamStore(): void {
         },
 
         computeCoverage(): void {
-            this.coverage = analyzeTeam(this.slots as (TeamSlot | null)[])
+            this.coverage = analyzeTeam(this.slots)
         },
 
         filledSlots(): TeamSlot[] {
-            return (this.slots as (TeamSlot | null)[]).filter(Boolean) as TeamSlot[]
+            return this.slots.filter(Boolean) as TeamSlot[]
         },
 
         saveToLocal(): void {
@@ -114,5 +129,7 @@ export function registerTeamStore(): void {
                 }
             } catch {}
         },
-    })
+    }
+
+    Alpine.store('team', store)
 }
