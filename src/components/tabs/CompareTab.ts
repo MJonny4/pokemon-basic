@@ -95,12 +95,14 @@ function peerRow(p: Pokemon, rank: number, isCurrent: boolean, isSelected: boole
 
     const onclick = isCurrent ? '' : `onclick="window._compareSelect('${p.name}')"`
 
+    const searchClick = `event.stopPropagation();window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${p.name}'}}))`
+
     return `<div class="${rowClass}" ${onclick}>
     <span class="text-[10px] font-black text-slate-300 w-5 shrink-0 text-right">${rank}</span>
-    <img src="${sprite}" class="w-10 h-10 object-contain shrink-0" style="image-rendering:pixelated" alt="${p.name}">
+    <img src="${sprite}" class="w-10 h-10 object-contain shrink-0 cursor-pointer hover:scale-110 transition-transform" style="image-rendering:pixelated" alt="${p.name}" onclick="${searchClick}" title="Open in Pokédex">
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-1.5 flex-wrap mb-1">
-        <span class="font-black text-sm text-slate-800 capitalize">${p.name.replace(/-/g, ' ')}</span>
+        <span class="font-black text-sm text-slate-800 capitalize cursor-pointer hover:text-violet-600 transition-colors" onclick="${searchClick}">${p.name.replace(/-/g, ' ')}</span>
         ${badge}
         ${types.map((t) => typeBadge(t, 'sm')).join('')}
       </div>
@@ -192,9 +194,13 @@ function renderComparison(): void {
     <!-- Pokemon headers -->
     <div class="flex items-center mb-4">
       <div class="flex-1 flex items-center gap-2">
-        <img src="${curSprite}" class="w-12 h-12 object-contain" style="image-rendering:pixelated" alt="${_current.name}">
+        <img src="${curSprite}" class="w-12 h-12 object-contain cursor-pointer hover:scale-110 transition-transform" style="image-rendering:pixelated" alt="${_current.name}"
+             onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_current.name}'}}))" title="Open in Pokédex">
         <div>
-          <p class="font-black text-sm capitalize text-slate-800">${_current.name.replace(/-/g, ' ')}</p>
+          <p class="font-black text-sm capitalize text-slate-800 cursor-pointer hover:text-violet-600 transition-colors"
+             onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_current.name}'}}))">
+            ${_current.name.replace(/-/g, ' ')}
+          </p>
           <div class="flex gap-1 flex-wrap mt-0.5">${curTypes.map((t) => typeBadge(t, 'sm')).join('')}</div>
           <p class="text-[10px] text-violet-600 font-black mt-0.5">BST ${curBST}</p>
         </div>
@@ -202,11 +208,15 @@ function renderComparison(): void {
       <span class="text-xl font-black text-slate-200 mx-2">vs</span>
       <div class="flex-1 flex items-center justify-end gap-2">
         <div class="text-right">
-          <p class="font-black text-sm capitalize text-slate-800">${_compare.name.replace(/-/g, ' ')}</p>
+          <p class="font-black text-sm capitalize text-slate-800 cursor-pointer hover:text-violet-600 transition-colors"
+             onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_compare.name}'}}))">
+            ${_compare.name.replace(/-/g, ' ')}
+          </p>
           <div class="flex gap-1 flex-wrap justify-end mt-0.5">${cmpTypes.map((t) => typeBadge(t, 'sm')).join('')}</div>
           <p class="text-[10px] text-emerald-600 font-black mt-0.5">BST ${cmpBST}</p>
         </div>
-        <img src="${cmpSprite}" class="w-12 h-12 object-contain" style="image-rendering:pixelated" alt="${_compare.name}">
+        <img src="${cmpSprite}" class="w-12 h-12 object-contain cursor-pointer hover:scale-110 transition-transform" style="image-rendering:pixelated" alt="${_compare.name}"
+             onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_compare.name}'}}))" title="Open in Pokédex">
       </div>
     </div>
     <!-- Stat bars -->

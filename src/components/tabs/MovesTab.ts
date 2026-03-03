@@ -16,10 +16,14 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
     else if (filter === 'special') filtered = filtered.filter((m) => m.damage_class.name === 'special')
     else if (filter === 'status') filtered = filtered.filter((m) => m.damage_class.name === 'status')
     else if (filter === 'damaging') filtered = filtered.filter((m) => m.damage_class.name !== 'status' && m.power)
+    else if (filter === 'egg') filtered = filtered.filter((m) => m.learn_method === 'egg')
+    else if (filter === 'tutor') filtered = filtered.filter((m) => m.learn_method === 'tutor')
     if (ms) filtered = filtered.filter((m) => m.name.includes(ms))
 
+    const methodOrder: Record<string, number> = { 'level-up': 0, machine: 1, hm: 2, egg: 3, tutor: 4 }
     const byMethod = (a: MoveDetail, b: MoveDetail) => {
-        if (a.learn_method !== b.learn_method) return a.learn_method === 'level-up' ? -1 : 1
+        const diff = (methodOrder[a.learn_method] ?? 9) - (methodOrder[b.learn_method] ?? 9)
+        if (diff !== 0) return diff
         return a.level_learned_at - b.level_learned_at
     }
     const damage = filtered.filter((m) => m.damage_class.name !== 'status' && m.power).sort(byMethod)
@@ -62,6 +66,10 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
             ? '<span class="text-[10px] font-semibold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded">TM</span>'
             : m.learn_method === 'hm'
             ? '<span class="text-[10px] font-semibold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">HM</span>'
+            : m.learn_method === 'egg'
+            ? '<span class="text-[10px] font-semibold text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded">🥚 Egg</span>'
+            : m.learn_method === 'tutor'
+            ? '<span class="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">📚 Tutor</span>'
             : `<span class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Lv. ${m.level_learned_at}</span>`
           }
           ${isSTAB ? '<span class="stab-badge">STAB</span>' : ''}
