@@ -59,8 +59,6 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         .map(([type]) => type)
 
     // Offensive coverage — types the team can hit super-effectively via STAB (proxy)
-    // Note: includes STAB effectiveness >1×; neutral-STAB types (1× effectiveness with STAB)
-    // are intentionally excluded since row[defIdx] > 1 filters to strictly super-effective.
     const offensiveCoverage = new Set<string>()
     for (const slot of filled) {
         for (const attackerType of slot.types) {
@@ -82,50 +80,67 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         slow: filled.filter((s) => (s.stats.speed ?? 0) < 80),
     }
 
-    // Synergy score: start at 100, apply penalties and bonuses
+    // ── Synergy score ──────────────────────────────────────────────────────────
+    // Design targets (with typical bonuses):
+    //   8 common weaknesses  → ~50–60  (amber/red — genuinely problematic)
+    //   4–5 common weaknesses → ~65–80  (amber — room to improve)
+    //   2–3 common weaknesses → ~80–95  (green — solid team)
+    //   0–1 common weaknesses → ~95–100 (green — excellent)
+    //
+    // Key constraint: max bonuses (~19) must be << max realistic penalty (8×8=64)
+    // so bonuses reward good building without masking severe weakness clusters.
     let synergyScore = 100
     const breakdown: string[] = []
 
-    // -15 per common weakness (industry-standard weight; weaknesses are more critical than bonuses)
-    const weaknessPenalty = commonWeaknesses.length * 15
+    // PENALTY: -8 per common weakness, no cap.
+    // (Capping at -40 allowed max bonuses to nearly cancel it out, e.g. 98/100 with 8 weaknesses.)
+    const weaknessPenalty = commonWeaknesses.length * 8
     if (weaknessPenalty > 0) {
         synergyScore -= weaknessPenalty
         const sample = commonWeaknesses.slice(0, 3).join(', ')
-        const more = commonWeaknesses.length > 3 ? `… (+${commonWeaknesses.length - 3} more)` : ''
+        const more = commonWeaknesses.length > 3 ? ` (+${commonWeaknesses.length - 3} more)` : ''
         breakdown.push(`-${weaknessPenalty} Common weaknesses: ${sample}${more}`)
     }
 
-    // -5 per missing speed tier (all 3 covered = full speed diversity)
-    const missingTiers: string[] = []
-    if (speedTiers.blazing.length === 0) missingTiers.push('blazing')
-    if (speedTiers.fast.length === 0) missingTiers.push('fast')
-    if (speedTiers.slow.length === 0) missingTiers.push('slow')
-    const tierPenalty = missingTiers.length * 5
-    if (tierPenalty > 0) {
-        synergyScore -= tierPenalty
-        breakdown.push(`-${tierPenalty} Missing speed tier${missingTiers.length > 1 ? 's' : ''}: ${missingTiers.join(', ')}`)
-    }
+    // INFORMATIONAL: Speed tiers — no penalty.
+    // Having no slow Pokémon is fine in standard competitive play.
+    const speedSummary: string[] = []
+    if (speedTiers.blazing.length > 0) speedSummary.push(`${speedTiers.blazing.length} blazing`)
+    if (speedTiers.fast.length > 0) speedSummary.push(`${speedTiers.fast.length} fast`)
+    if (speedTiers.slow.length > 0) speedSummary.push(`${speedTiers.slow.length} slow`)
+    if (speedSummary.length > 0) breakdown.push(`Speed tiers: ${speedSummary.join(', ')}`)
 
-    // +5 per immune type on team (capped at +15)
-    const immunityBonus = Math.min(15, immunities.length * 5)
+    // BONUS: +4 per immune type (capped at +12).
+    // Kept small so immunities help but can't paper over many weaknesses.
+    const immunityBonus = Math.min(12, immunities.length * 4)
     if (immunityBonus > 0) {
         synergyScore += immunityBonus
-        const sample = immunities.slice(0, 3).join(', ')
+        const sample = immunities.slice(0, 4).join(', ')
         breakdown.push(`+${immunityBonus} Immunities: ${sample}`)
+    }
+
+    // BONUS: +3 if ≥13 types covered offensively via STAB, +2 if ≥10.
+    const covBonus = offensiveCoverage.size >= 13 ? 3 : offensiveCoverage.size >= 10 ? 2 : 0
+    if (covBonus > 0) {
+        synergyScore += covBonus
+        breakdown.push(`+${covBonus} Coverage: ${offensiveCoverage.size}/18 types (${coverageScore}%)`)
+    } else {
+        const uncovered = 18 - offensiveCoverage.size
+        breakdown.push(`Coverage: ${coverageScore}% — ${uncovered} type${uncovered > 1 ? 's' : ''} uncovered`)
+    }
+
+    // BONUS: +4 if team resists ≥12 distinct types, +2 if ≥8.
+    const resistTypeCount = Object.keys(teamResistances).length
+    const resistBonus = resistTypeCount >= 12 ? 4 : resistTypeCount >= 8 ? 2 : 0
+    if (resistBonus > 0) {
+        synergyScore += resistBonus
+        breakdown.push(`+${resistBonus} Defensive spread: resists ${resistTypeCount} types`)
     }
 
     synergyScore = Math.max(0, Math.min(100, synergyScore))
 
-    // Coverage line always shown
-    const uncovered = 18 - offensiveCoverage.size
-    if (uncovered === 0) {
-        breakdown.push(`Coverage: 100% — all 18 types covered ✓`)
-    } else {
-        breakdown.push(`Coverage: ${coverageScore}% — ${uncovered} type${uncovered > 1 ? 's' : ''} uncovered`)
-    }
-
-    if (breakdown.length === 1 && synergyScore === 100) {
-        breakdown.unshift('Perfect balance!')
+    if (synergyScore >= 95 && weaknessPenalty === 0) {
+        breakdown.unshift('Excellent balance!')
     }
 
     return {

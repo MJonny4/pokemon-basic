@@ -1,0 +1,1487 @@
+[
+  {
+    "name": "Ability Shield",
+    "slug": "ability-shield",
+    "desc": ""
+  },
+  {
+    "name": "Abomasite",
+    "slug": "abomasite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Abomasnow hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Absolite",
+    "slug": "absolite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Absol hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Absorb Bulb",
+    "slug": "absorb-bulb",
+    "desc": "An item to be held by a Pokémon. It boosts Sp. Atk if the holder is hit with a Water-type attack. It can only be used once."
+  },
+  {
+    "name": "Adamant Orb",
+    "slug": "adamant-orb",
+    "desc": "A brightly gleaming orb to be held by Dialga. It boosts the power of Dragon- and Steel-type moves when it is held."
+  },
+  {
+    "name": "Adrenaline Orb",
+    "slug": "adrenaline-orb",
+    "desc": "If held by a Pokémon, it boosts Speed when intimidated."
+  },
+  {
+    "name": "Aerodactylite",
+    "slug": "aerodactylite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Aerodactyl hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Aggronite",
+    "slug": "aggronite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Aggron hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Aguav Berry",
+    "slug": "aguav-berry",
+    "desc": "If held by a Pokémon, it restores the user’s HP in a pinch, but it will cause confusion if the user hates the taste."
+  },
+  {
+    "name": "Air Balloon",
+    "slug": "air-balloon",
+    "desc": "An item to be held by a Pokémon. The holder will float in the air until hit. Once the holder is hit, this item will burst."
+  },
+  {
+    "name": "Alakazite",
+    "slug": "alakazite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Alakazam hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Aloraichium Z",
+    "slug": "aloraichium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Alolan Raichu’s Thunderbolt to a Z-Move."
+  },
+  {
+    "name": "Altarianite",
+    "slug": "altarianite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Altaria hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Ampharosite",
+    "slug": "ampharosite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Ampharos hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Apicot Berry",
+    "slug": "apicot-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its Sp. Def stat will increase when it’s in a pinch."
+  },
+  {
+    "name": "Aspear Berry",
+    "slug": "aspear-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from being frozen on its own in battle."
+  },
+  {
+    "name": "Assault Vest",
+    "slug": "assault-vest",
+    "desc": "An item to be held by a Pokémon. This offensive vest raises Sp. Def but prevents the use of status moves."
+  },
+  {
+    "name": "Audinite",
+    "slug": "audinite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Audino hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Babiri Berry",
+    "slug": "babiri-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Steel-type attack."
+  },
+  {
+    "name": "Banettite",
+    "slug": "banettite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Banette hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Beedrillite",
+    "slug": "beedrillite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Beedrill hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Big Root",
+    "slug": "big-root",
+    "desc": "An item to be held by a Pokémon. It boosts the amount of HP the holder restores from HP-stealing moves."
+  },
+  {
+    "name": "Binding Band",
+    "slug": "binding-band",
+    "desc": "An item to be held by a Pokémon. It’s a band that increases the power of binding moves used by the holder."
+  },
+  {
+    "name": "Black Belt",
+    "slug": "black-belt",
+    "desc": "An item to be held by a Pokémon. This belt helps the wearer to focus and boosts the power of Fighting-type moves."
+  },
+  {
+    "name": "Black Glasses",
+    "slug": "black-glasses",
+    "desc": "An item to be held by a Pokémon. It’s a pair of shady-looking glasses that boost the power of Dark-type moves."
+  },
+  {
+    "name": "Black Sludge",
+    "slug": "black-sludge",
+    "desc": "An item to be held by a Pokémon. It gradually restores HP to Poison-type Pokémon. It damages any other type."
+  },
+  {
+    "name": "Blank Plate",
+    "slug": "blank-plate",
+    "desc": ""
+  },
+  {
+    "name": "Blastoisinite",
+    "slug": "blastoisinite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Blastoise hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Blazikenite",
+    "slug": "blazikenite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Blaziken hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Blunder Policy",
+    "slug": "blunder-policy",
+    "desc": "Raises Speed sharply when a Pokémon misses with a move because of accuracy."
+  },
+  {
+    "name": "Booster Energy",
+    "slug": "booster-energy",
+    "desc": ""
+  },
+  {
+    "name": "Bright Powder",
+    "slug": "bright-powder",
+    "desc": "An item to be held by a Pokémon. It casts a tricky glare that lowers the opposing Pokémon’s accuracy."
+  },
+  {
+    "name": "Bug Gem",
+    "slug": "bug-gem",
+    "desc": "A gem with an insect-like essence. When held, it strengthens the power of a Bug-type move one time."
+  },
+  {
+    "name": "Bug Memory",
+    "slug": "bug-memory",
+    "desc": "A memory disc that contains Bug-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Buginium Z",
+    "slug": "buginium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Bug-type moves to Z-Moves."
+  },
+  {
+    "name": "Burn Drive",
+    "slug": "burn-drive",
+    "desc": "A cassette to be held by Genesect. It changes Genesect’s Techno Blast move so it becomes Fire type."
+  },
+  {
+    "name": "Cameruptite",
+    "slug": "cameruptite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Camerupt hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Cell Battery",
+    "slug": "cell-battery",
+    "desc": "An item to be held by a Pokémon. It boosts Attack if the holder is hit with an Electric-type attack. It can only be used once."
+  },
+  {
+    "name": "Charcoal",
+    "slug": "charcoal",
+    "desc": "An item to be held by a Pokémon. It’s a combustible fuel that boosts the power of Fire-type moves."
+  },
+  {
+    "name": "Charizardite X",
+    "slug": "charizardite-x",
+    "desc": "One of a variety of mysterious Mega Stones. Have Charizard hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Charizardite Y",
+    "slug": "charizardite-y",
+    "desc": "One of a variety of mysterious Mega Stones. Have Charizard hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Charti Berry",
+    "slug": "charti-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Rock-type attack."
+  },
+  {
+    "name": "Cheri Berry",
+    "slug": "cheri-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from paralysis on its own in battle."
+  },
+  {
+    "name": "Chesto Berry",
+    "slug": "chesto-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from sleep on its own in battle."
+  },
+  {
+    "name": "Chilan Berry",
+    "slug": "chilan-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one Normal-type attack."
+  },
+  {
+    "name": "Chill Drive",
+    "slug": "chill-drive",
+    "desc": "A cassette to be held by Genesect. It changes Genesect’s Techno Blast move so it becomes Ice type."
+  },
+  {
+    "name": "Choice Band",
+    "slug": "choice-band",
+    "desc": "An item to be held by a Pokémon. This curious headband boosts Attack but only allows the use of one move."
+  },
+  {
+    "name": "Choice Scarf",
+    "slug": "choice-scarf",
+    "desc": "An item to be held by a Pokémon. This curious scarf boosts Speed but only allows the use of one move."
+  },
+  {
+    "name": "Choice Specs",
+    "slug": "choice-specs",
+    "desc": "An item to be held by a Pokémon. These curious glasses boost Sp. Atk but only allow the use of one move."
+  },
+  {
+    "name": "Chople Berry",
+    "slug": "chople-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Fighting-type attack."
+  },
+  {
+    "name": "Clear Amulet",
+    "slug": "clear-amulet",
+    "desc": ""
+  },
+  {
+    "name": "Coba Berry",
+    "slug": "coba-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Flying-type attack."
+  },
+  {
+    "name": "Colbur Berry",
+    "slug": "colbur-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Dark-type attack."
+  },
+  {
+    "name": "Cornerstone Mask",
+    "slug": "cornerstone-mask",
+    "desc": ""
+  },
+  {
+    "name": "Covert Cloak",
+    "slug": "covert-cloak",
+    "desc": ""
+  },
+  {
+    "name": "Custap Berry",
+    "slug": "custap-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it will be able to move first just once when it’s in a pinch."
+  },
+  {
+    "name": "Damp Rock",
+    "slug": "damp-rock",
+    "desc": "An item to be held by a Pokémon. It extends the duration of the move Rain Dance when used by the holder."
+  },
+  {
+    "name": "Dark Gem",
+    "slug": "dark-gem",
+    "desc": "A gem with an essence of darkness. When held, it strengthens the power of a Dark-type move one time."
+  },
+  {
+    "name": "Dark Memory",
+    "slug": "dark-memory",
+    "desc": "A memory disc that contains Dark-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Darkinium Z",
+    "slug": "darkinium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Dark-type moves to Z-Moves."
+  },
+  {
+    "name": "Decidium Z",
+    "slug": "decidium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Decidueye’s Spirit Shackle to a Z-Move."
+  },
+  {
+    "name": "Deep Sea Scale",
+    "slug": "deep-sea-scale",
+    "desc": "An item to be held by Clamperl. This scale shines with a faint pink and raises the holder’s Sp. Def stat."
+  },
+  {
+    "name": "Deep Sea Tooth",
+    "slug": "deep-sea-tooth",
+    "desc": "An item to be held by Clamperl. This fang gleams a sharp silver and raises the holder’s Sp. Atk stat."
+  },
+  {
+    "name": "Destiny Knot",
+    "slug": "destiny-knot",
+    "desc": "An item to be held by a Pokémon. If the holder becomes infatuated, the opposing Pokémon will be, too."
+  },
+  {
+    "name": "Diancite",
+    "slug": "diancite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Diancie hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Douse Drive",
+    "slug": "douse-drive",
+    "desc": "A cassette to be held by Genesect. It changes Genesect’s Techno Blast move so it becomes Water type."
+  },
+  {
+    "name": "Draco Plate",
+    "slug": "draco-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Dragon-type moves."
+  },
+  {
+    "name": "Dragon Fang",
+    "slug": "dragon-fang",
+    "desc": "An item to be held by a Pokémon. This hard and sharp fang boosts the power of Dragon-type moves."
+  },
+  {
+    "name": "Dragon Gem",
+    "slug": "dragon-gem",
+    "desc": "A gem with a draconic essence. When held, it strengthens the power of a Dragon-type move one time."
+  },
+  {
+    "name": "Dragon Memory",
+    "slug": "dragon-memory",
+    "desc": "A memory disc that contains Dragon-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Dragonium Z",
+    "slug": "dragonium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Dragon-type moves to Z-Moves."
+  },
+  {
+    "name": "Dread Plate",
+    "slug": "dread-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Dark-type moves."
+  },
+  {
+    "name": "Earth Plate",
+    "slug": "earth-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Ground-type moves."
+  },
+  {
+    "name": "Eevium Z",
+    "slug": "eevium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Eevee’s Last Resort to a Z-Move."
+  },
+  {
+    "name": "Eject Button",
+    "slug": "eject-button",
+    "desc": "An item to be held by a Pokémon. If the holder is hit by an attack, it will be switched out of battle."
+  },
+  {
+    "name": "Eject Pack",
+    "slug": "eject-pack",
+    "desc": "An item to be held by a Pokémon. When the holder’s stats are lowered, it will be switched out of battle."
+  },
+  {
+    "name": "Electric Gem",
+    "slug": "electric-gem",
+    "desc": "A gem with an essence of electricity. When held, it strengthens the power of an Electric-type move one time."
+  },
+  {
+    "name": "Electric Memory",
+    "slug": "electric-memory",
+    "desc": "A memory disc that contains Electric-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Electric Seed",
+    "slug": "electric-seed",
+    "desc": "An item to be held by a Pokémon. It boosts Defense on Electric Terrain. It can only be used once."
+  },
+  {
+    "name": "Electrium Z",
+    "slug": "electrium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Electric-type moves to Z-Moves."
+  },
+  {
+    "name": "Eviolite",
+    "slug": "eviolite",
+    "desc": "A mysterious evolutionary lump. When held by a Pokémon that can still evolve, it raises both Defense and Sp. Def."
+  },
+  {
+    "name": "Expert Belt",
+    "slug": "expert-belt",
+    "desc": "An item to be held by a Pokémon. It’s a well-worn belt that slightly boosts the power of supereffective moves."
+  },
+  {
+    "name": "Fairium Z",
+    "slug": "fairium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Fairy-type moves to Z-Moves."
+  },
+  {
+    "name": "Fairy Feather",
+    "slug": "fairy-feather",
+    "desc": ""
+  },
+  {
+    "name": "Fairy Gem",
+    "slug": "fairy-gem",
+    "desc": "A gem with an essence of the fey. When held, it strengthens the power of a Fairy-type move one time."
+  },
+  {
+    "name": "Fairy Memory",
+    "slug": "fairy-memory",
+    "desc": "A memory disc that contains Fairy-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Fighting Gem",
+    "slug": "fighting-gem",
+    "desc": "A gem with an essence of combat. When held, it strengthens the power of a Fighting-type move one time."
+  },
+  {
+    "name": "Fighting Memory",
+    "slug": "fighting-memory",
+    "desc": "A memory disc that contains Fighting-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Fightinium Z",
+    "slug": "fightinium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Fighting-type moves to Z-Moves."
+  },
+  {
+    "name": "Figy Berry",
+    "slug": "figy-berry",
+    "desc": "If held by a Pokémon, it restores the user’s HP in a pinch, but it will cause confusion if the user hates the taste."
+  },
+  {
+    "name": "Fire Gem",
+    "slug": "fire-gem",
+    "desc": "A gem with an essence of fire. When held, it strengthens the power of a Fire-type move one time."
+  },
+  {
+    "name": "Fire Memory",
+    "slug": "fire-memory",
+    "desc": "A memory disc that contains Fire-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Firium Z",
+    "slug": "firium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Fire-type moves to Z-Moves."
+  },
+  {
+    "name": "Fist Plate",
+    "slug": "fist-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Fighting-type moves."
+  },
+  {
+    "name": "Flame Orb",
+    "slug": "flame-orb",
+    "desc": "An item to be held by a Pokémon. It’s a bizarre orb that will afflict the holder with a burn during battle."
+  },
+  {
+    "name": "Flame Plate",
+    "slug": "flame-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Fire-type moves."
+  },
+  {
+    "name": "Float Stone",
+    "slug": "float-stone",
+    "desc": "An item to be held by a Pokémon. This very light stone reduces the weight of a Pokémon when held."
+  },
+  {
+    "name": "Flying Gem",
+    "slug": "flying-gem",
+    "desc": "A gem with an essence of air. When held, it strengthens the power of a Flying-type move one time."
+  },
+  {
+    "name": "Flying Memory",
+    "slug": "flying-memory",
+    "desc": "A memory disc that contains Flying-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Flyinium Z",
+    "slug": "flyinium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Flying-type moves to Z-Moves."
+  },
+  {
+    "name": "Focus Band",
+    "slug": "focus-band",
+    "desc": "An item to be held by a Pokémon. The holder may endure a potential KO attack, leaving it with just 1 HP."
+  },
+  {
+    "name": "Focus Sash",
+    "slug": "focus-sash",
+    "desc": "An item to be held by a Pokémon. If the holder has full HP, it will endure a potential KO attack with 1 HP. The item then disappears."
+  },
+  {
+    "name": "Full Incense",
+    "slug": "full-incense",
+    "desc": "An item to be held by a Pokémon. This exotic-smelling incense makes the holder bloated and slow moving."
+  },
+  {
+    "name": "Galladite",
+    "slug": "galladite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Gallade hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Ganlon Berry",
+    "slug": "ganlon-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its Defense stat will increase when it’s in a pinch."
+  },
+  {
+    "name": "Garchompite",
+    "slug": "garchompite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Garchomp hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Gardevoirite",
+    "slug": "gardevoirite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Gardevoir hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Gengarite",
+    "slug": "gengarite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Gengar hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Ghost Gem",
+    "slug": "ghost-gem",
+    "desc": "A gem with a spectral essence. When held, it strengthens the power of a Ghost-type move one time."
+  },
+  {
+    "name": "Ghost Memory",
+    "slug": "ghost-memory",
+    "desc": "A memory disc that contains Ghost-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Ghostium Z",
+    "slug": "ghostium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Ghost-type moves to Z-Moves."
+  },
+  {
+    "name": "Glalitite",
+    "slug": "glalitite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Glalie hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Grass Gem",
+    "slug": "grass-gem",
+    "desc": "A gem with an essence of nature. When held, it strengthens the power of a Grass-type move one time."
+  },
+  {
+    "name": "Grass Memory",
+    "slug": "grass-memory",
+    "desc": "A memory disc that contains Grass-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Grassium Z",
+    "slug": "grassium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Grass-type moves to Z-Moves."
+  },
+  {
+    "name": "Grassy Seed",
+    "slug": "grassy-seed",
+    "desc": "An item to be held by a Pokémon. It boosts Defense on Grassy Terrain. It can only be used once."
+  },
+  {
+    "name": "Grip Claw",
+    "slug": "grip-claw",
+    "desc": "An item to be held by a Pokémon. It extends the duration of multi-turn attacks, such as Bind and Wrap."
+  },
+  {
+    "name": "Griseous Orb",
+    "slug": "griseous-orb",
+    "desc": "A glowing orb to be held by Giratina. It boosts the power of Dragon- and Ghost-type moves when it is held."
+  },
+  {
+    "name": "Ground Gem",
+    "slug": "ground-gem",
+    "desc": "A gem with an essence of land. When held, it strengthens the power of a Ground-type move one time."
+  },
+  {
+    "name": "Ground Memory",
+    "slug": "ground-memory",
+    "desc": "A memory disc that contains Ground-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Groundium Z",
+    "slug": "groundium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Ground-type moves to Z-Moves."
+  },
+  {
+    "name": "Gyaradosite",
+    "slug": "gyaradosite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Gyarados hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Haban Berry",
+    "slug": "haban-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Dragon-type attack."
+  },
+  {
+    "name": "Hard Stone",
+    "slug": "hard-stone",
+    "desc": "An item to be held by a Pokémon. It’s a durable stone that boosts the power of Rock-type moves."
+  },
+  {
+    "name": "Hearthflame Mask",
+    "slug": "hearthflame-mask",
+    "desc": ""
+  },
+  {
+    "name": "Heat Rock",
+    "slug": "heat-rock",
+    "desc": "An item to be held by a Pokémon. It extends the duration of the move Sunny Day when used by the holder."
+  },
+  {
+    "name": "Heavy-Duty Boots",
+    "slug": "heavy-duty-boots",
+    "desc": "These boots prevent the effects of traps set on the battlefield."
+  },
+  {
+    "name": "Heracronite",
+    "slug": "heracronite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Heracross hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Houndoominite",
+    "slug": "houndoominite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Houndoom hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Iapapa Berry",
+    "slug": "iapapa-berry",
+    "desc": "If held by a Pokémon, it restores the user’s HP in a pinch, but it will cause confusion if the user hates the taste."
+  },
+  {
+    "name": "Ice Gem",
+    "slug": "ice-gem",
+    "desc": "A gem with an essence of ice. When held, it strengthens the power of an Ice-type move one time."
+  },
+  {
+    "name": "Ice Memory",
+    "slug": "ice-memory",
+    "desc": "A memory disc that contains Ice-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Icicle Plate",
+    "slug": "icicle-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Ice-type moves."
+  },
+  {
+    "name": "Icium Z",
+    "slug": "icium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Ice-type moves to Z-Moves."
+  },
+  {
+    "name": "Icy Rock",
+    "slug": "icy-rock",
+    "desc": "An item to be held by a Pokémon. It extends the duration of the move Hail when used by the holder."
+  },
+  {
+    "name": "Incinium Z",
+    "slug": "incinium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Incineroar’s Darkest Lariat to a Z-Move."
+  },
+  {
+    "name": "Insect Plate",
+    "slug": "insect-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Bug-type moves."
+  },
+  {
+    "name": "Iron Ball",
+    "slug": "iron-ball",
+    "desc": "An item to be held by a Pokémon. It lowers Speed and allows Ground-type moves to hit Flying types and holders that are levitating."
+  },
+  {
+    "name": "Iron Plate",
+    "slug": "iron-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Steel-type moves."
+  },
+  {
+    "name": "Kangaskhanite",
+    "slug": "kangaskhanite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Kangaskhan hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Kasib Berry",
+    "slug": "kasib-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Ghost-type attack."
+  },
+  {
+    "name": "Kebia Berry",
+    "slug": "kebia-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Poison-type attack."
+  },
+  {
+    "name": "King’s Rock",
+    "slug": "kings-rock",
+    "desc": "An item to be held by a Pokémon. When the holder successfully inflicts damage, the target may also flinch."
+  },
+  {
+    "name": "Lagging Tail",
+    "slug": "lagging-tail",
+    "desc": "An item to be held by a Pokémon. It is tremendously heavy and makes the holder move slower than usual."
+  },
+  {
+    "name": "Lansat Berry",
+    "slug": "lansat-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its critical-hit ratio will increase when it’s in a pinch."
+  },
+  {
+    "name": "Latiasite",
+    "slug": "latiasite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Latias hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Latiosite",
+    "slug": "latiosite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Latios hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Lax Incense",
+    "slug": "lax-incense",
+    "desc": "An item to be held by a Pokémon. The beguiling aroma of this incense may cause attacks to miss its holder."
+  },
+  {
+    "name": "Leek",
+    "slug": "stick",
+    "desc": "An item to be held by Farfetch’d. This very long and stiff stalk of leek boosts its critical-hit ratio."
+  },
+  {
+    "name": "Leftovers",
+    "slug": "leftovers",
+    "desc": "An item to be held by a Pokémon. The holder’s HP is slowly but steadily restored throughout every battle."
+  },
+  {
+    "name": "Legend Plate",
+    "slug": "legend-plate",
+    "desc": ""
+  },
+  {
+    "name": "Leppa Berry",
+    "slug": "leppa-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can restore 10 PP to a depleted move during battle."
+  },
+  {
+    "name": "Liechi Berry",
+    "slug": "liechi-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its Attack stat will increase when it’s in a pinch."
+  },
+  {
+    "name": "Life Orb",
+    "slug": "life-orb",
+    "desc": "An item to be held by a Pokémon. It boosts the power of moves but at the cost of some HP on each hit."
+  },
+  {
+    "name": "Light Ball",
+    "slug": "light-ball",
+    "desc": "An item to be held by Pikachu. It’s a puzzling orb that boosts its Attack and Sp. Atk stats."
+  },
+  {
+    "name": "Light Clay",
+    "slug": "light-clay",
+    "desc": "An item to be held by a Pokémon. Protective moves like Light Screen and Reflect will be effective longer."
+  },
+  {
+    "name": "Loaded Dice",
+    "slug": "loaded-dice",
+    "desc": ""
+  },
+  {
+    "name": "Lopunnite",
+    "slug": "lopunnite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Lopunny hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Lucarionite",
+    "slug": "lucarionite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Lucario hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Lucky Punch",
+    "slug": "lucky-punch",
+    "desc": "An item to be held by Chansey. This pair of lucky boxing gloves will boost Chansey’s critical-hit ratio."
+  },
+  {
+    "name": "Lum Berry",
+    "slug": "lum-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from any status condition during battle."
+  },
+  {
+    "name": "Luminous Moss",
+    "slug": "luminous-moss",
+    "desc": "An item to be held by a Pokémon. It boosts Sp. Def if the holder is hit with a Water-type attack. It can only be used once."
+  },
+  {
+    "name": "Lustrous Orb",
+    "slug": "lustrous-orb",
+    "desc": "A beautifully glowing orb to be held by Palkia. It boosts the power of Dragon- and Water-type moves when it is held."
+  },
+  {
+    "name": "Magnet",
+    "slug": "magnet",
+    "desc": "An item to be held by a Pokémon. It’s a powerful magnet that boosts the power of Electric-type moves."
+  },
+  {
+    "name": "Mago Berry",
+    "slug": "mago-berry",
+    "desc": "If held by a Pokémon, it restores the user’s HP in a pinch, but it will cause confusion if the user hates the taste."
+  },
+  {
+    "name": "Manectite",
+    "slug": "manectite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Manectric hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Marshadium Z",
+    "slug": "marshadium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Marshadow’s Spectral Thief to a Z-Move."
+  },
+  {
+    "name": "Mawilite",
+    "slug": "mawilite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Mawile hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Meadow Plate",
+    "slug": "meadow-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Grass-type moves."
+  },
+  {
+    "name": "Medichamite",
+    "slug": "medichamite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Medicham hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Mental Herb",
+    "slug": "mental-herb",
+    "desc": "An item to be held by a Pokémon. The holder shakes off move-binding effects to move freely. It can be used only once."
+  },
+  {
+    "name": "Metagrossite",
+    "slug": "metagrossite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Metagross hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Metal Coat",
+    "slug": "metal-coat",
+    "desc": "An item to be held by a Pokémon. It’s a special metallic film that can boost the power of Steel-type moves."
+  },
+  {
+    "name": "Metal Powder",
+    "slug": "metal-powder",
+    "desc": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Defense stat."
+  },
+  {
+    "name": "Metronome",
+    "slug": "metronome",
+    "desc": "An item to be held by a Pokémon. It boosts moves used consecutively but only until a different move is used."
+  },
+  {
+    "name": "Mewnium Z",
+    "slug": "mewnium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Mew’s Psychic to a Z-Move."
+  },
+  {
+    "name": "Mewtwonite X",
+    "slug": "mewtwonite-x",
+    "desc": "One of a variety of mysterious Mega Stones. Have Mewtwo hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Mewtwonite Y",
+    "slug": "mewtwonite-y",
+    "desc": "One of a variety of mysterious Mega Stones. Have Mewtwo hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Micle Berry",
+    "slug": "micle-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its accuracy will increase just once when it’s in a pinch."
+  },
+  {
+    "name": "Mind Plate",
+    "slug": "mind-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Psychic-type moves."
+  },
+  {
+    "name": "Miracle Seed",
+    "slug": "miracle-seed",
+    "desc": "An item to be held by a Pokémon. It’s a seed imbued with life-force that boosts the power of Grass-type moves."
+  },
+  {
+    "name": "Mirror Herb",
+    "slug": "mirror-herb",
+    "desc": ""
+  },
+  {
+    "name": "Misty Seed",
+    "slug": "misty-seed",
+    "desc": "An item to be held by a Pokémon. It boosts Sp. Def on Misty Terrain. It can only be used once."
+  },
+  {
+    "name": "Muscle Band",
+    "slug": "muscle-band",
+    "desc": "An item to be held by a Pokémon. This headband exudes strength, slightly boosting the power of physical moves."
+  },
+  {
+    "name": "Mystic Water",
+    "slug": "mystic-water",
+    "desc": "An item to be held by a Pokémon. This teardrop-shaped gem boosts the power of Water-type moves."
+  },
+  {
+    "name": "Never-Melt Ice",
+    "slug": "never-melt-ice",
+    "desc": "An item to be held by a Pokémon. It’s a heat- repelling piece of ice that boosts the power of Ice-type moves."
+  },
+  {
+    "name": "Normal Gem",
+    "slug": "normal-gem",
+    "desc": "A gem with an ordinary essence. When held, it strengthens the power of a Normal-type move one time."
+  },
+  {
+    "name": "Normalium Z",
+    "slug": "normalium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Normal-type moves to Z-Moves."
+  },
+  {
+    "name": "Occa Berry",
+    "slug": "occa-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Fire-type attack."
+  },
+  {
+    "name": "Odd Incense",
+    "slug": "odd-incense",
+    "desc": "An item to be held by a Pokémon. This exotic-smelling incense boosts the power of Psychic-type moves."
+  },
+  {
+    "name": "Oran Berry",
+    "slug": "oran-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can restore its own HP by 10 points during battle."
+  },
+  {
+    "name": "Pass Orb",
+    "slug": "pass-orb",
+    "desc": "A mysterious orb containing the power of the Unova region, to be used when generating Pass Power."
+  },
+  {
+    "name": "Passho Berry",
+    "slug": "passho-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Water-type attack."
+  },
+  {
+    "name": "Payapa Berry",
+    "slug": "payapa-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Psychic-type attack."
+  },
+  {
+    "name": "Pecha Berry",
+    "slug": "pecha-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from poisoning on its own in battle."
+  },
+  {
+    "name": "Persim Berry",
+    "slug": "persim-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from confusion on its own in battle."
+  },
+  {
+    "name": "Petaya Berry",
+    "slug": "petaya-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its Sp. Atk stat will increase when it’s in a pinch."
+  },
+  {
+    "name": "Pidgeotite",
+    "slug": "pidgeotite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Pidgeot hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Pikanium Z",
+    "slug": "pikanium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Pikachu’s Volt Tackle to a Z-Move."
+  },
+  {
+    "name": "Pikashunium Z",
+    "slug": "pikashunium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades a Thunderbolt by Pikachu in a cap to a Z-Move."
+  },
+  {
+    "name": "Pink Nectar",
+    "slug": "pink-nectar",
+    "desc": "A flower nectar obtained from the flowering shrubs on Royal Avenue. It changes the form of certain species of Pokémon."
+  },
+  {
+    "name": "Pinsirite",
+    "slug": "pinsirite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Pinsir hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Pixie Plate",
+    "slug": "pixie-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Fairy-type moves."
+  },
+  {
+    "name": "Poison Barb",
+    "slug": "poison-barb",
+    "desc": "An item to be held by a Pokémon. This small, poisonous barb boosts the power of Poison-type moves."
+  },
+  {
+    "name": "Poison Gem",
+    "slug": "poison-gem",
+    "desc": "A gem with an essence of poison. When held, it strengthens the power of a Poison-type move one time."
+  },
+  {
+    "name": "Poison Memory",
+    "slug": "poison-memory",
+    "desc": "A memory disc that contains Poison-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Poisonium Z",
+    "slug": "poisonium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Poison-type moves to Z-Moves."
+  },
+  {
+    "name": "Power Herb",
+    "slug": "power-herb",
+    "desc": "A single-use item to be held by a Pokémon. It allows the holder to immediately use a move that normally requires a turn to charge."
+  },
+  {
+    "name": "Primarium Z",
+    "slug": "primarium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Primarina’s Sparkling Aria to a Z-Move."
+  },
+  {
+    "name": "Protective Pads",
+    "slug": "protective-pads",
+    "desc": "An item to be held by a Pokémon. These pads protect the holder from effects caused by making direct contact with the target."
+  },
+  {
+    "name": "Psychic Gem",
+    "slug": "psychic-gem",
+    "desc": "A gem with an essence of the mind. When held, it strengthens the power of a Psychic-type move one time."
+  },
+  {
+    "name": "Psychic Memory",
+    "slug": "psychic-memory",
+    "desc": "A memory disc that contains Psychic-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Psychic Seed",
+    "slug": "psychic-seed",
+    "desc": "An item to be held by a Pokémon. It boosts Sp. Def on Psychic Terrain. It can only be used once."
+  },
+  {
+    "name": "Psychium Z",
+    "slug": "psychium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Psychic-type moves to Z-Moves."
+  },
+  {
+    "name": "Punching Glove",
+    "slug": "punching-glove",
+    "desc": ""
+  },
+  {
+    "name": "Purple Nectar",
+    "slug": "purple-nectar",
+    "desc": "A flower nectar obtained at Poni Meadow. It changes the form of certain species of Pokémon."
+  },
+  {
+    "name": "Quick Claw",
+    "slug": "quick-claw",
+    "desc": "An item to be held by a Pokémon. This light, sharp claw lets the bearer move first occasionally."
+  },
+  {
+    "name": "Quick Powder",
+    "slug": "quick-powder",
+    "desc": "An item to be held by Ditto. Extremely fine yet hard, this odd powder boosts the Speed stat."
+  },
+  {
+    "name": "Rawst Berry",
+    "slug": "rawst-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can recover from a burn on its own in battle."
+  },
+  {
+    "name": "Razor Claw",
+    "slug": "razor-claw",
+    "desc": "An item to be held by a Pokémon. This sharply hooked claw increases the holder’s critical-hit ratio."
+  },
+  {
+    "name": "Razor Fang",
+    "slug": "razor-fang",
+    "desc": "An item to be held by a Pokémon. When the holder successfully inflicts damage, the target may also flinch."
+  },
+  {
+    "name": "Red Card",
+    "slug": "red-card",
+    "desc": "An item to be held by a Pokémon. When the holder is hit by an attack, the attacker is removed from battle."
+  },
+  {
+    "name": "Red Nectar",
+    "slug": "red-nectar",
+    "desc": "A flower nectar obtained at Ula’ula Meadow. It changes the form of certain species of Pokémon."
+  },
+  {
+    "name": "Rindo Berry",
+    "slug": "rindo-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Grass-type attack."
+  },
+  {
+    "name": "Ring Target",
+    "slug": "ring-target",
+    "desc": "An item to be held by a Pokémon. Moves that normally have no effect will land on a Pokémon holding it."
+  },
+  {
+    "name": "Rock Gem",
+    "slug": "rock-gem",
+    "desc": "A gem with an essence of rock. When held, it strengthens the power of a Rock-type move one time."
+  },
+  {
+    "name": "Rock Incense",
+    "slug": "rock-incense",
+    "desc": "An item to be held by a Pokémon. This exotic-smelling incense boosts the power of Rock-type moves."
+  },
+  {
+    "name": "Rock Memory",
+    "slug": "rock-memory",
+    "desc": "A memory disc that contains Rock-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Rockium Z",
+    "slug": "rockium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Rock-type moves to Z-Moves."
+  },
+  {
+    "name": "Rocky Helmet",
+    "slug": "rocky-helmet",
+    "desc": "An item to be held by a Pokémon. If the holder is hit, the attacker will also be damaged upon contact."
+  },
+  {
+    "name": "Room Service",
+    "slug": "room-service",
+    "desc": "An item to be held by a Pokémon. Lowers Speed when Trick Room takes effect."
+  },
+  {
+    "name": "Rose Incense",
+    "slug": "rose-incense",
+    "desc": "An item to be held by a Pokémon. This exotic-smelling incense boosts the power of Grass-type moves."
+  },
+  {
+    "name": "Roseli Berry",
+    "slug": "roseli-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Fairy-type attack."
+  },
+  {
+    "name": "Rusted Shield",
+    "slug": "rusted-shield",
+    "desc": "It is said that a hero used this shield to halt a terrible disaster in ancient times. But it’s grown rusty and worn."
+  },
+  {
+    "name": "Rusted Sword",
+    "slug": "rusted-sword",
+    "desc": "It is said that a hero used this sword to halt a terrible disaster in ancient times. But it’s grown rusty and worn."
+  },
+  {
+    "name": "Sablenite",
+    "slug": "sablenite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Sableye hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Safety Goggles",
+    "slug": "safety-goggles",
+    "desc": "An item to be held by a Pokémon. These goggles protect the holder from both weather-related damage and powder."
+  },
+  {
+    "name": "Salac Berry",
+    "slug": "salac-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, its Speed stat will increase when it’s in a pinch."
+  },
+  {
+    "name": "Salamencite",
+    "slug": "salamencite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Salamence hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Sceptilite",
+    "slug": "sceptilite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Sceptile hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Scizorite",
+    "slug": "scizorite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Scizor hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Scope Lens",
+    "slug": "scope-lens",
+    "desc": "An item to be held by a Pokémon. It’s a lens for scoping out weak points. It boosts the holder’s critical-hit ratio."
+  },
+  {
+    "name": "Sea Incense",
+    "slug": "sea-incense",
+    "desc": "An item to be held by a Pokémon. This incense has a curious aroma that boosts the power of Water-type moves."
+  },
+  {
+    "name": "Sharp Beak",
+    "slug": "sharp-beak",
+    "desc": "An item to be held by a Pokémon. It’s a long, sharp beak that boosts the power of Flying-type moves."
+  },
+  {
+    "name": "Sharpedonite",
+    "slug": "sharpedonite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Sharpedo hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Shed Shell",
+    "slug": "shed-shell",
+    "desc": "An item to be held by a Pokémon. This discarded carapace enables the holder to switch out of battle without fail."
+  },
+  {
+    "name": "Shell Bell",
+    "slug": "shell-bell",
+    "desc": "An item to be held by a Pokémon. The holder restores a little HP every time it inflicts damage on others."
+  },
+  {
+    "name": "Shock Drive",
+    "slug": "shock-drive",
+    "desc": "A cassette to be held by Genesect. It changes Genesect’s Techno Blast move so it becomes Electric type."
+  },
+  {
+    "name": "Shuca Berry",
+    "slug": "shuca-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Ground-type attack."
+  },
+  {
+    "name": "Silk Scarf",
+    "slug": "silk-scarf",
+    "desc": "An item to be held by a Pokémon. It’s a sumptuous scarf that boosts the power of Normal-type moves."
+  },
+  {
+    "name": "Silver Powder",
+    "slug": "silver-powder",
+    "desc": "An item to be held by a Pokémon. It’s a shiny silver powder that will boost the power of Bug-type moves."
+  },
+  {
+    "name": "Sitrus Berry",
+    "slug": "sitrus-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, it can restore its own HP by a small amount during battle."
+  },
+  {
+    "name": "Sky Plate",
+    "slug": "sky-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Flying-type moves."
+  },
+  {
+    "name": "Slowbronite",
+    "slug": "slowbronite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Slowbro hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Smoke Ball",
+    "slug": "smoke-ball",
+    "desc": "An item to be held by a Pokémon. It enables the holder to flee from any wild Pokémon encounter without fail."
+  },
+  {
+    "name": "Smooth Rock",
+    "slug": "smooth-rock",
+    "desc": "An item to be held by a Pokémon. It extends the duration of the move Sandstorm when used by the holder."
+  },
+  {
+    "name": "Snorlium Z",
+    "slug": "snorlium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Snorlax’s Giga Impact to a Z-Move."
+  },
+  {
+    "name": "Snowball",
+    "slug": "snowball",
+    "desc": "An item to be held by a Pokémon. It boosts Attack if the holder is hit with an Ice-type attack. It can only be used once."
+  },
+  {
+    "name": "Soft Sand",
+    "slug": "soft-sand",
+    "desc": "An item to be held by a Pokémon. It’s a loose, silky sand that boosts the power of Ground-type moves."
+  },
+  {
+    "name": "Soul Dew",
+    "slug": "soul-dew",
+    "desc": "A wondrous orb to be held by either Latios or Latias. It raises the power of Psychic- and Dragon-type moves."
+  },
+  {
+    "name": "Spell Tag",
+    "slug": "spell-tag",
+    "desc": "An item to be held by a Pokémon. It’s a sinister, eerie tag that boosts the power of Ghost-type moves."
+  },
+  {
+    "name": "Splash Plate",
+    "slug": "splash-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Water-type moves."
+  },
+  {
+    "name": "Spooky Plate",
+    "slug": "spooky-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Ghost-type moves."
+  },
+  {
+    "name": "Starf Berry",
+    "slug": "starf-berry",
+    "desc": "A Berry to be consumed by Pokémon. If a Pokémon holds one, one of its stats will sharply increase when it’s in a pinch."
+  },
+  {
+    "name": "Steel Gem",
+    "slug": "steel-gem",
+    "desc": "A gem with an essence of steel. When held, it strengthens the power of a Steel-type move one time."
+  },
+  {
+    "name": "Steel Memory",
+    "slug": "steel-memory",
+    "desc": "A memory disc that contains Steel-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Steelium Z",
+    "slug": "steelium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Steel-type moves to Z-Moves."
+  },
+  {
+    "name": "Steelixite",
+    "slug": "steelixite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Steelix hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Sticky Barb",
+    "slug": "sticky-barb",
+    "desc": "An item to be held by a Pokémon. It damages the holder every turn and may latch on to Pokémon that touch the holder."
+  },
+  {
+    "name": "Stone Plate",
+    "slug": "stone-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Rock-type moves."
+  },
+  {
+    "name": "Swampertite",
+    "slug": "swampertite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Swampert hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Tanga Berry",
+    "slug": "tanga-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Bug-type attack."
+  },
+  {
+    "name": "Tapunium Z",
+    "slug": "tapunium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades the tapu’s Nature’s Madness to a Z-Move."
+  },
+  {
+    "name": "Terrain Extender",
+    "slug": "terrain-extender",
+    "desc": "An item to be held by a Pokémon. It extends the duration of the terrain caused by the holder’s move or Ability."
+  },
+  {
+    "name": "Thick Club",
+    "slug": "thick-club",
+    "desc": "An item to be held by Cubone or Marowak. It’s a hard bone of some sort that boosts the Attack stat."
+  },
+  {
+    "name": "Throat Spray",
+    "slug": "throat-spray",
+    "desc": "Raises Sp. Atk when a Pokémon uses a sound-based move."
+  },
+  {
+    "name": "Toxic Orb",
+    "slug": "toxic-orb",
+    "desc": "An item to be held by a Pokémon. It’s a bizarre orb that will badly poison the holder during battle."
+  },
+  {
+    "name": "Toxic Plate",
+    "slug": "toxic-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Poison-type moves."
+  },
+  {
+    "name": "Twisted Spoon",
+    "slug": "twisted-spoon",
+    "desc": "An item to be held by a Pokémon. This spoon is imbued with telekinetic power and boosts Psychic-type moves."
+  },
+  {
+    "name": "Tyranitarite",
+    "slug": "tyranitarite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Tyranitar hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Utility Umbrella",
+    "slug": "utility-umbrella",
+    "desc": "An item to be held by a Pokémon. This sturdy umbrella protects the holder from the effects of rain and harsh sunlight."
+  },
+  {
+    "name": "Venusaurite",
+    "slug": "venusaurite",
+    "desc": "One of a variety of mysterious Mega Stones. Have Venusaur hold it, and this stone will enable it to Mega Evolve during battle."
+  },
+  {
+    "name": "Wacan Berry",
+    "slug": "wacan-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Electric-type attack."
+  },
+  {
+    "name": "Water Gem",
+    "slug": "water-gem",
+    "desc": "A gem with an essence of water. When held, it strengthens the power of a Water-type move one time."
+  },
+  {
+    "name": "Water Memory",
+    "slug": "water-memory",
+    "desc": "A memory disc that contains Water-type data. It changes the type of the holder if held by a certain species of Pokémon."
+  },
+  {
+    "name": "Waterium Z",
+    "slug": "waterium-z--held",
+    "desc": "This is a crystallized form of Z-Power. It upgrades Water-type moves to Z-Moves."
+  },
+  {
+    "name": "Wave Incense",
+    "slug": "wave-incense",
+    "desc": "An item to be held by a Pokémon. This incense has a curious aroma that boosts the power of Water-type moves."
+  },
+  {
+    "name": "Weakness Policy",
+    "slug": "weakness-policy",
+    "desc": "An item to be held by a Pokémon. Attack and Sp. Atk sharply increase if the holder is hit with a move it’s weak to."
+  },
+  {
+    "name": "Wellspring Mask",
+    "slug": "wellspring-mask",
+    "desc": ""
+  },
+  {
+    "name": "White Herb",
+    "slug": "white-herb",
+    "desc": "An item to be held by a Pokémon. It will restore any lowered stat in battle. It can be used only once."
+  },
+  {
+    "name": "Wide Lens",
+    "slug": "wide-lens",
+    "desc": "An item to be held by a Pokémon. It’s a magnifying lens that slightly boosts the accuracy of moves."
+  },
+  {
+    "name": "Wiki Berry",
+    "slug": "wiki-berry",
+    "desc": "If held by a Pokémon, it restores the user’s HP in a pinch, but it will cause confusion if the user hates the taste."
+  },
+  {
+    "name": "Wise Glasses",
+    "slug": "wise-glasses",
+    "desc": "An item to be held by a Pokémon. This thick pair of glasses slightly boosts the power of special moves."
+  },
+  {
+    "name": "Yache Berry",
+    "slug": "yache-berry",
+    "desc": "If held by a Pokémon, this Berry will lessen the damage taken from one supereffective Ice-type attack."
+  },
+  {
+    "name": "Yellow Nectar",
+    "slug": "yellow-nectar",
+    "desc": "A flower nectar obtained at Melemele Meadow. It changes the form of certain species of Pokémon."
+  },
+  {
+    "name": "Zap Plate",
+    "slug": "zap-plate",
+    "desc": "An item to be held by a Pokémon. It’s a stone tablet that boosts the power of Electric-type moves."
+  },
+  {
+    "name": "Zoom Lens",
+    "slug": "zoom-lens",
+    "desc": "An item to be held by a Pokémon. If the holder moves after its target moves, its accuracy will be boosted."
+  }
+]

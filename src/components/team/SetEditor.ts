@@ -5,6 +5,12 @@ import { NATURES } from '../../data/natures'
 import { ITEMS } from '../../data/items'
 import { fetchPokemon, fetchMoves, type MoveDetail } from '../../api/pokeapi'
 import { calcStat } from '../../logic/statCalc'
+import itemsFullRaw from '../../data/items-full.json'
+
+interface FullItem { name: string; slug: string; desc: string }
+const ITEMS_FULL: FullItem[] = itemsFullRaw as FullItem[]
+// Keyed lookup for the custom picker selected card
+const ITEMS_FULL_MAP: Record<string, FullItem> = Object.fromEntries(ITEMS_FULL.map((i) => [i.name, i]))
 
 const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
 
@@ -48,7 +54,10 @@ export function registerSetEditor(): void {
         STAT_LABELS,
         STAT_COLORS,
         allNatures: Object.keys(NATURES),
-        allItems: ITEMS,
+
+        // ── item picker state ─────────────────────────────────────
+        itemQuery: '',
+        itemDropdownOpen: false,
 
         // ── move selector state ──────────────────────────────────
         availableMoves: [] as MoveDetail[],
@@ -81,14 +90,34 @@ export function registerSetEditor(): void {
         },
 
         get recommendedItems() {
-            if (!this.slot) return ITEMS.slice(0, 6)
+            if (!this.slot) return ITEMS.slice(0, 5)
             const s = this.slot as any
             return recommendItems(s.role ?? 'physical_sweeper', s.types, false)
         },
 
-        get allItemsWithFlag() {
-            const recSet = new Set((this.recommendedItems as any[]).map((i: any) => i.name))
-            return (ITEMS as any[]).map(item => ({ ...item, recommended: recSet.has(item.name) }))
+        // Returns items from items-full.json matching the search query,
+        // excluding those already in the recommended list (no duplicates in dropdown).
+        get filteredAllItems(): FullItem[] {
+            const q = (this.itemQuery as string).toLowerCase().trim()
+            if (q.length < 2) return []
+            const recNames = new Set((this.recommendedItems as any[]).map((i: any) => i.name))
+            return ITEMS_FULL
+                .filter((i) => i.name.toLowerCase().includes(q) && !recNames.has(i.name))
+                .slice(0, 20)
+        },
+
+        // True when slot has an item that is NOT in the recommended list.
+        get isCustomItemSelected(): boolean {
+            const item = (this.slot as any)?.item as string | null
+            if (!item) return false
+            return !(this.recommendedItems as any[]).find((i: any) => i.name === item)
+        },
+
+        // The items-full entry for the currently selected custom item (for the card display).
+        get customItemData(): FullItem | null {
+            const item = (this.slot as any)?.item as string | null
+            if (!item) return null
+            return ITEMS_FULL_MAP[item] ?? null
         },
 
         get filteredMoves(): MoveDetail[] {
@@ -167,6 +196,12 @@ export function registerSetEditor(): void {
             if (i === null) return
             const current = (this.slot as any)?.item
             ;(Alpine.store('team') as any).updateSlot(i, { item: current === name ? null : name })
+        },
+
+        selectCustomItem(name: string) {
+            this.setItem(name)
+            this.itemDropdownOpen = false
+            this.itemQuery = ''
         },
 
         setEv(stat: string, value: number) {

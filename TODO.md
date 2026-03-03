@@ -1,5 +1,11 @@
 # PokeBasic — Remaining Work
 
+## Technologies used:
+- Powershell
+- python.exe with curl to fetch data from PokeAPI and know how to build the app
+- tsc --noEmit to typecheck TypeScript files
+- gh or git commands to manage branches and pull requests
+
 ---
 
 ## Items DB — Full Item Picker
@@ -100,3 +106,6 @@ Full planning required before any code. Will consume existing `TeamSlot` data (m
 ### Entry point
 
 New button in `team.html` ("⚔️ Battle Sim") that opens the simulator modal; reads both teams from `Alpine.store('team')`. Requires at least 1 filled slot on each side.
+
+### Other
+- Team Lab missing ability selection and TERA role tags, which are needed for accurate battle sim inputs — add these to the Set Editor as well

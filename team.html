@@ -243,13 +243,14 @@
                     <!-- ITEM -->
                     <div>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Held Item</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <template x-for="item in allItemsWithFlag" :key="item.name">
+
+                        <!-- Zone 1: Top 5 recommended cards -->
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <template x-for="item in recommendedItems" :key="item.name">
                                 <button @click="setItem(item.name)"
                                     :style="`background:${slot?.item === item.name ? item.border + '30' : item.color};border-color:${slot?.item === item.name ? item.border : item.border + '88'}`"
                                     class="flex items-start gap-2 p-2 rounded-xl border-2 text-left transition hover:scale-[1.02] active:scale-95 relative">
-                                    <span x-show="item.recommended"
-                                        class="absolute top-1 right-1 text-[9px] leading-none" title="Recommended">⭐</span>
+                                    <span class="absolute top-1 right-1 text-[9px] leading-none" title="Recommended">⭐</span>
                                     <img :src="item.emoji" class="w-6 h-6 object-contain shrink-0 mt-0.5">
                                     <div class="min-w-0">
                                         <p class="text-[10px] font-black leading-tight"
@@ -262,6 +263,54 @@
                                 </button>
                             </template>
                         </div>
+
+                        <!-- Zone 2: Custom item picker -->
+                        <!-- State A: search input (shown when no custom item is selected) -->
+                        <div class="relative" x-show="!isCustomItemSelected"
+                            @click.outside="itemDropdownOpen = false">
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl px-2.5 py-2 flex items-center gap-2 bg-slate-50 hover:border-violet-300 transition">
+                                <span class="text-slate-400 text-xs shrink-0">🔍</span>
+                                <input x-model="itemQuery"
+                                    @input="itemDropdownOpen = itemQuery.length >= 2"
+                                    @focus="if (itemQuery.length >= 2) itemDropdownOpen = true"
+                                    placeholder="Search any item…"
+                                    class="flex-1 text-xs bg-transparent outline-none placeholder:text-slate-400 text-slate-700 font-semibold min-w-0">
+                                <button x-show="itemQuery.length > 0"
+                                    @click="itemQuery = ''; itemDropdownOpen = false"
+                                    class="text-slate-400 hover:text-slate-600 transition shrink-0 text-xs leading-none">✕</button>
+                            </div>
+                            <!-- Dropdown -->
+                            <div x-show="itemDropdownOpen && filteredAllItems.length > 0"
+                                class="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-52 overflow-y-auto">
+                                <template x-for="i in filteredAllItems" :key="i.slug">
+                                    <button @click="selectCustomItem(i.name)"
+                                        class="flex items-center gap-2 w-full px-3 py-2 hover:bg-violet-50 text-left transition border-b border-slate-100 last:border-0">
+                                        <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${i.slug}.png`"
+                                            class="w-6 h-6 object-contain shrink-0"
+                                            @error="$el.style.visibility='hidden'">
+                                        <div class="min-w-0 flex-1">
+                                            <span x-text="i.name" class="text-[11px] font-bold text-slate-700 block"></span>
+                                            <span x-text="i.desc" class="text-[9px] text-slate-400 line-clamp-1 block"></span>
+                                        </div>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- State B: populated custom item card (shown when custom item is selected) -->
+                        <button x-show="isCustomItemSelected"
+                            @click="setItem(slot?.item)"
+                            class="flex items-start gap-2 p-2 rounded-xl border-2 border-violet-300 bg-violet-50 text-left transition hover:scale-[1.02] active:scale-95 relative w-full">
+                            <span class="absolute top-1 right-1 text-[9px] leading-none text-violet-400" title="Custom pick">✏️</span>
+                            <img :src="customItemData ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${customItemData.slug}.png` : ''"
+                                class="w-6 h-6 object-contain shrink-0 mt-0.5"
+                                @error="$el.style.visibility='hidden'">
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-black leading-tight text-slate-700" x-text="slot?.item"></p>
+                                <p class="text-[9px] font-medium leading-tight mt-0.5 line-clamp-2 text-slate-400"
+                                    x-text="customItemData?.desc ?? ''"></p>
+                            </div>
+                        </button>
                     </div>
 
                 </div>
@@ -317,7 +366,7 @@
                                     <!-- nature arrow indicator -->
                                     <span x-show="natureEffect(key) !== 0"
                                         class="text-[9px] font-black"
-                                        :class="natureEffect(key) === 1 ? 'text-rose-400' : 'text-blue-400'"
+                                        :class="natureEffect(key) === 1 ? 'text-blue-400' : 'text-rose-400'"
                                         x-text="natureEffect(key) === 1 ? '▲' : '▼'"></span>
                                     <span class="text-xs font-black"
                                         :style="`color:${STAT_COLORS[key]}`"
