@@ -163,6 +163,7 @@ export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: stri
 const VERSION_GROUP_PRIORITY = [
     'scarlet-violet',
     'sword-shield',
+    'lets-go-pikachu-lets-go-eevee',
     'brilliant-diamond-shining-pearl',
     'legends-arceus',
     'ultra-sun-ultra-moon',
@@ -203,7 +204,7 @@ export async function fetchMoves(moveEntries: MoveEntry[], limit = 80): Promise<
             foundAnyPriority = true
             const maxLevel = Math.max(...vgEntries.map((d) => d.level_learned_at))
             if (maxLevel > 1) { bestLevel = maxLevel; break }
-            if (bestLevel === undefined) bestLevel = maxLevel // level 0/1 fallback
+            if (bestLevel === undefined) bestLevel = maxLevel // level 0/1 fallback only
         }
 
         // No priority version group found — require >= 3 cross-version appearances to filter noise
@@ -213,7 +214,17 @@ export async function fetchMoves(moveEntries: MoveEntry[], limit = 80): Promise<
             bestLevel = progression.length > 0 ? Math.min(...progression.map((d) => d.level_learned_at)) : 1
         }
 
-        queue.push({ entry: e, level: bestLevel ?? 1, learn_method: 'level-up' })
+        // If best level is 0 or 1 and the move is also learnable by machine, it's a TM/reminder
+        // entry masquerading as a level-up move. Skip it here so TM processing picks it up.
+        if (bestLevel !== undefined && bestLevel <= 1) {
+            const hasMachineEntry = e.version_group_details.some((d) => d.move_learn_method.name === 'machine')
+            if (hasMachineEntry) continue
+        }
+
+        // Skip entirely if we still have no real level (e.g. all priority groups had level 0 only)
+        if (bestLevel === undefined) continue
+
+        queue.push({ entry: e, level: bestLevel, learn_method: 'level-up' })
         seen.add(e.move.name)
     }
 

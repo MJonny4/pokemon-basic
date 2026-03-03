@@ -8,10 +8,11 @@ export function recommendItems(role: string, pokemonTypes: string[], canEvolve: 
         return item.roles.includes(role)
     })
 
-    // Always ensure at least 3 items
-    if (matched.length < 3) {
-        const fallbacks = ['Life Orb', 'Leftovers', 'Focus Sash']
+    // Always pad up to 6 items with universal fallbacks
+    if (matched.length < 6) {
+        const fallbacks = ['Life Orb', 'Leftovers', 'Focus Sash', 'Choice Scarf', 'Assault Vest', 'Heavy-Duty Boots']
         fallbacks.forEach((name) => {
+            if (matched.length >= 6) return
             if (!matched.find((i) => i.name === name)) {
                 const found = ITEMS.find((i) => i.name === name)
                 if (found) matched.push(found)

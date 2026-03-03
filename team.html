@@ -310,8 +310,8 @@
                                     :value="slot?.evs[key] ?? 0"
                                     @change="setEv(key, Number($event.target.value))"
                                     @blur="$event.target.value = slot?.evs[key] ?? 0"
-                                    :class="(slot?.evs[key] ?? 0) >= 252 ? 'text-violet-600 border-red-300' : (slot?.evs[key] ?? 0) > 0 ? 'text-slate-600 border-transparent' : 'text-slate-200 border-transparent'"
-                                    class="text-[10px] font-bold w-9 shrink-0 text-right bg-transparent border rounded px-0.5 focus:outline-none focus:border-violet-400 focus:bg-white focus:text-slate-700 appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden [-moz-appearance:textfield]">
+                                    :class="(slot?.evs[key] ?? 0) >= 252 ? 'text-violet-600 border-red-300' : (slot?.evs[key] ?? 0) > 0 ? 'text-slate-600 border-slate-200' : 'text-slate-400 border-slate-200'"
+                                    class="text-[10px] font-bold w-9 shrink-0 text-right bg-transparent border rounded px-0.5 focus:outline-none focus:border-violet-300 focus:bg-white focus:text-slate-700 appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden [-moz-appearance:textfield]">
                                 <!-- Final calculated stat (→ value, colored) -->
                                 <div class="flex items-center gap-0.5 w-12 shrink-0 justify-end">
                                     <!-- nature arrow indicator -->
