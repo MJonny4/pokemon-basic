@@ -2,9 +2,9 @@ import Alpine from 'alpinejs'
 import './style.css'
 import { fetchPokemonList, fetchPokemon, fetchPokemonsByType } from './api/pokeapi'
 import type { Pokemon } from './api/pokeapi'
-import { TYPE_COLORS, TYPES, STAT_COLORS, STAT_LABELS } from './data/constants'
+import { TYPE_COLORS, TYPES, STAT_COLORS, STAT_LABELS, GEN_RANGES } from './data/constants'
 import { typeBadge, getTypeIcon } from './ui/components'
-import { registerSpeedPokemonModal } from './components/SpeedPokemonModal'
+import { registerStatsPokemonModal } from './components/stats/StatsPokemonModal'
 
 declare global {
     interface Window {
@@ -12,20 +12,22 @@ declare global {
     }
 }
 
-type SortKey = 'speed' | 'bst' | 'hp' | 'attack' | 'special-attack' | 'defense' | 'special-defense'
+type SortKey = 'bst' | 'speed' | 'hp' | 'attack' | 'special-attack' | 'defense' | 'special-defense'
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-    { key: 'speed', label: '⚡ Speed' },
-    { key: 'bst', label: 'BST' },
-    { key: 'hp', label: 'HP' },
-    { key: 'attack', label: 'Atk' },
-    { key: 'special-attack', label: 'SpA' },
-    { key: 'defense', label: 'Def' },
-    { key: 'special-defense', label: 'SpDef' },
+    { key: 'bst',             label: '⭐ BST'   },
+    { key: 'hp',              label: '❤️ HP'    },
+    { key: 'attack',          label: '⚔️ Atk'   },
+    { key: 'defense',         label: '🛡️ Def'   },
+    { key: 'special-attack',  label: '✨ SpA'   },
+    { key: 'special-defense', label: '💠 SpDef' },
+    { key: 'speed',           label: '⚡ Spd'   },
 ]
 
 const TYPE_LIST = TYPES.map((t) => t.toLowerCase())
 const PAGE_SIZE = 30
+const ALL_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const GEN_LABEL = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
 
 function getStat(p: Pokemon, key: SortKey): number {
     if (key === 'bst') return p.stats.reduce((s, x) => s + x.base_stat, 0)
@@ -40,23 +42,37 @@ function speedTier(spd: number): { label: string; color: string } {
     return { label: '🐢 Slow', color: '#ef4444' }
 }
 
-Alpine.data('speedRanking', () => ({
+Alpine.data('statsRanking', () => ({
     selectedType: '' as string,
-    sortKey: 'speed' as SortKey,
+    sortKey: 'bst' as SortKey,
     loaded: [] as Pokemon[],
     loading: false,
     loadingProgress: 0,
     loadingText: '',
     searchQuery: '',
     page: 0,
+    selectedGens: [...ALL_GENS] as number[],
+    genLabels: GEN_LABEL,
+    gens: ALL_GENS,
 
     sortOptions: SORT_OPTIONS,
     typeList: TYPE_LIST,
+
+    init() {
+        try {
+            const storedGens = localStorage.getItem('pr_gen_filter')
+            if (storedGens) this.selectedGens = JSON.parse(storedGens)
+        } catch {}
+    },
 
     get sortedFiltered(): Pokemon[] {
         let list = [...(this.loaded as Pokemon[])]
         const q = (this.searchQuery as string).toLowerCase().trim()
         if (q) list = list.filter((p) => p.name.includes(q))
+        const gens = this.selectedGens as number[]
+        if (gens.length < ALL_GENS.length) {
+            list = list.filter((p) => gens.some((g: number) => p.id >= GEN_RANGES[g][0] && p.id <= GEN_RANGES[g][1]))
+        }
         const key = this.sortKey as SortKey
         return list.sort((a, b) => getStat(b, key) - getStat(a, key))
     },
@@ -157,6 +173,31 @@ Alpine.data('speedRanking', () => ({
         this.loaded = all
     },
 
+    toggleGen(gen: number) {
+        const gens = this.selectedGens as number[]
+        if (gens.includes(gen)) {
+            if (gens.length > 1) this.selectedGens = gens.filter((g) => g !== gen)
+        } else {
+            this.selectedGens = [...gens, gen].sort((a, b) => a - b)
+        }
+        try { localStorage.setItem('pr_gen_filter', JSON.stringify(this.selectedGens)) } catch {}
+        this.page = 0
+    },
+
+    resetGens() {
+        this.selectedGens = [...ALL_GENS]
+        try { localStorage.setItem('pr_gen_filter', JSON.stringify(this.selectedGens)) } catch {}
+        this.page = 0
+    },
+
+    isGenActive(gen: number): boolean {
+        return (this.selectedGens as number[]).includes(gen)
+    },
+
+    allGensActive(): boolean {
+        return (this.selectedGens as number[]).length === ALL_GENS.length
+    },
+
     setSort(key: SortKey) {
         this.sortKey = key
         this.page = 0
@@ -172,6 +213,6 @@ Alpine.data('speedRanking', () => ({
     },
 }))
 
-registerSpeedPokemonModal()
+registerStatsPokemonModal()
 window.Alpine = Alpine
 Alpine.start()

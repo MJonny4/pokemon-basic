@@ -1,6 +1,7 @@
 import type { Pokemon } from '../../api/pokeapi'
 import { calcDefenseProfile } from '../../logic/defense'
 import { typePillLg } from '../../ui/components'
+import { gsap } from 'gsap'
 
 export function buildDefense(pokemon: Pokemon): void {
     const el = document.getElementById('defenseContent')
@@ -47,4 +48,13 @@ export function buildDefense(pokemon: Pokemon): void {
             : ''
     }
   </div>`
+
+    // Stagger section cards in
+    requestAnimationFrame(() => {
+        gsap.fromTo(
+            '#defenseContent .rounded-2xl',
+            { opacity: 0, y: 12 },
+            { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out', stagger: 0.1, clearProps: 'transform,opacity' },
+        )
+    })
 }

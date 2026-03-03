@@ -1,8 +1,8 @@
 import Alpine from 'alpinejs'
-import { fetchPokemon, fetchSpecies } from '../api/pokeapi'
-import type { Pokemon } from '../api/pokeapi'
-import { TYPE_COLORS, STAT_COLORS, STAT_LABELS } from '../data/constants'
-import { typeBadge } from '../ui/components'
+import { fetchPokemon, fetchSpecies } from '../../api/pokeapi'
+import type { Pokemon } from '../../api/pokeapi'
+import { TYPE_COLORS, STAT_COLORS, STAT_LABELS } from '../../data/constants'
+import { typeBadge } from '../../ui/components'
 
 const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const
 
@@ -98,8 +98,8 @@ const MODAL_HTML = `
 </div>
 `
 
-export function registerSpeedPokemonModal(): void {
-    Alpine.data('speedPokemonModal', () => ({
+export function registerStatsPokemonModal(): void {
+    Alpine.data('statsPokemonModal', () => ({
         open: false,
         loading: false,
         pokemon: null as Pokemon | null,
@@ -158,13 +158,13 @@ export function registerSpeedPokemonModal(): void {
         },
 
         goToPokedex(name: string) {
-            window.open('/index.html?search=' + encodeURIComponent(name), '_blank')
+            window.open('./index.html?search=' + encodeURIComponent(name), '_blank')
         },
     }))
 
     // Inject modal into the page
     const wrapper = document.createElement('div')
-    wrapper.setAttribute('x-data', 'speedPokemonModal')
+    wrapper.setAttribute('x-data', 'statsPokemonModal')
     wrapper.innerHTML = MODAL_HTML
     document.body.appendChild(wrapper)
 }

@@ -62,7 +62,7 @@ export interface MoveDetail {
     type: { name: string }
     damage_class: { name: string }
     level_learned_at: number
-    learn_method: 'level-up' | 'machine' | 'hm'
+    learn_method: 'level-up' | 'machine' | 'hm' | 'egg' | 'tutor'
     effect_entries: Array<{ short_effect: string; language: { name: string } }>
 }
 
@@ -93,6 +93,7 @@ export interface EvolutionNode {
 
 import { HM_MOVES } from '../data/constants'
 import movesDataJson from '../data/moves-data.json'
+import { idbGet, idbSet, TTL } from './idb-cache'
 
 interface LocalMoveData {
     power: number | null
@@ -117,25 +118,36 @@ const cache = {
 export async function fetchPokemon(name: string): Promise<Pokemon> {
     const key = name.toLowerCase()
     if (cache.pokemon.has(key)) return cache.pokemon.get(key)!
+    const idbKey = `pokemon/${key}`
+    const cached = await idbGet<Pokemon>(idbKey)
+    if (cached) { cache.pokemon.set(key, cached); return cached }
     const r = await fetch(`${BASE}/pokemon/${key}`)
     if (!r.ok) throw new Error(`Pokemon not found: ${name}`)
-    const data = await r.json()
+    const data: Pokemon = await r.json()
     cache.pokemon.set(key, data)
+    idbSet(idbKey, data, TTL.POKEMON)
     return data
 }
 
 export async function fetchSpecies(name: string): Promise<Species> {
     const key = name.toLowerCase()
     if (cache.species.has(key)) return cache.species.get(key)!
+    const idbKey = `species/${key}`
+    const cached = await idbGet<Species>(idbKey)
+    if (cached) { cache.species.set(key, cached); return cached }
     const r = await fetch(`${BASE}/pokemon-species/${key}`)
     if (!r.ok) throw new Error(`Species not found: ${name}`)
-    const data = await r.json()
+    const data: Species = await r.json()
     cache.species.set(key, data)
+    idbSet(idbKey, data, TTL.SPECIES)
     return data
 }
 
 export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: string; id: number }>> {
     if (cache.pokemonList) return cache.pokemonList
+    const idbKey = `pokemon-list/${limit}`
+    const cached = await idbGet<Array<{ name: string; id: number }>>(idbKey)
+    if (cached) { cache.pokemonList = cached; return cached }
     const r = await fetch(`${BASE}/pokemon?limit=${limit}`)
     const d = await r.json()
     const result = d.results.map((p: { name: string; url: string }) => ({
@@ -143,6 +155,7 @@ export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: stri
         id: parseInt(p.url.split('/').filter(Boolean).pop()!),
     }))
     cache.pokemonList = result
+    idbSet(idbKey, result, TTL.POKEMON_LIST)
     return result
 }
 
@@ -235,6 +248,47 @@ export async function fetchMoves(moveEntries: MoveEntry[], limit = 80): Promise<
             effect_entries: [{ short_effect: local.effect, language: { name: 'en' } }],
         })
     }
+
+    // Egg moves — skips anything already in level-up/machine
+    for (const e of moveEntries) {
+        if (seen.has(e.move.name)) continue
+        if (!e.version_group_details.some((d) => d.move_learn_method.name === 'egg')) continue
+        const local = MOVES_DB[e.move.name]
+        if (!local) continue
+        results.push({
+            name: e.move.name,
+            power: local.power,
+            accuracy: local.accuracy,
+            pp: local.pp,
+            type: { name: local.type },
+            damage_class: { name: local.damage_class },
+            level_learned_at: 0,
+            learn_method: 'egg',
+            effect_entries: [{ short_effect: local.effect, language: { name: 'en' } }],
+        })
+        seen.add(e.move.name)
+    }
+
+    // Tutor moves — skips anything already in level-up/machine/egg
+    for (const e of moveEntries) {
+        if (seen.has(e.move.name)) continue
+        if (!e.version_group_details.some((d) => d.move_learn_method.name === 'tutor')) continue
+        const local = MOVES_DB[e.move.name]
+        if (!local) continue
+        results.push({
+            name: e.move.name,
+            power: local.power,
+            accuracy: local.accuracy,
+            pp: local.pp,
+            type: { name: local.type },
+            damage_class: { name: local.damage_class },
+            level_learned_at: 0,
+            learn_method: 'tutor',
+            effect_entries: [{ short_effect: local.effect, language: { name: 'en' } }],
+        })
+        seen.add(e.move.name)
+    }
+
     return results
 }
 
@@ -243,6 +297,9 @@ const typeListCache = new Map<string, Array<{ name: string; id: number }>>()
 export async function fetchPokemonsByType(type: string): Promise<Array<{ name: string; id: number }>> {
     const key = type.toLowerCase()
     if (typeListCache.has(key)) return typeListCache.get(key)!
+    const idbKey = `type/${key}`
+    const cached = await idbGet<Array<{ name: string; id: number }>>(idbKey)
+    if (cached) { typeListCache.set(key, cached); return cached }
     const r = await fetch(`${BASE}/type/${key}`)
     if (!r.ok) return []
     const d = await r.json()
@@ -254,17 +311,29 @@ export async function fetchPokemonsByType(type: string): Promise<Array<{ name: s
         .filter((p) => !isNaN(p.id) && p.id <= 1025)
         .sort((a, b) => a.id - b.id)
     typeListCache.set(key, result)
+    idbSet(idbKey, result, TTL.TYPE_LIST)
     return result
 }
 
 export async function fetchAbilities(abilityEntries: AbilityEntry[]): Promise<AbilityDetail[]> {
-    return Promise.all(abilityEntries.map((a) => fetch(a.ability.url).then((r) => r.json())))
+    return Promise.all(abilityEntries.map(async (a) => {
+        const idbKey = `ability/${a.ability.url}`
+        const cached = await idbGet<AbilityDetail>(idbKey)
+        if (cached) return cached
+        const data: AbilityDetail = await fetch(a.ability.url).then((r) => r.json())
+        idbSet(idbKey, data, TTL.ABILITY)
+        return data
+    }))
 }
 
 export async function fetchEvolutionChain(url: string): Promise<EvolutionChain> {
     if (cache.evolution.has(url)) return cache.evolution.get(url)!
+    const idbKey = `evolution/${url}`
+    const cached = await idbGet<EvolutionChain>(idbKey)
+    if (cached) { cache.evolution.set(url, cached); return cached }
     const r = await fetch(url)
-    const data = await r.json()
+    const data: EvolutionChain = await r.json()
     cache.evolution.set(url, data)
+    idbSet(idbKey, data, TTL.EVOLUTION)
     return data
 }

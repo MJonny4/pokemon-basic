@@ -9,8 +9,8 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
-                battle: resolve(__dirname, 'battle.html'),
-                speeds: resolve(__dirname, 'speeds.html'),
+                stats: resolve(__dirname, 'stats.html'),
+                team: resolve(__dirname, 'team.html'),
             },
         },
     },

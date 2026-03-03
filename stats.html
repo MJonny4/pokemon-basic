@@ -4,32 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PokeBasic — Speed Rankings</title>
+    <title>PokeBasic — Stats Explorer</title>
 
     <!-- SEO -->
-    <meta name="description" content="Compare Pokémon by Speed stat. Filter by type, sort by any base stat, and find the fastest Pokémon for your team.">
-    <meta name="keywords" content="pokemon speed ranking, fastest pokemon, pokemon stats comparison, pokemon speed tier">
+    <meta name="description" content="Rank and compare all 1025 Pokémon by any base stat. Filter by type and generation, sort by BST, HP, Attack, Defense, and more.">
+    <meta name="keywords" content="pokemon stats, pokemon bst, base stat total, pokemon ranking, pokemon comparison, pokemon database">
     <meta name="author" content="PokeBasic">
     <meta name="robots" content="index, follow">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="PokeBasic — Speed Rankings">
-    <meta property="og:description" content="Rank Pokémon by Speed stat. Filter by type, sort by any stat.">
+    <meta property="og:title" content="PokeBasic — Stats Explorer">
+    <meta property="og:description" content="Rank and compare all 1025 Pokémon by any base stat. Filter by type and generation.">
     <meta property="og:image" content="/icon.png">
 
     <link rel="icon" type="image/png" href="/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <script type="module" src="/src/speeds.ts"></script>
+    <script type="module" src="/src/stats.ts"></script>
 </head>
 
-<body class="bg-slate-50 min-h-screen" x-data="speedRanking">
+<body class="bg-slate-50 min-h-screen" x-data="statsRanking">
 
     <!-- ══════════ HEADER ══════════ -->
     <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
-        <div class="max-w-screen-xl mx-auto px-5 py-3 flex items-center gap-4 flex-wrap">
+        <div class="max-w-7xl mx-auto px-5 py-3 flex items-center gap-4 flex-wrap">
             <!-- Brand -->
             <div class="flex items-center gap-2.5 shrink-0">
                 <div
@@ -38,7 +38,7 @@
                 </div>
                 <div class="leading-tight">
                     <div class="font-black text-slate-800 text-base">PokeBasic</div>
-                    <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">Speed Rankings</div>
+                    <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">Stats Explorer</div>
                 </div>
             </div>
 
@@ -48,19 +48,19 @@
             <a href="./index.html"
                 class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-violet-100 hover:text-violet-700 font-bold text-sm transition shrink-0">←
                 Pokédex</a>
-            <a href="./battle.html"
-                class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-sm transition shrink-0">⚔️
-                Battle</a>
+            <a href="./team.html"
+                class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-sm transition shrink-0">🧪
+                Team Lab</a>
         </div>
     </header>
 
-    <main class="max-w-screen-xl mx-auto px-4 py-6">
+    <main class="max-w-7xl mx-auto px-4 py-6">
 
         <!-- ══════════ PAGE TITLE ══════════ -->
         <div class="mb-6">
-            <h1 class="text-2xl font-black text-slate-800 mb-1">⚡ Speed Rankings</h1>
-            <p class="text-sm text-slate-400 font-medium">Select a type to rank Pokémon by their stats. "All" loads
-                all 1025 Pokémon progressively.</p>
+            <h1 class="text-2xl font-black text-slate-800 mb-1">📊 Stats Explorer</h1>
+            <p class="text-sm text-slate-400 font-medium">Rank Pokémon by BST, HP, Attack, and more. Filter by type
+                and generation. "All" loads all 1025 Pokémon progressively.</p>
         </div>
 
         <!-- ══════════ TYPE SELECTOR ══════════ -->
@@ -89,6 +89,22 @@
             </div>
         </div>
 
+        <!-- ══════════ GEN FILTER ══════════ -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5">
+            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Filter by Generation</p>
+            <div class="flex flex-wrap gap-2">
+                <button @click="resetGens()"
+                    :class="allGensActive() ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
+                    class="px-3 py-1.5 rounded-full text-xs font-black border transition-all duration-150 hover:scale-105 active:scale-95">All</button>
+                <template x-for="(label, i) in genLabels" :key="i">
+                    <button @click="toggleGen(gens[i])"
+                        :class="isGenActive(gens[i]) ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
+                        class="px-3 py-1.5 rounded-full text-xs font-black border transition-all duration-150 hover:scale-105 active:scale-95"
+                        x-text="'Gen ' + label"></button>
+                </template>
+            </div>
+        </div>
+
         <!-- ══════════ CONTROLS (only show when data loaded) ══════════ -->
         <div x-show="loaded.length > 0 || loading" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4 flex flex-wrap items-center gap-3">
             <!-- Sort -->
@@ -102,11 +118,7 @@
 
             <!-- Search -->
             <div class="ml-auto relative">
-                <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-                </svg>
+                <img src="/search.svg" alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                 <input type="text" x-model="searchQuery" @input="page = 0" placeholder="Filter by name…"
                     class="pl-8 pr-3 py-1.5 text-xs border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 font-semibold bg-slate-50 w-44">
             </div>
@@ -132,10 +144,10 @@
         <!-- ══════════ EMPTY STATE ══════════ -->
         <div x-show="!loading && loaded.length === 0 && selectedType === ''"
             class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
-            <div class="text-5xl mb-4">⚡</div>
+            <div class="text-5xl mb-4">📊</div>
             <h2 class="text-lg font-black text-slate-700 mb-2">Select a type to begin</h2>
-            <p class="text-sm text-slate-400 max-w-sm mx-auto">Pick any type above to load and rank Pokémon by their
-                Speed (or any other stat). Choose <strong>"All"</strong> to compare across all 1025 Pokémon.</p>
+            <p class="text-sm text-slate-400 max-w-sm mx-auto">Pick any type above to rank Pokémon by any base stat.
+                Choose <strong>"All"</strong> to compare across all 1025 Pokémon.</p>
         </div>
 
         <!-- ══════════ NO RESULTS ══════════ -->
@@ -181,7 +193,7 @@
                             :alt="p.name" loading="lazy" class="w-12 h-12 object-contain shrink-0"
                             style="image-rendering:pixelated">
 
-                        <!-- Name + types + speed tier -->
+                        <!-- Name + types -->
                         <div class="w-48 min-w-0 shrink-0">
                             <button @click="window.openPokemonQuickView(p.name)"
                                 class="font-black text-sm text-slate-800 capitalize hover:text-violet-600 transition text-left cursor-pointer"
@@ -193,7 +205,7 @@
                             </div>
                         </div>
 
-                        <!-- Speed bar + tier (primary stat) -->
+                        <!-- Primary stat bar -->
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wide w-6 shrink-0"
@@ -221,7 +233,7 @@
                                         <span x-text="' ' + getStatVal(p, sk)"></span>
                                     </span>
                                 </template>
-                                <span class="text-[10px] text-slate-400 font-semibold">
+                                <span class="text-[10px] text-slate-400 font-semibold" x-show="sortKey !== 'bst'">
                                     <span class="font-black text-violet-500">BST</span>
                                     <span x-text="' ' + getStatVal(p, 'bst')"></span>
                                 </span>

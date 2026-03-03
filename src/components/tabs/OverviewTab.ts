@@ -1,6 +1,7 @@
 import type { Pokemon, Species, AbilityDetail, EvolutionChain, EvolutionNode, EvolutionDetail } from '../../api/pokeapi'
 import { TYPE_COLORS } from '../../data/constants'
 import { statBar } from '../../ui/components'
+import { gsap } from 'gsap'
 
 export function buildOverview(pokemon: Pokemon, species: Species | null, abilityDetails: AbilityDetail[]): void {
     const grid = document.getElementById('overviewGrid')
@@ -73,11 +74,27 @@ export function buildOverview(pokemon: Pokemon, species: Species | null, ability
       </div>
     </div>`
 
-    // Animate stat bars
+    // Animate grid cards + stat bars
     requestAnimationFrame(() => {
-        document.querySelectorAll<HTMLElement>('#overviewGrid .stat-bar-fill').forEach((el) => {
-            el.style.width = (el.dataset.pct ?? '0') + '%'
-        })
+        // Cards stagger in
+        gsap.fromTo(
+            '#overviewGrid > div',
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', stagger: 0.08, clearProps: 'transform,opacity' },
+        )
+        // Stat bars stagger fill
+        const fills = document.querySelectorAll<HTMLElement>('#overviewGrid .stat-bar-fill')
+        gsap.fromTo(
+            fills,
+            { width: '0%' },
+            {
+                width: (_i: number, el: HTMLElement) => (el.dataset.pct ?? '0') + '%',
+                duration: 0.75,
+                ease: 'power2.out',
+                stagger: 0.06,
+                delay: 0.1,
+            },
+        )
     })
 }
 
@@ -166,6 +183,7 @@ export function appendEvoChain(
     div.className = 'md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm'
     div.innerHTML = `<h3 class="font-black text-slate-800 text-sm mb-4">🔗 Evolution Chain</h3>${chainHTML}`
     grid.appendChild(div)
+    gsap.fromTo(div, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', clearProps: 'transform,opacity' })
 }
 
 export function flatEvo(node: EvolutionNode, arr: string[] = []): string[] {

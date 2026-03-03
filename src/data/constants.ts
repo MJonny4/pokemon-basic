@@ -84,3 +84,10 @@ export const STAT_LABELS: Record<string, string> = {
     'special-defense': 'Sp.Def',
     speed: 'Spd',
 }
+
+export const GEN_RANGES: Record<number, [number, number]> = {
+    1: [1, 151],   2: [152, 251],  3: [252, 386],
+    4: [387, 493], 5: [494, 649],  6: [650, 721],
+    7: [722, 809], 8: [810, 905],  9: [906, 1025],
+}
+

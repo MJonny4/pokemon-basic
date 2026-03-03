@@ -1,8 +1,23 @@
 import type { Pokemon, Species } from '../../api/pokeapi'
-import { TYPE_COLORS, STAT_LABELS } from '../../data/constants'
+import { TYPE_COLORS, STAT_LABELS, STAT_COLORS } from '../../data/constants'
 import type { RoleResult } from '../../logic/roleDetect'
 import { recommendNatures } from '../../logic/natures'
 import { recommendItems } from '../../logic/items'
+import { calcStat } from '../../logic/statCalc'
+
+const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
+
+const ROLE_SPREADS: Record<string, Record<string, number>> = {
+    physical_sweeper:  { hp: 4,   attack: 252, defense: 0,   'special-attack': 0,   'special-defense': 0,   speed: 252 },
+    special_sweeper:   { hp: 4,   attack: 0,   defense: 0,   'special-attack': 252, 'special-defense': 0,   speed: 252 },
+    physical_attacker: { hp: 252, attack: 252, defense: 4,   'special-attack': 0,   'special-defense': 0,   speed: 0   },
+    special_attacker:  { hp: 252, attack: 0,   defense: 0,   'special-attack': 252, 'special-defense': 4,   speed: 0   },
+    physical_wall:     { hp: 252, attack: 0,   defense: 252, 'special-attack': 0,   'special-defense': 4,   speed: 0   },
+    special_wall:      { hp: 252, attack: 0,   defense: 4,   'special-attack': 0,   'special-defense': 252, speed: 0   },
+    tank:              { hp: 252, attack: 0,   defense: 128, 'special-attack': 0,   'special-defense': 128, speed: 0   },
+    fast_attacker:     { hp: 4,   attack: 252, defense: 0,   'special-attack': 0,   'special-defense': 0,   speed: 252 },
+    mixed_attacker:    { hp: 4,   attack: 252, defense: 0,   'special-attack': 252, 'special-defense': 0,   speed: 0   },
+}
 
 export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Species | null): void {
     const el = document.getElementById('trainerContent')
@@ -64,6 +79,49 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
         )
         .join('')
 
+    // Stat calculator
+    const topNature = scoredNatures.find((n) => !n.isNeutral) ?? null
+    const spread = ROLE_SPREADS[role.key] ?? ROLE_SPREADS['physical_sweeper']
+
+    const statRows = STAT_KEYS.map((key) => {
+        const base = statMap[key] ?? 0
+        const ev = spread[key] ?? 0
+        const final = calcStat(key, base, 31, ev, 50, topNature?.name ?? null)
+        const col = STAT_COLORS[key] ?? '#8b5cf6'
+        const label = STAT_LABELS[key] ?? key
+        const isPlus = topNature?.plus === key
+        const isMinus = topNature?.minus === key
+        const arrow = isPlus
+            ? `<span class="text-[9px] font-black text-rose-400">▲</span>`
+            : isMinus
+              ? `<span class="text-[9px] font-black text-blue-400">▼</span>`
+              : `<span class="w-3 inline-block"></span>`
+        const barPct = Math.round((final / 255) * 100)
+        return `<div class="flex items-center gap-2 text-xs">
+      <span class="w-8 text-right font-black shrink-0" style="color:${col}">${label}</span>
+      <span class="w-7 text-right text-slate-300 font-semibold shrink-0">${base}</span>
+      <span class="w-7 text-right font-bold shrink-0 ${ev > 0 ? 'text-violet-500' : 'text-slate-200'}">${ev > 0 ? ev : '—'}</span>
+      <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+        <div class="h-1.5 rounded-full" style="background:${col};width:${barPct}%"></div>
+      </div>
+      <span class="w-3 shrink-0 text-center">${arrow}</span>
+      <span class="w-7 text-right font-black shrink-0 text-slate-700">${final}</span>
+    </div>`
+    }).join('')
+
+    const evEntries = Object.entries(spread)
+        .filter(([, v]) => v > 0)
+        .map(([k, v]) => `${v} ${STAT_LABELS[k] ?? k}`)
+        .join(' / ')
+    const spreadLabel = topNature ? `${topNature.name} · ${evEntries}` : evEntries
+
+    const statCalcHTML = `
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm mb-5">
+      <h3 class="font-black text-slate-800 text-sm mb-1">📊 Stat Calculator (Lv 50)</h3>
+      <p class="text-xs text-slate-400 mb-4">${spreadLabel} · 31 IVs</p>
+      <div class="space-y-2">${statRows}</div>
+    </div>`
+
     el.innerHTML = `
     <!-- Role card -->
     <div class="bg-linear-to-br from-violet-50 to-indigo-50 border border-violet-200 rounded-2xl p-5 mb-5">
@@ -73,6 +131,8 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
       </div>
       <p class="text-sm text-slate-600 leading-relaxed">${role.description}</p>
     </div>
+
+    ${statCalcHTML}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <!-- Natures -->
