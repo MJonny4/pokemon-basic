@@ -52,11 +52,7 @@
             <!-- Search -->
             <div class="flex-1 min-w-52 max-w-lg relative flex gap-2">
                 <div class="relative flex-1">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-                    </svg>
+                    <img src="/search.svg" alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                     <input type="text" x-model="query" @input="handleInput()"
                         @keypress="if($event.key==='Enter') select(query.trim().toLowerCase())"
                         placeholder="Search Pokémon…"
@@ -207,8 +203,7 @@
                         x-text="$store.pokemon.role?.label ?? ''"></div>
                     <a x-show="$store.pokemon.pokemon"
                         :href="'./team.html?add=' + encodeURIComponent($store.pokemon.pokemon?.name ?? '')"
-                        class="px-3 py-1.5 rounded-lg border bg-emerald-500/20 border-emerald-400/50 text-white text-xs font-bold flex items-center gap-1.5 transition hover:bg-emerald-400/30 whitespace-nowrap">
-                        🧪 Add to Team</a>
+                        class="px-3 py-1.5 rounded-lg border bg-emerald-500/20 border-emerald-400/50 text-white text-xs font-bold flex items-center gap-1.5 transition hover:bg-emerald-400/30 whitespace-nowrap">🧪 Add to Team</a>
                 </div>
             </div>
 
