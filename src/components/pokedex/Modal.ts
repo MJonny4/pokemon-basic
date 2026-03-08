@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs'
 import { gsap } from 'gsap'
+import { detectRole } from '../../logic/roleDetect'
 
 export function registerModal(): void {
     Alpine.data('modal', () => ({
@@ -78,6 +79,72 @@ export function registerModal(): void {
 
         onMoveSearch() {
             ;(window as any).rerenderMoves?.(this.moveFilter, this.moveSearch)
+        },
+
+        addToTeam() {
+            const pokemon = (Alpine.store('pokemon') as any).pokemon
+            if (!pokemon) return
+
+            // Read team from localStorage directly — no navigation needed
+            let slots: (object | null)[] = Array(6).fill(null)
+            try {
+                const raw = localStorage.getItem('team_lab')
+                if (raw) {
+                    const saved = JSON.parse(raw)
+                    if (Array.isArray(saved) && saved.length === 6) slots = saved
+                }
+            } catch {}
+
+            const firstEmpty = slots.findIndex((s) => s === null)
+            const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
+
+            const alreadyInTeam = slots.some((s) => s !== null && (s as any).pokemonId === pokemon.id)
+            if (alreadyInTeam) {
+                window.dispatchEvent(new CustomEvent('team-toast', {
+                    detail: {
+                        message: `${name} is already part of your team!`,
+                        type: 'error',
+                    },
+                }))
+                return
+            }
+
+            if (firstEmpty === -1) {
+                window.dispatchEvent(new CustomEvent('team-toast', {
+                    detail: {
+                        message: `Team is full! <a href="./team.html" class="underline font-bold">Open Team Lab →</a> to make room.`,
+                        type: 'error',
+                    },
+                }))
+                return
+            }
+
+            const stats = Object.fromEntries(pokemon.stats.map((s: any) => [s.stat.name, s.base_stat]))
+            const role = detectRole(stats)
+            slots[firstEmpty] = {
+                pokemonName: pokemon.name,
+                pokemonId: pokemon.id,
+                types: pokemon.types.map((t: any) => t.type.name),
+                stats,
+                nature: null,
+                item: null,
+                moves: [null, null, null, null],
+                role: role.key,
+                evs: { hp: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, speed: 0 },
+                ivs: { hp: 31, attack: 31, defense: 31, 'special-attack': 31, 'special-defense': 31, speed: 31 },
+                level: 50,
+            }
+
+            try {
+                localStorage.setItem('team_lab', JSON.stringify(slots))
+            } catch {}
+
+            window.dispatchEvent(new CustomEvent('team-toast', {
+                detail: {
+                    message: `${name} added to your team! <a href="./team.html" class="underline font-bold">Open Team Lab →</a>`,
+                    type: 'success',
+                },
+            }))
         },
     }))
 }

@@ -92,9 +92,9 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
         const isPlus = topNature?.plus === key
         const isMinus = topNature?.minus === key
         const arrow = isPlus
-            ? `<span class="text-[9px] font-black text-rose-400">▲</span>`
+            ? `<span class="text-[9px] font-black text-blue-400">▲</span>`
             : isMinus
-              ? `<span class="text-[9px] font-black text-blue-400">▼</span>`
+              ? `<span class="text-[9px] font-black text-rose-400">▼</span>`
               : `<span class="w-3 inline-block"></span>`
         const barPct = Math.round((final / 255) * 100)
         return `<div class="flex items-center gap-2 text-xs">

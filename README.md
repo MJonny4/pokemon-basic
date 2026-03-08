@@ -45,6 +45,13 @@ A Pokémon reference tool. Look up any Pokémon's stats, type matchups, moves, a
   - Showdown export — "📋 Showdown" copies the single-slot Pokepaste.
 - **Copy Team** — "📋 Copy Team" button exports all filled slots as a complete Showdown paste.
 - **Team analysis** — Synergy score, offensive coverage %, common weaknesses, speed tiers.
+- **⚔️ Battle Mode** — Full turn-based battle simulator against a random CPU team:
+  - Gen 9 damage formula with STAB, type effectiveness, critical hits, burn, stat stages, weather, and held item modifiers.
+  - CPU AI: switches on bad matchups, uses setup moves when tanky opponent, inflicts status when outclassed, else picks highest-damage move.
+  - Showdown-style turn log with colour-coded lines (critical hit, super effective, status, stat changes).
+  - GSAP animations: attack lunge, damage flash, HP bar drain, faint drop.
+  - Switch panel: voluntary (CPU moves) and forced (free, after faint).
+  - Battle gated: all 6 slots must be filled, each with a nature, item, and all 4 moves set. Missing slots or incomplete sets are reported by name/slot number.
 
 ---
 

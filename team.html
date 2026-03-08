@@ -154,12 +154,16 @@
             </div>
         </div>
 
-        <!-- Copy Team button -->
-        <div class="flex justify-end px-1 pb-3" x-show="$store.team.slots.some(s => s && s.pokemonName)" style="display:none">
+        <!-- Copy Team + Battle Mode buttons -->
+        <div class="flex justify-end gap-2 px-1 pb-3" x-show="$store.team.slots.some(s => s && s.pokemonName)" style="display:none">
             <button @click="copyTeam()"
                 :class="teamCopied ? 'bg-green-600 border-green-600 text-white' : 'bg-slate-800 border-slate-800 hover:bg-slate-700 text-white'"
                 class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl border-2 text-xs font-bold transition active:scale-95">
                 <span x-text="teamCopied ? '✅ Copied!' : '📋 Copy Team'"></span>
+            </button>
+            <button @click="validateForBattle() && $dispatch('open-battle')"
+                class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl border-2 bg-violet-600 border-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition active:scale-95">
+                ⚔️ Battle Mode
             </button>
         </div>
 
@@ -173,8 +177,17 @@
                 <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${slot?.pokemonId}.png`"
                     class="w-10 h-10 object-contain shrink-0" style="image-rendering:pixelated">
                 <div class="flex-1 min-w-0">
-                    <p class="font-black text-sm text-slate-800 capitalize"
-                        x-text="slot?.pokemonName?.replace(/-/g, ' ')"></p>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <p class="font-black text-sm text-slate-800 capitalize"
+                            x-text="slot?.pokemonName?.replace(/-/g, ' ')"></p>
+                        <template x-for="t in (slot?.types ?? [])" :key="t">
+                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-white text-[9px] font-black capitalize"
+                                :style="`background:${moveColor(t)}`">
+                                <img :src="typeIcon(t)" class="w-3 h-3 shrink-0" style="filter:brightness(0) invert(1)">
+                                <span x-text="t"></span>
+                            </span>
+                        </template>
+                    </div>
                     <p class="text-[10px] text-slate-400 font-semibold capitalize"
                         x-text="slot?.role?.replace(/_/g, ' ')"></p>
                 </div>
@@ -243,13 +256,15 @@
                     <!-- ITEM -->
                     <div>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Held Item</p>
+
+                        <!-- 6-slot 2-col grid: 5 recommended + 1 custom picker slot -->
                         <div class="grid grid-cols-2 gap-2">
-                            <template x-for="item in allItemsWithFlag" :key="item.name">
+                            <!-- Recommended cards (5) -->
+                            <template x-for="item in recommendedItems" :key="item.name">
                                 <button @click="setItem(item.name)"
                                     :style="`background:${slot?.item === item.name ? item.border + '30' : item.color};border-color:${slot?.item === item.name ? item.border : item.border + '88'}`"
                                     class="flex items-start gap-2 p-2 rounded-xl border-2 text-left transition hover:scale-[1.02] active:scale-95 relative">
-                                    <span x-show="item.recommended"
-                                        class="absolute top-1 right-1 text-[9px] leading-none" title="Recommended">⭐</span>
+                                    <span class="absolute top-1 right-1 text-[9px] leading-none" title="Recommended">⭐</span>
                                     <img :src="item.emoji" class="w-6 h-6 object-contain shrink-0 mt-0.5">
                                     <div class="min-w-0">
                                         <p class="text-[10px] font-black leading-tight"
@@ -261,6 +276,57 @@
                                     </div>
                                 </button>
                             </template>
+
+                            <!-- 6th slot: custom picker -->
+                            <!-- State A: search input (shown when no custom item is selected) -->
+                            <div class="relative" x-show="!isCustomItemSelected"
+                                @click.outside="itemDropdownOpen = false">
+                                <div class="border-2 border-dashed border-slate-300 rounded-xl p-2 flex flex-col gap-1 bg-slate-50 hover:border-violet-300 transition h-full min-h-18">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-slate-400 text-xs shrink-0">🔍</span>
+                                        <input x-model="itemQuery"
+                                            @input="itemDropdownOpen = itemQuery.length >= 2"
+                                            @focus="if (itemQuery.length >= 2) itemDropdownOpen = true"
+                                            placeholder="Any item…"
+                                            class="flex-1 text-[10px] bg-transparent outline-none placeholder:text-slate-400 text-slate-700 font-semibold min-w-0">
+                                        <button x-show="itemQuery.length > 0"
+                                            @click="itemQuery = ''; itemDropdownOpen = false"
+                                            class="text-slate-400 hover:text-slate-600 transition shrink-0 text-xs leading-none">✕</button>
+                                    </div>
+                                    <p class="text-[9px] text-slate-300 font-medium">Search all items</p>
+                                </div>
+                                <!-- Dropdown -->
+                                <div x-show="itemDropdownOpen && filteredAllItems.length > 0"
+                                    class="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-52 overflow-y-auto">
+                                    <template x-for="i in filteredAllItems" :key="i.slug">
+                                        <button @click="selectCustomItem(i.name)"
+                                            class="flex items-center gap-2 w-full px-3 py-2 hover:bg-violet-50 text-left transition border-b border-slate-100 last:border-0">
+                                            <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${i.slug}.png`"
+                                                class="w-6 h-6 object-contain shrink-0"
+                                                @error="$el.style.visibility='hidden'">
+                                            <div class="min-w-0 flex-1">
+                                                <span x-text="i.name" class="text-[11px] font-bold text-slate-700 block"></span>
+                                                <span x-text="i.desc" class="text-[9px] text-slate-400 line-clamp-1 block"></span>
+                                            </div>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- State B: populated custom item card (same dimensions as recommended cards) -->
+                            <button x-show="isCustomItemSelected"
+                                @click="setItem(slot?.item)"
+                                class="flex items-start gap-2 p-2 rounded-xl border-2 border-violet-300 bg-violet-50 text-left transition hover:scale-[1.02] active:scale-95 relative">
+                                <span class="absolute top-1 right-1 text-[9px] leading-none text-violet-400" title="Custom pick">✏️</span>
+                                <img :src="customItemData ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${customItemData.slug}.png` : ''"
+                                    class="w-6 h-6 object-contain shrink-0 mt-0.5"
+                                    @error="$el.style.visibility=''">
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-black leading-tight text-slate-700" x-text="slot?.item"></p>
+                                    <p class="text-[9px] font-medium leading-tight mt-0.5 line-clamp-2 text-slate-400"
+                                        x-text="customItemData?.desc ?? ''"></p>
+                                </div>
+                            </button>
                         </div>
                     </div>
 
@@ -310,14 +376,14 @@
                                     :value="slot?.evs[key] ?? 0"
                                     @change="setEv(key, Number($event.target.value))"
                                     @blur="$event.target.value = slot?.evs[key] ?? 0"
-                                    :class="(slot?.evs[key] ?? 0) >= 252 ? 'text-violet-600 border-red-300' : (slot?.evs[key] ?? 0) > 0 ? 'text-slate-600 border-transparent' : 'text-slate-200 border-transparent'"
-                                    class="text-[10px] font-bold w-9 shrink-0 text-right bg-transparent border rounded px-0.5 focus:outline-none focus:border-violet-400 focus:bg-white focus:text-slate-700 appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden [-moz-appearance:textfield]">
+                                    :class="(slot?.evs[key] ?? 0) >= 252 ? 'text-violet-600 border-red-300' : (slot?.evs[key] ?? 0) > 0 ? 'text-slate-600 border-slate-200' : 'text-slate-400 border-slate-200'"
+                                    class="text-[10px] font-bold w-9 shrink-0 text-right bg-transparent border rounded px-0.5 focus:outline-none focus:border-violet-300 focus:bg-white focus:text-slate-700 appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden [-moz-appearance:textfield]">
                                 <!-- Final calculated stat (→ value, colored) -->
                                 <div class="flex items-center gap-0.5 w-12 shrink-0 justify-end">
                                     <!-- nature arrow indicator -->
                                     <span x-show="natureEffect(key) !== 0"
                                         class="text-[9px] font-black"
-                                        :class="natureEffect(key) === 1 ? 'text-rose-400' : 'text-blue-400'"
+                                        :class="natureEffect(key) === 1 ? 'text-blue-400' : 'text-rose-400'"
                                         x-text="natureEffect(key) === 1 ? '▲' : '▼'"></span>
                                     <span class="text-xs font-black"
                                         :style="`color:${STAT_COLORS[key]}`"
@@ -363,6 +429,138 @@
                     </details>
                 </div>
 
+            </div>
+
+            <!-- ══ DAMAGE CALCULATOR ══ -->
+            <div class="px-5 pb-4 border-t border-slate-100 pt-4">
+                <button @click="calcOpen = !calcOpen"
+                    class="flex items-center gap-2 w-full text-left group">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-violet-500 transition">⚡ Damage Calculator</span>
+                    <span class="text-slate-300 group-hover:text-violet-400 transition text-xs" x-text="calcOpen ? '▴' : '▾'"></span>
+                </button>
+
+                <div x-show="calcOpen" x-cloak class="mt-3 space-y-3">
+
+                    <!-- Defender search -->
+                    <div class="relative" @click.outside="calcDefenderAcOpen = false">
+                        <div class="flex items-center gap-2 border-2 border-slate-200 rounded-xl px-3 py-2 focus-within:border-violet-400 transition bg-white">
+                            <span class="text-slate-400 text-xs shrink-0">vs.</span>
+                            <input x-model="calcDefenderQuery"
+                                @input="calcDefenderAcOpen = calcDefenderQuery.length >= 2"
+                                @focus="if (calcDefenderQuery.length >= 2) calcDefenderAcOpen = true"
+                                placeholder="Search defender Pokémon…"
+                                class="flex-1 text-xs bg-transparent outline-none placeholder:text-slate-400 text-slate-700 font-semibold min-w-0">
+                            <template x-if="calcDefenderPokemon">
+                                <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${calcDefenderPokemon?.id}.png`"
+                                    class="w-6 h-6 object-contain shrink-0" style="image-rendering:pixelated">
+                            </template>
+                            <button x-show="calcDefenderQuery.length > 0"
+                                @click="calcDefenderQuery=''; calcDefenderPokemon=null; calcResults=[]"
+                                class="text-slate-400 hover:text-slate-600 text-xs shrink-0">✕</button>
+                        </div>
+                        <div x-show="calcDefenderAcOpen && calcDefenderSuggestionsList.length > 0"
+                            class="absolute z-30 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                            <template x-for="p in calcDefenderSuggestionsList" :key="p.name">
+                                <button @click="selectCalcDefender(p)"
+                                    class="flex items-center gap-2 w-full px-3 py-2 hover:bg-violet-50 text-left border-b border-slate-50 last:border-0">
+                                    <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`"
+                                        class="w-6 h-6 object-contain shrink-0" style="image-rendering:pixelated">
+                                    <span class="text-xs font-semibold text-slate-700 capitalize" x-text="p.name.replace(/-/g,' ')"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Field options + defender params -->
+                    <div class="flex flex-wrap gap-1.5 items-center">
+                        <!-- Weather -->
+                        <template x-for="[val, label] in [['sun','☀️'],['rain','🌧'],['sand','🏔'],['snow','❄️']]" :key="val">
+                            <button @click="calcWeather = calcWeather === val ? null : val"
+                                :class="calcWeather === val ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-slate-500 border-slate-200 hover:border-violet-400'"
+                                class="px-2 py-1 rounded-lg border text-xs font-bold transition"
+                                x-text="label + ' ' + val.charAt(0).toUpperCase() + val.slice(1)"></button>
+                        </template>
+                        <button @click="calcReflect = !calcReflect"
+                            :class="calcReflect ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-400'"
+                            class="px-2 py-1 rounded-lg border text-xs font-bold transition">🛡 Reflect</button>
+                        <button @click="calcLightScreen = !calcLightScreen"
+                            :class="calcLightScreen ? 'bg-yellow-400 text-slate-800 border-yellow-400' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-400'"
+                            class="px-2 py-1 rounded-lg border text-xs font-bold transition">✨ LightScr</button>
+                        <button @click="calcCrit = !calcCrit"
+                            :class="calcCrit ? 'bg-red-500 text-white border-red-500' : 'bg-white text-slate-500 border-slate-200 hover:border-red-400'"
+                            class="px-2 py-1 rounded-lg border text-xs font-bold transition">💥 Crit</button>
+                    </div>
+
+                    <!-- Defender stat inputs -->
+                    <div class="flex flex-wrap gap-2 text-[10px] text-slate-500 items-center">
+                        <span class="font-black text-slate-400 uppercase tracking-widest">Defender:</span>
+                        <label class="flex items-center gap-1">Lv
+                            <input type="number" min="1" max="100" x-model.number="calcDefenderLevel"
+                                class="w-12 text-center border border-slate-200 rounded px-1 py-0.5 text-xs font-bold focus:outline-none focus:border-violet-400">
+                        </label>
+                        <label class="flex items-center gap-1">EV Def
+                            <input type="number" min="0" max="252" step="4" x-model.number="calcDefenderEvDef"
+                                class="w-14 text-center border border-slate-200 rounded px-1 py-0.5 text-xs font-bold focus:outline-none focus:border-violet-400">
+                        </label>
+                        <label class="flex items-center gap-1">EV SpD
+                            <input type="number" min="0" max="252" step="4" x-model.number="calcDefenderEvSpd"
+                                class="w-14 text-center border border-slate-200 rounded px-1 py-0.5 text-xs font-bold focus:outline-none focus:border-violet-400">
+                        </label>
+                        <label class="flex items-center gap-1">IV
+                            <input type="number" min="0" max="31" x-model.number="calcDefenderIv"
+                                class="w-11 text-center border border-slate-200 rounded px-1 py-0.5 text-xs font-bold focus:outline-none focus:border-violet-400">
+                        </label>
+                    </div>
+
+                    <!-- Results table -->
+                    <div x-show="calcResults.length > 0" class="rounded-xl border border-slate-200 overflow-hidden">
+                        <table class="w-full text-[10px]">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200">
+                                    <th class="text-left px-2 py-1.5 font-black text-slate-400 uppercase tracking-widest">Move</th>
+                                    <th class="px-2 py-1.5 font-black text-slate-400 uppercase tracking-widest">Eff.</th>
+                                    <th class="px-2 py-1.5 font-black text-slate-400 uppercase tracking-widest">Damage</th>
+                                    <th class="px-2 py-1.5 font-black text-slate-400 uppercase tracking-widest hidden sm:table-cell">KO?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="(row, i) in calcResults" :key="i">
+                                    <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                                        <td class="px-2 py-2">
+                                            <span class="font-bold text-slate-700 capitalize"
+                                                x-text="(row.moveName ?? '—').replace(/-/g,' ')"></span>
+                                            <span x-show="row.move?.damage_class?.name === 'status'"
+                                                class="ml-1 text-[9px] text-slate-400 font-semibold">status</span>
+                                        </td>
+                                        <td class="px-2 py-2 text-center font-black"
+                                            :class="!row.result ? 'text-slate-300' : row.result.effectiveness >= 2 ? 'text-green-500' : row.result.effectiveness <= 0.5 ? 'text-red-400' : row.result.effectiveness === 0 ? 'text-slate-300' : 'text-slate-500'"
+                                            x-text="row.result ? effectivenessLabel(row.result.effectiveness) : '—'"></td>
+                                        <td class="px-2 py-2 text-center">
+                                            <template x-if="row.result && row.result.effectiveness > 0">
+                                                <span class="font-black text-slate-700">
+                                                    <span x-text="row.result.min"></span>–<span x-text="row.result.max"></span>
+                                                    <span class="font-semibold text-slate-400 ml-1">(<span x-text="row.result.minPct"></span>–<span x-text="row.result.maxPct"></span>%)</span>
+                                                </span>
+                                            </template>
+                                            <span x-show="!row.result || row.result.effectiveness === 0" class="text-slate-300 font-semibold">—</span>
+                                        </td>
+                                        <td class="px-2 py-2 text-center hidden sm:table-cell">
+                                            <span x-show="row.result && row.result.effectiveness > 0"
+                                                class="font-black text-[9px]"
+                                                :class="row.result?.koChance?.includes('guaranteed OHKO') ? 'text-green-500' : row.result?.koChance?.includes('OHKO') ? 'text-amber-500' : row.result?.koChance?.includes('2HKO') ? 'text-blue-400' : 'text-slate-400'"
+                                                x-text="row.result?.koChance ?? ''"></span>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p x-show="calcOpen && !calcDefenderPokemon" class="text-[10px] text-slate-300 font-semibold text-center py-2">
+                        Search a defender to see damage calculations.
+                    </p>
+
+                </div>
             </div>
 
             <!-- ══ MOVES SECTION ══ -->
@@ -597,6 +795,238 @@
                 class="inline-block px-6 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 font-bold text-sm transition shadow-md">
                 Open Pokédex →
             </a>
+        </div>
+
+        <!-- ══════════ BATTLE SIMULATOR MODAL ══════════ -->
+        <div x-data="battleSim"
+            @open-battle.window="openBattle()"
+            x-show="open"
+            x-cloak
+            class="fixed inset-0 z-60 flex flex-col bg-slate-900 text-white overflow-hidden"
+            style="display:none">
+
+            <!-- Loading overlay -->
+            <div x-show="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-10">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-400 mb-4"></div>
+                <p class="text-slate-400 font-semibold">Building CPU team…</p>
+            </div>
+
+            <!-- Winner overlay -->
+            <div x-show="state && state.phase === 'battle-end'" x-cloak
+                class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 z-10">
+                <div class="text-6xl mb-4" x-text="state?.winner === 'player' ? '🏆' : '💀'"></div>
+                <p class="text-2xl font-black mb-2" x-text="state?.winner === 'player' ? 'You Won!' : 'You Lost!'"></p>
+                <p class="text-slate-400 text-sm mb-6" x-text="'Turn ' + (state?.turn ?? 0)"></p>
+                <div class="flex gap-3">
+                    <button @click="playAgain()" class="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 rounded-xl font-bold text-sm transition">⚔️ Play Again</button>
+                    <button @click="closeBattle()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold text-sm transition">✕ Close</button>
+                </div>
+            </div>
+
+            <!-- Header bar -->
+            <div class="flex items-center justify-between px-4 py-2 bg-slate-800 border-b border-slate-700 shrink-0">
+                <span class="font-black text-sm">⚔️ Battle Mode</span>
+                <div class="flex items-center gap-2">
+                    <span x-show="weatherIcon()" x-text="weatherIcon()" class="text-base"></span>
+                    <span class="text-slate-400 text-xs" x-text="state ? 'Turn ' + state.turn : ''"></span>
+                </div>
+                <button @click="closeBattle()" class="text-slate-400 hover:text-white transition text-sm font-bold px-2">✕</button>
+            </div>
+
+            <!-- Battle arena + log wrapper -->
+            <div class="flex-1 flex flex-col sm:flex-row overflow-hidden min-h-0">
+
+            <!-- Battle arena (sprites + info) -->
+            <div class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+                <!-- CPU side -->
+                <div class="flex-1 flex flex-col items-center justify-end pb-2 px-4 relative bg-linear-to-b from-slate-800 to-slate-900 min-h-0">
+
+                    <!-- CPU team portraits (top) -->
+                    <div class="absolute top-2 left-4 flex gap-1">
+                        <template x-for="(p, i) in (state?.cpuTeam ?? [])" :key="i">
+                            <div class="relative">
+                                <img :src="spriteUrl(p.pokemonId)"
+                                    :class="p.fainted ? 'opacity-30 grayscale' : state?.cpuActive === i ? 'ring-2 ring-violet-400 rounded-full' : ''"
+                                    class="w-8 h-8 object-contain" style="image-rendering:pixelated">
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- CPU active Pokemon info -->
+                    <template x-if="cpuActive">
+                        <div class="w-full max-w-xs text-right mb-2">
+                            <div class="flex items-center justify-end gap-2 mb-1 flex-wrap">
+                                <div class="flex gap-1">
+                                    <template x-for="t in (cpuActive?.types ?? [])" :key="t">
+                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-white text-[9px] font-black capitalize"
+                                            :style="`background:${moveTypeColor({ type: { name: t } })}`">
+                                            <img :src="typeIcon(t)" class="w-2.5 h-2.5 shrink-0" style="filter:brightness(0) invert(1)">
+                                            <span x-text="t"></span>
+                                        </span>
+                                    </template>
+                                </div>
+                                <span x-show="cpuActive?.status" class="text-xs" x-text="statusLabel(cpuActive?.status ?? null)"></span>
+                                <span class="font-black text-sm" x-text="cpuActive?.name ?? ''"></span>
+                                <span class="text-slate-400 text-xs" x-text="'Lv.' + (cpuActive?.slot?.level ?? 50)"></span>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden w-full">
+                                <div id="cpu-hp-bar" class="h-full rounded-full transition-none"
+                                    :style="`width:${hpPct(cpuActive)}%;background:${hpColor(hpPct(cpuActive))}`"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-0.5" x-text="cpuActive?.currentHp + ' / ' + cpuActive?.maxHp"></p>
+
+                            <!-- CPU moves (read-only, for learning) -->
+                            <div class="grid grid-cols-2 gap-1 mt-2">
+                                <template x-for="(m, mi) in cpuActiveMoves" :key="mi">
+                                    <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/60 border border-slate-700/50 text-left min-h-8">
+                                        <template x-if="m">
+                                            <span class="inline-flex items-center gap-0.5 text-[8px] font-black px-1 py-0.5 rounded text-white shrink-0 capitalize"
+                                                :style="`background:${moveTypeColor(m)}`">
+                                                <img :src="moveTypeIcon(m)" class="w-2.5 h-2.5 shrink-0" style="filter:brightness(0) invert(1)">
+                                            </span>
+                                        </template>
+                                        <span class="text-[10px] font-semibold capitalize flex-1 truncate text-slate-300"
+                                            x-text="m ? m.name.replace(/-/g,' ') : '—'"></span>
+                                        <span class="text-[9px] text-slate-500 shrink-0" x-text="m?.power ?? '—'"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- CPU sprite -->
+                    <img id="cpu-sprite"
+                        :src="cpuActive ? spriteUrl(cpuActive.pokemonId) : ''"
+                        class="w-24 h-24 object-contain" style="image-rendering:pixelated; transform-origin: center bottom;">
+                </div>
+
+                <!-- Player side -->
+                <div class="flex-1 flex flex-col items-center justify-start pt-2 px-4 relative bg-linear-to-t from-slate-800 to-slate-900 min-h-0">
+
+                    <!-- Player sprite -->
+                    <img id="player-sprite"
+                        :src="playerActive ? spriteUrl(playerActive.pokemonId) : ''"
+                        class="w-24 h-24 object-contain" style="image-rendering:pixelated; transform-origin: center top;">
+
+                    <!-- Player active Pokemon info -->
+                    <template x-if="playerActive">
+                        <div class="w-full max-w-xs mb-2">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="font-black text-sm" x-text="playerActive?.name ?? ''"></span>
+                                <span class="text-slate-400 text-xs" x-text="'Lv.' + (playerActive?.slot?.level ?? 50)"></span>
+                                <span x-show="playerActive?.status" class="text-xs" x-text="statusLabel(playerActive?.status ?? null)"></span>
+                                <div class="flex gap-1">
+                                    <template x-for="t in (playerActive?.types ?? [])" :key="t">
+                                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-white text-[9px] font-black capitalize"
+                                            :style="`background:${moveTypeColor({ type: { name: t } })}`">
+                                            <img :src="typeIcon(t)" class="w-2.5 h-2.5 shrink-0" style="filter:brightness(0) invert(1)">
+                                            <span x-text="t"></span>
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden w-full">
+                                <div id="player-hp-bar" class="h-full rounded-full transition-none"
+                                    :style="`width:${hpPct(playerActive)}%;background:${hpColor(hpPct(playerActive))}`"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-0.5" x-text="playerActive?.currentHp + ' / ' + playerActive?.maxHp"></p>
+                        </div>
+                    </template>
+
+                    <!-- Player team portraits (bottom) -->
+                    <div class="absolute bottom-2 left-4 flex gap-1">
+                        <template x-for="(p, i) in (state?.playerTeam ?? [])" :key="i">
+                            <div class="relative">
+                                <img :src="spriteUrl(p.pokemonId)"
+                                    :class="p.fainted ? 'opacity-30 grayscale' : state?.playerActive === i ? 'ring-2 ring-violet-400 rounded-full' : ''"
+                                    class="w-8 h-8 object-contain" style="image-rendering:pixelated">
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div><!-- end battle arena (sprites) -->
+
+            <!-- Turn log — right sidebar on desktop, bottom strip on mobile -->
+            <div id="battle-log"
+                class="w-full sm:w-72 h-full shrink-0 bg-slate-950 border-t sm:border-t-0 sm:border-l border-slate-800 overflow-y-auto px-3 py-2 text-[11px] space-y-0.5 sm:h-auto">
+                <template x-for="(line, i) in allLogLines()" :key="i">
+                    <p :class="logLineClass(line)" class="leading-snug" x-text="line"></p>
+                </template>
+            </div>
+
+            </div><!-- end battle arena + log wrapper -->
+
+            <!-- Switch panel (force switch after faint or voluntary) -->
+            <div x-show="state && (state.phase === 'switching' || showSwitch)"
+                class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center z-10 p-4">
+                <p class="font-black text-sm mb-3">Choose your next Pokémon!</p>
+                <div class="grid grid-cols-3 gap-2 max-w-sm w-full">
+                    <template x-for="(p, i) in (state?.playerTeam ?? [])" :key="i">
+                        <button @click="selectSwitch(i)"
+                            :disabled="p.fainted || i === state?.playerActive"
+                            :class="p.fainted || i === state?.playerActive ? 'opacity-30 cursor-not-allowed' : 'hover:border-violet-400 hover:bg-violet-900/20'"
+                            class="flex flex-col items-center p-2 rounded-xl border border-slate-700 transition">
+                            <img :src="spriteUrl(p.pokemonId)" class="w-10 h-10 object-contain" style="image-rendering:pixelated">
+                            <span class="text-[10px] font-bold capitalize mt-1" x-text="p.name"></span>
+                            <div class="flex gap-0.5 mt-0.5">
+                                <template x-for="t in (p.types ?? [])" :key="t">
+                                    <span class="px-1 py-0.5 rounded text-white text-[8px] font-black capitalize"
+                                        :style="`background:${moveTypeColor({ type: { name: t } })}`"
+                                        x-text="t"></span>
+                                </template>
+                            </div>
+                            <span class="text-[9px] text-slate-400 mt-0.5" x-text="p.currentHp + '/' + p.maxHp"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Action bar -->
+            <div class="shrink-0 bg-slate-800 border-t border-slate-700 p-3">
+                <!-- Moves + switch -->
+                <div x-show="state && state.phase === 'selecting'" class="grid grid-cols-2 gap-2">
+                    <template x-for="(m, mi) in playerActiveMoves" :key="mi">
+                        <button @click="selectMove(mi)"
+                            :disabled="animating"
+                            :class="animating && selectedMoveIndex === mi
+                                ? 'border-violet-500 bg-violet-900/40 scale-95 cursor-not-allowed'
+                                : animating
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : m ? 'hover:border-violet-400 hover:bg-slate-700' : 'opacity-40 cursor-not-allowed'"
+                            class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700 bg-slate-900 transition text-left min-h-12 active:scale-95">
+                            <template x-if="m">
+                                <span class="inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded text-white shrink-0 capitalize"
+                                    :style="`background:${moveTypeColor(m)}`">
+                                    <img :src="moveTypeIcon(m)" class="w-3 h-3 shrink-0" style="filter:brightness(0) invert(1)">
+                                    <span x-text="m?.type?.name ?? '?'"></span>
+                                </span>
+                            </template>
+                            <span class="text-xs font-bold capitalize flex-1 truncate"
+                                x-text="m ? m.name.replace(/-/g,' ') : ('— Move ' + (mi+1) + ' —')"></span>
+                            <div class="flex flex-col items-end gap-0.5 shrink-0">
+                                <span class="text-[10px] text-slate-400" x-text="movePower(m)"></span>
+                                <span class="text-[9px]" x-text="m?.damage_class?.name === 'physical' ? '⚔️' : m?.damage_class?.name === 'special' ? '🔮' : ''"></span>
+                            </div>
+                        </button>
+                    </template>
+                </div>
+
+                <!-- Switch + forfeit row -->
+                <div class="flex justify-between items-center mt-2">
+                    <button x-show="state && state.phase === 'selecting'"
+                        @click="if (!animating) showSwitch = true"
+                        :disabled="animating"
+                        class="px-3 py-1.5 rounded-lg border border-slate-600 hover:border-violet-400 text-xs font-bold text-slate-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        🔄 Switch
+                    </button>
+                    <span x-show="state && state.phase !== 'selecting'" class="text-[10px] text-slate-500"></span>
+                    <button @click="forfeit()"
+                        class="px-3 py-1.5 rounded-lg border border-slate-600 hover:border-red-500 text-xs font-bold text-slate-500 hover:text-red-400 transition">
+                        🏳 Forfeit
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Toast notification -->

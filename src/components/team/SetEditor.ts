@@ -3,8 +3,16 @@ import { recommendNatures } from '../../logic/natures'
 import { recommendItems } from '../../logic/items'
 import { NATURES } from '../../data/natures'
 import { ITEMS } from '../../data/items'
-import { fetchPokemon, fetchMoves, type MoveDetail } from '../../api/pokeapi'
+import { fetchPokemon, fetchMoves, fetchPokemonList, type MoveDetail } from '../../api/pokeapi'
 import { calcStat } from '../../logic/statCalc'
+import { calcDamageRange } from '../../logic/damageCalc'
+import type { AttackerState, DefenderState, FieldState, DamageResult } from '../../logic/damageCalc'
+import itemsFullRaw from '../../data/items-full.json'
+
+interface FullItem { name: string; slug: string; desc: string }
+const ITEMS_FULL: FullItem[] = itemsFullRaw as FullItem[]
+// Keyed lookup for the custom picker selected card
+const ITEMS_FULL_MAP: Record<string, FullItem> = Object.fromEntries(ITEMS_FULL.map((i) => [i.name, i]))
 
 const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
 
@@ -48,7 +56,10 @@ export function registerSetEditor(): void {
         STAT_LABELS,
         STAT_COLORS,
         allNatures: Object.keys(NATURES),
-        allItems: ITEMS,
+
+        // ── item picker state ─────────────────────────────────────
+        itemQuery: '',
+        itemDropdownOpen: false,
 
         // ── move selector state ──────────────────────────────────
         availableMoves: [] as MoveDetail[],
@@ -58,6 +69,24 @@ export function registerSetEditor(): void {
 
         // ── copy feedback ────────────────────────────────────────
         copied: false,
+
+        // ── damage calculator state ───────────────────────────────
+        calcOpen: false,
+        calcDefenderQuery: '',
+        calcDefenderSuggestions: [] as Array<{ name: string; id: number }>,
+        calcDefenderPokemon: null as any,
+        calcDefenderAcOpen: false,
+        calcWeather: null as 'sun' | 'rain' | 'sand' | 'snow' | null,
+        calcReflect: false,
+        calcLightScreen: false,
+        calcCrit: false,
+        calcDefenderLevel: 50,
+        calcDefenderEvDef: 0,
+        calcDefenderEvSpd: 0,
+        calcDefenderIv: 31,
+        calcDefenderNature: null as string | null,
+        calcResults: [] as Array<{ move: MoveDetail | null; moveName: string; result: DamageResult | null }>,
+        allPokemonList: [] as Array<{ name: string; id: number }>,
 
         // ── reactive slot getter ─────────────────────────────────
         get slot(): any {
@@ -81,17 +110,38 @@ export function registerSetEditor(): void {
         },
 
         get recommendedItems() {
-            if (!this.slot) return ITEMS.slice(0, 6)
+            if (!this.slot) return ITEMS.slice(0, 5)
             const s = this.slot as any
             return recommendItems(s.role ?? 'physical_sweeper', s.types, false)
         },
 
-        get allItemsWithFlag() {
-            const recSet = new Set((this.recommendedItems as any[]).map((i: any) => i.name))
-            return (ITEMS as any[]).map(item => ({ ...item, recommended: recSet.has(item.name) }))
+        // Returns items from items-full.json matching the search query,
+        // excluding those already in the recommended list (no duplicates in dropdown).
+        get filteredAllItems(): FullItem[] {
+            const q = (this.itemQuery as string).toLowerCase().trim()
+            if (q.length < 2) return []
+            const recNames = new Set((this.recommendedItems as any[]).map((i: any) => i.name))
+            return ITEMS_FULL
+                .filter((i) => i.name.toLowerCase().includes(q) && !recNames.has(i.name))
+                .slice(0, 20)
+        },
+
+        // True when slot has an item that is NOT in the recommended list.
+        get isCustomItemSelected(): boolean {
+            const item = (this.slot as any)?.item as string | null
+            if (!item) return false
+            return !(this.recommendedItems as any[]).find((i: any) => i.name === item)
+        },
+
+        // The items-full entry for the currently selected custom item (for the card display).
+        get customItemData(): FullItem | null {
+            const item = (this.slot as any)?.item as string | null
+            if (!item) return null
+            return ITEMS_FULL_MAP[item] ?? null
         },
 
         get filteredMoves(): MoveDetail[] {
+            if (!this.slot) return []
             const query = (this.moveQuery as string).toLowerCase().trim()
             const selected = new Set(((this.slot as any)?.moves as (string | null)[]).filter(Boolean))
             // exclude the slot currently being edited so it can still be re-selected
@@ -106,10 +156,24 @@ export function registerSetEditor(): void {
             this.$watch('$store.team.activeSlot', async (val: number | null) => {
                 this.openMoveSlot = null
                 this.moveQuery = ''
+                this.calcResults = []
                 if (val !== null) await this.loadMoves()
                 else this.availableMoves = []
             })
             if ((Alpine.store('team') as any).activeSlot !== null) await this.loadMoves()
+            // Load pokemon list for defender autocomplete (background)
+            fetchPokemonList().then(list => { this.allPokemonList = list }).catch(() => {})
+            // Rerun damage calc when field options change
+            this.$watch('calcDefenderPokemon', () => this.runDamageCalc())
+            this.$watch('calcWeather', () => this.runDamageCalc())
+            this.$watch('calcReflect', () => this.runDamageCalc())
+            this.$watch('calcLightScreen', () => this.runDamageCalc())
+            this.$watch('calcCrit', () => this.runDamageCalc())
+            this.$watch('calcDefenderLevel', () => this.runDamageCalc())
+            this.$watch('calcDefenderEvDef', () => this.runDamageCalc())
+            this.$watch('calcDefenderEvSpd', () => this.runDamageCalc())
+            this.$watch('calcDefenderIv', () => this.runDamageCalc())
+            this.$watch('calcDefenderNature', () => this.runDamageCalc())
         },
 
         async loadMoves() {
@@ -122,6 +186,109 @@ export function registerSetEditor(): void {
             } finally {
                 this.movesLoading = false
             }
+        },
+
+        // ── damage calculator ─────────────────────────────────────
+        get calcDefenderSuggestionsList(): Array<{ name: string; id: number }> {
+            const q = (this.calcDefenderQuery as string).toLowerCase().trim()
+            if (q.length < 2) return []
+            return (this.allPokemonList as Array<{ name: string; id: number }>)
+                .filter(p => p.name.includes(q))
+                .slice(0, 6)
+        },
+
+        selectCalcDefender(entry: { name: string; id: number }) {
+            this.calcDefenderQuery = entry.name
+            this.calcDefenderAcOpen = false
+            fetchPokemon(entry.name)
+                .then(p => { this.calcDefenderPokemon = p })
+                .catch(() => { this.calcDefenderPokemon = null })
+        },
+
+        runDamageCalc() {
+            const s = this.slot as any
+            if (!s || !this.calcDefenderPokemon) { this.calcResults = []; return }
+
+            const def = this.calcDefenderPokemon as any
+            const defStats = Object.fromEntries((def.stats as any[]).map((st: any) => [st.stat.name, st.base_stat])) as Record<string, number>
+            const defTypes = (def.types as any[]).map((t: any) => t.type.name as string)
+
+            const field: FieldState = {
+                weather: this.calcWeather as FieldState['weather'],
+                reflect: this.calcReflect as boolean,
+                lightScreen: this.calcLightScreen as boolean,
+                isCrit: this.calcCrit as boolean,
+            }
+
+            const results: Array<{ move: MoveDetail | null; moveName: string; result: DamageResult | null }> = []
+
+            for (let mi = 0; mi < 4; mi++) {
+                const moveName = (s.moves as (string | null)[])[mi]
+                if (!moveName) { results.push({ move: null, moveName: '—', result: null }); continue }
+
+                const moveDetail = (this.availableMoves as MoveDetail[]).find(m => m.name === moveName)
+                if (!moveDetail) { results.push({ move: null, moveName, result: null }); continue }
+
+                if (!moveDetail.power || moveDetail.damage_class?.name === 'status') {
+                    results.push({ move: moveDetail, moveName, result: null })
+                    continue
+                }
+
+                const category = moveDetail.damage_class.name as 'physical' | 'special'
+                const atkStatKey: 'attack' | 'special-attack' = category === 'physical' ? 'attack' : 'special-attack'
+                const defStatKey: 'defense' | 'special-defense' = category === 'physical' ? 'defense' : 'special-defense'
+
+                const attackerState: AttackerState = {
+                    level: s.level ?? 50,
+                    baseStat: s.stats[atkStatKey] ?? 50,
+                    iv: s.ivs?.[atkStatKey] ?? 31,
+                    ev: s.evs?.[atkStatKey] ?? 0,
+                    nature: s.nature,
+                    statKey: atkStatKey,
+                    types: s.types as string[],
+                    item: s.item,
+                    isBurned: false,
+                }
+
+                const defEvValue = defStatKey === 'defense'
+                    ? (this.calcDefenderEvDef as number)
+                    : (this.calcDefenderEvSpd as number)
+
+                const defenderState: DefenderState = {
+                    level: this.calcDefenderLevel as number,
+                    baseDef: defStats[defStatKey] ?? 50,
+                    iv: this.calcDefenderIv as number,
+                    ev: defEvValue,
+                    nature: this.calcDefenderNature as string | null,
+                    defKey: defStatKey,
+                    types: defTypes,
+                    item: null,
+                    baseHp: defStats.hp ?? 45,
+                    hpIv: 31,
+                    hpEv: 0,
+                }
+
+                const moveInfo = {
+                    name: moveDetail.name,
+                    type: moveDetail.type?.name ?? 'normal',
+                    category,
+                    power: moveDetail.power,
+                }
+
+                const result = calcDamageRange(moveInfo, attackerState, defenderState, field)
+                results.push({ move: moveDetail, moveName, result })
+            }
+
+            this.calcResults = results
+        },
+
+        effectivenessLabel(eff: number): string {
+            if (eff === 0) return 'Immune'
+            if (eff >= 4) return '4×'
+            if (eff === 2) return '2×'
+            if (eff === 1) return '1×'
+            if (eff === 0.5) return '½×'
+            return '¼×'
         },
 
         // ── stat calculator ──────────────────────────────────────
@@ -167,6 +334,12 @@ export function registerSetEditor(): void {
             if (i === null) return
             const current = (this.slot as any)?.item
             ;(Alpine.store('team') as any).updateSlot(i, { item: current === name ? null : name })
+        },
+
+        selectCustomItem(name: string) {
+            this.setItem(name)
+            this.itemDropdownOpen = false
+            this.itemQuery = ''
         },
 
         setEv(stat: string, value: number) {

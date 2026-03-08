@@ -177,6 +177,30 @@ export function registerTeamLab(): void {
             }
         },
 
+        validateForBattle(): boolean {
+            const slots = (Alpine.store('team') as any).slots as any[]
+            const emptySlots = slots.map((s: any, i: number) => s ? null : i + 1).filter((n: number | null) => n !== null)
+            if (emptySlots.length > 0) {
+                const slotWord = emptySlots.length === 1 ? 'Slot' : 'Slots'
+                const isWord = emptySlots.length === 1 ? 'is' : 'are'
+                this.showToast(`${slotWord} ${emptySlots.join(', ')} ${isWord} empty — you need a full team of 6 to battle!`)
+                return false
+            }
+            const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')
+            for (const s of slots) {
+                const missing: string[] = []
+                if (!s.nature) missing.push('a nature')
+                if (!s.item) missing.push('a held item')
+                const emptyMoves = (s.moves as (string | null)[]).filter(m => !m).length
+                if (emptyMoves > 0) missing.push(`${emptyMoves} move${emptyMoves > 1 ? 's' : ''}`)
+                if (missing.length > 0) {
+                    this.showToast(`${cap(s.pokemonName)} is missing: ${missing.join(', ')}`)
+                    return false
+                }
+            }
+            return true
+        },
+
         capitalize: (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
 
         typeIcon(type: string): string {
