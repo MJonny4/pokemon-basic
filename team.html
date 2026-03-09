@@ -253,6 +253,37 @@
                         </details>
                     </div>
 
+                    <!-- ABILITY -->
+                    <div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Ability</p>
+                        <div x-show="slotAbilities.length > 0" class="flex flex-wrap gap-1.5">
+                            <template x-for="ab in slotAbilities" :key="ab">
+                                <button @click="setAbility(ab)"
+                                    :class="slot?.ability === ab
+                                        ? 'bg-violet-600 text-white border-violet-600 shadow-sm shadow-violet-200'
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-violet-400 hover:text-violet-700'"
+                                    class="px-2.5 py-1 rounded-full text-xs font-bold border transition-all capitalize"
+                                    x-text="ab.replace(/-/g, ' ')"></button>
+                            </template>
+                        </div>
+                        <p x-show="slotAbilities.length === 0" class="text-xs text-slate-400 italic">Loading…</p>
+                    </div>
+
+                    <!-- TERA TYPE -->
+                    <div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Tera Type</p>
+                        <div class="flex flex-wrap gap-1">
+                            <template x-for="t in allTypes" :key="t">
+                                <button @click="setTeraType(t)"
+                                    :style="slot?.teraType === t
+                                        ? `background:${typeColor(t)};border-color:${typeColor(t)};color:white`
+                                        : `border-color:${typeColor(t)}55;color:#475569`"
+                                    class="px-2 py-0.5 rounded-full text-[10px] font-bold border-2 transition-all capitalize hover:opacity-80"
+                                    x-text="t"></button>
+                            </template>
+                        </div>
+                    </div>
+
                     <!-- ITEM -->
                     <div>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Held Item</p>
@@ -804,6 +835,84 @@
             x-cloak
             class="fixed inset-0 z-60 flex flex-col bg-slate-900 text-white overflow-hidden"
             style="display:none">
+
+            <!-- Mode selection overlay -->
+            <div x-show="battlePhase === 'mode-select'" x-cloak
+                class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-20 p-8">
+                <div class="text-5xl mb-5">⚔️</div>
+                <h2 class="text-2xl font-black mb-2">Battle Mode</h2>
+                <p class="text-slate-400 text-sm mb-8">Choose your opponent's team</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button @click="startBattle()"
+                        class="flex flex-col items-center gap-2 px-8 py-5 bg-slate-800 border-2 border-slate-600 hover:border-violet-500 rounded-2xl transition active:scale-95">
+                        <span class="text-3xl">🎲</span>
+                        <span class="font-black text-base">Random Team</span>
+                        <span class="text-slate-400 text-xs text-center">CPU builds a team<br>from the standard pool</span>
+                    </button>
+                    <button @click="battlePhase = 'enemy-select'"
+                        class="flex flex-col items-center gap-2 px-8 py-5 bg-slate-800 border-2 border-slate-600 hover:border-violet-500 rounded-2xl transition active:scale-95">
+                        <span class="text-3xl">🧩</span>
+                        <span class="font-black text-base">Pick Enemy Team</span>
+                        <span class="text-slate-400 text-xs text-center">Choose up to 6 Pokémon<br>for the CPU to use</span>
+                    </button>
+                </div>
+                <button @click="closeBattle()" class="mt-8 text-slate-500 hover:text-slate-300 text-sm font-bold transition">Cancel</button>
+            </div>
+
+            <!-- Custom enemy picker overlay -->
+            <div x-show="battlePhase === 'enemy-select'" x-cloak
+                class="absolute inset-0 flex flex-col bg-slate-900 z-20 overflow-y-auto p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <button @click="battlePhase = 'mode-select'" class="text-slate-400 hover:text-white transition font-bold text-sm">← Back</button>
+                    <h2 class="text-lg font-black flex-1">Pick Enemy Team</h2>
+                    <button @click="closeBattle()" class="text-slate-400 hover:text-white transition font-bold text-sm">✕</button>
+                </div>
+                <p class="text-slate-400 text-xs mb-5">Search and select up to 6 Pokémon. CPU moves are auto-assigned. Empty slots are skipped.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                    <template x-for="i in [0,1,2,3,4,5]" :key="i">
+                        <div class="bg-slate-800 rounded-xl p-3 flex flex-col gap-2 relative">
+                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest" x-text="'Slot ' + (i+1)"></p>
+                            <div x-show="!customEnemyNames[i]" class="relative">
+                                <input type="text"
+                                    :value="customEnemyQueries[i]"
+                                    @input="customEnemyQueries[i] = $event.target.value; onCustomEnemySearch(i)"
+                                    @keydown.escape="customEnemyAcOpen[i] = false"
+                                    @blur="setTimeout(() => { customEnemyAcOpen[i] = false }, 150)"
+                                    placeholder="🔍 Search…"
+                                    class="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 font-semibold focus:outline-none focus:border-violet-400">
+                                <div x-show="customEnemyAcOpen[i]" class="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-slate-600 rounded-xl overflow-hidden z-30 shadow-xl">
+                                    <template x-for="r in customEnemyAcResults[i]" :key="r.id">
+                                        <button
+                                            class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-violet-600 hover:text-white flex items-center gap-2 transition capitalize"
+                                            @mousedown.prevent="selectCustomEnemy(i, r.name)">
+                                            <span class="text-slate-500 font-mono text-[10px]" x-text="'#'+String(r.id).padStart(3,'0')"></span>
+                                            <span x-text="r.name"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                            <div x-show="customEnemyNames[i]" class="flex items-center gap-2">
+                                <img :src="customEnemyNames[i] ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${allPokemonList.find(p => p.name === customEnemyNames[i])?.id ?? 0}.png` : ''"
+                                    class="w-10 h-10 object-contain" style="image-rendering:pixelated">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-black text-white capitalize" x-text="customEnemyNames[i]"></p>
+                                    <button @click="clearCustomEnemy(i)" class="text-[10px] text-slate-500 hover:text-rose-400 font-semibold transition">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400 text-xs" x-text="`${customEnemyFilled} / 6 selected`"></span>
+                    <button
+                        :disabled="customEnemyFilled === 0"
+                        :class="customEnemyFilled === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-violet-700 active:scale-95'"
+                        @click="customEnemyFilled > 0 && startBattle(customEnemyNames.filter(n => n))"
+                        class="px-6 py-2.5 bg-violet-600 rounded-xl font-black text-sm transition">
+                        ⚔️ Start Battle
+                    </button>
+                </div>
+            </div>
 
             <!-- Loading overlay -->
             <div x-show="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-10">

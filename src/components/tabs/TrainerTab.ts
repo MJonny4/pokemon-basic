@@ -96,7 +96,7 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
             : isMinus
               ? `<span class="text-[9px] font-black text-rose-400">▼</span>`
               : `<span class="w-3 inline-block"></span>`
-        const barPct = Math.round((final / 255) * 100)
+        const barPct = Math.min(100, Math.round((final / 255) * 100))
         return `<div class="flex items-center gap-2 text-xs">
       <span class="w-8 text-right font-black shrink-0" style="color:${col}">${label}</span>
       <span class="w-7 text-right text-slate-300 font-semibold shrink-0">${base}</span>
@@ -134,7 +134,7 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
 
     ${statCalcHTML}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <!-- Natures -->
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
         <h3 class="font-black text-slate-800 text-sm mb-1">🌿 Recommended Natures</h3>
@@ -149,5 +149,7 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
         <p class="text-xs text-slate-400 mb-4">Recommended for the <strong>${role.label}</strong> role</p>
         <div class="space-y-3">${itemCards}</div>
       </div>
-    </div>`
+    </div>
+
+    `
 }

@@ -207,6 +207,33 @@
                 </div>
             </div>
 
+            <!-- Modal Quick Search -->
+            <div class="px-4 py-2 bg-slate-50 border-b border-slate-100 shrink-0 relative">
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-400 text-[10px] font-bold shrink-0 uppercase tracking-wide">Switch:</span>
+                    <div class="relative flex-1">
+                        <input type="text" placeholder="🔍 Search another Pokémon…"
+                            x-model="modalQuery"
+                            @input="onModalSearch()"
+                            @keydown.enter="selectModalFirst()"
+                            @keydown.escape="modalAcOpen = false"
+                            @blur="setTimeout(() => modalAcOpen = false, 150)"
+                            class="w-full px-3 py-1 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 bg-white font-semibold placeholder-slate-400 transition">
+                        <div x-show="modalAcOpen" x-cloak
+                            class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-60 overflow-hidden">
+                            <template x-for="r in modalAcResults" :key="r.id">
+                                <button
+                                    class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-violet-50 hover:text-violet-700 flex items-center gap-2 transition"
+                                    @mousedown.prevent="selectModal(r.name)">
+                                    <span class="text-slate-400 font-mono text-[10px]" x-text="'#'+String(r.id).padStart(3,'0')"></span>
+                                    <span class="capitalize" x-text="r.name"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tabs -->
             <div class="flex border-b border-slate-200 bg-white shrink-0 overflow-x-auto">
                 <template x-for="tab in tabs" :key="tab.id">

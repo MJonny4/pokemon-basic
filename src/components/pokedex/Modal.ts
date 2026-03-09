@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs'
 import { gsap } from 'gsap'
 import { detectRole } from '../../logic/roleDetect'
+import { fetchPokemonList } from '../../api/pokeapi'
 
 export function registerModal(): void {
     Alpine.data('modal', () => ({
@@ -13,6 +14,11 @@ export function registerModal(): void {
             { id: 'trainer', label: '🎯 Trainer Tips' },
             { id: 'compare', label: '🔄 Compare' },
         ],
+        modalQuery: '',
+        modalAcResults: [] as Array<{ name: string; id: number }>,
+        modalAcOpen: false,
+        modalAllPokemon: [] as Array<{ name: string; id: number }>,
+        modalAcTimer: 0,
         moveFilter: 'all',
         moveSearch: '',
         moveFilters: [
@@ -26,11 +32,15 @@ export function registerModal(): void {
         ],
 
         init() {
+            fetchPokemonList().then((list) => { this.modalAllPokemon = list })
+
             window.addEventListener('pokemon-search', () => {
                 this.open = true
                 this.activeTab = 'overview'
                 this.moveFilter = 'all'
                 this.moveSearch = ''
+                this.modalQuery = ''
+                this.modalAcOpen = false
             })
 
             this.$watch('open', (val: boolean) => {
@@ -79,6 +89,30 @@ export function registerModal(): void {
 
         onMoveSearch() {
             ;(window as any).rerenderMoves?.(this.moveFilter, this.moveSearch)
+        },
+
+        onModalSearch() {
+            clearTimeout(this.modalAcTimer)
+            if (!this.modalQuery || this.modalQuery.length < 2) { this.modalAcOpen = false; return }
+            this.modalAcTimer = window.setTimeout(() => {
+                const q = (this.modalQuery as string).toLowerCase()
+                this.modalAcResults = (this.modalAllPokemon as Array<{ name: string; id: number }>)
+                    .filter((p) => p.name.includes(q))
+                    .slice(0, 6)
+                this.modalAcOpen = this.modalAcResults.length > 0
+            }, 150)
+        },
+
+        selectModal(name: string) {
+            if (!name) return
+            this.modalQuery = ''
+            this.modalAcOpen = false
+            window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name } }))
+        },
+
+        selectModalFirst() {
+            const first = (this.modalAcResults as Array<{ name: string; id: number }>)[0]
+            if (first) this.selectModal(first.name)
         },
 
         addToTeam() {

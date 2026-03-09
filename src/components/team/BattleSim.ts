@@ -1,6 +1,6 @@
 import Alpine from 'alpinejs'
 import gsap from 'gsap'
-import { fetchPokemon, fetchMoves } from '../../api/pokeapi'
+import { fetchPokemon, fetchMoves, fetchPokemonList } from '../../api/pokeapi'
 import type { MoveDetail } from '../../api/pokeapi'
 import { makeBattlePokemon, resolveTurn } from '../../logic/battleEngine'
 import type { BattleState, BattlePokemon, BattleAction, CpuSlot } from '../../logic/battleEngine'
@@ -35,15 +35,15 @@ function spriteUrl(id: number): string {
 
 // ── CPU team builder ──────────────────────────────────────────────────────────
 
-async function buildCpuTeam(excludeNames: string[] = []): Promise<{
+async function buildCpuTeam(excludeNames: string[] = [], nameList?: string[]): Promise<{
     slots: CpuSlot[]
     moveSets: MoveDetail[][]
 }> {
-    const shuffled = shuffle(CPU_POOL)
+    const pool = nameList ? nameList.filter(Boolean) as string[] : shuffle(CPU_POOL)
     const slots: CpuSlot[] = []
     const moveSets: MoveDetail[][] = []
 
-    for (const name of shuffled) {
+    for (const name of pool) {
         if (slots.length === 6) break
         if (excludeNames.includes(name.toLowerCase())) continue
         try {
@@ -113,20 +113,70 @@ export function registerBattleSim(): void {
         animating: false,
         selectedMoveIndex: null as number | null,
 
+        // ── enemy team mode ───────────────────────────────────────────────────
+        battlePhase: 'mode-select' as 'mode-select' | 'enemy-select' | 'battle',
+        customEnemyNames: Array(6).fill(null) as (string | null)[],
+        customEnemyQueries: Array(6).fill('') as string[],
+        customEnemyAcResults: Array(6).fill([]) as Array<Array<{ name: string; id: number }>>,
+        customEnemyAcOpen: Array(6).fill(false) as boolean[],
+        allPokemonList: [] as Array<{ name: string; id: number }>,
+
+        get customEnemyFilled(): number {
+            return (this.customEnemyNames as (string | null)[]).filter(Boolean).length
+        },
+
+        onCustomEnemySearch(i: number) {
+            const q = ((this.customEnemyQueries as string[])[i] ?? '').toLowerCase()
+            if (q.length < 2) {
+                ;(this.customEnemyAcResults as any[])[i] = []
+                ;(this.customEnemyAcOpen as boolean[])[i] = false
+                return
+            }
+            ;(this.customEnemyAcResults as any[])[i] = (this.allPokemonList as Array<{ name: string; id: number }>)
+                .filter(p => p.name.includes(q)).slice(0, 6)
+            ;(this.customEnemyAcOpen as boolean[])[i] = (this.customEnemyAcResults as any[])[i].length > 0
+        },
+
+        selectCustomEnemy(i: number, name: string) {
+            ;(this.customEnemyNames as (string | null)[])[i] = name
+            ;(this.customEnemyQueries as string[])[i] = name
+            ;(this.customEnemyAcOpen as boolean[])[i] = false
+        },
+
+        clearCustomEnemy(i: number) {
+            ;(this.customEnemyNames as (string | null)[])[i] = null
+            ;(this.customEnemyQueries as string[])[i] = ''
+            ;(this.customEnemyAcOpen as boolean[])[i] = false
+        },
+
         // ── open / close ─────────────────────────────────────────────────────
         async openBattle() {
             const team = (Alpine.store('team') as any)
             const playerSlots: (TeamSlot | null)[] = team.slots
-            const filledSlots = playerSlots.filter(Boolean) as TeamSlot[]
-            if (filledSlots.length === 0) return
+            if (playerSlots.filter(Boolean).length === 0) return
 
             this.open = true
+            this.battlePhase = 'mode-select'
+            this.customEnemyNames = Array(6).fill(null)
+            this.customEnemyQueries = Array(6).fill('')
+            this.customEnemyAcResults = Array(6).fill([])
+            this.customEnemyAcOpen = Array(6).fill(false)
+            if ((this.allPokemonList as any[]).length === 0) {
+                fetchPokemonList().then(list => { this.allPokemonList = list }).catch(() => {})
+            }
+        },
+
+        async startBattle(nameList?: string[]) {
+            const team = (Alpine.store('team') as any)
+            const playerSlots: (TeamSlot | null)[] = team.slots
+
+            this.battlePhase = 'battle'
             this.loading = true
             this.showSwitch = false
 
             try {
                 const playerNames = playerSlots.filter(Boolean).map(s => s!.pokemonName.toLowerCase())
-                const { slots: cpuSlots, moveSets: cpuMoveSets } = await buildCpuTeam(playerNames)
+                const { slots: cpuSlots, moveSets: cpuMoveSets } = await buildCpuTeam(playerNames, nameList)
 
                 // Build player move sets
                 const playerMoveSets: MoveDetail[][] = []

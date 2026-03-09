@@ -67,6 +67,11 @@ export function registerSetEditor(): void {
         openMoveSlot: null as number | null,
         moveQuery: '',
 
+        // ── ability + tera ────────────────────────────────────────
+        slotAbilities: [] as string[],
+        allTypes: ['normal','fire','water','electric','grass','ice','fighting','poison',
+                   'ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy'] as string[],
+
         // ── copy feedback ────────────────────────────────────────
         copied: false,
 
@@ -183,6 +188,7 @@ export function registerSetEditor(): void {
             try {
                 const pokemon = await fetchPokemon(s.pokemonName)
                 this.availableMoves = await fetchMoves(pokemon.moves, 200)
+                this.slotAbilities = (pokemon.abilities as any[]).map((a: any) => a.ability.name as string)
             } finally {
                 this.movesLoading = false
             }
@@ -381,6 +387,24 @@ export function registerSetEditor(): void {
             ;(Alpine.store('team') as any).updateSlot(i, { level: Math.max(1, Math.min(100, val)) })
         },
 
+        setAbility(name: string) {
+            const i = (Alpine.store('team') as any).activeSlot as number | null
+            if (i === null) return
+            const current = (this.slot as any)?.ability
+            ;(Alpine.store('team') as any).updateSlot(i, { ability: current === name ? null : name })
+        },
+
+        setTeraType(type: string) {
+            const i = (Alpine.store('team') as any).activeSlot as number | null
+            if (i === null) return
+            const current = (this.slot as any)?.teraType
+            ;(Alpine.store('team') as any).updateSlot(i, { teraType: current === type ? null : type })
+        },
+
+        typeColor(type: string): string {
+            return TYPE_COLORS[type] ?? '#9CA3AF'
+        },
+
         // ── move selector ─────────────────────────────────────────
         toggleMoveSearch(slotIdx: number) {
             if (this.openMoveSlot === slotIdx) {
@@ -439,6 +463,8 @@ export function registerSetEditor(): void {
                 .split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('-')
             const lines: string[] = []
             lines.push(s.item ? `${name} @ ${s.item}` : name)
+            if (s.ability) lines.push(`Ability: ${(s.ability as string).split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`)
+            if (s.teraType) lines.push(`Tera Type: ${(s.teraType as string).charAt(0).toUpperCase() + (s.teraType as string).slice(1)}`)
             lines.push(`Level: ${s.level ?? 50}`)
 
             const evParts = STAT_KEYS.filter((k) => (s.evs[k] ?? 0) > 0).map((k) => `${s.evs[k]} ${SHOWDOWN_LABELS[k]}`)
