@@ -32,7 +32,7 @@ export function typePillLg(t: string, mult: string): string {
 }
 
 export function statBar(statName: string, value: number): string {
-    const pct = Math.round((value / 255) * 100)
+    const pct = Math.min(100, Math.round((value / 255) * 100))
     const col = STAT_COLORS[statName] ?? '#8b5cf6'
     const label = STAT_LABELS[statName] ?? statName
     const grade = value >= 100 ? '🔥' : value >= 75 ? '✅' : value >= 50 ? '⚠️' : '❌'

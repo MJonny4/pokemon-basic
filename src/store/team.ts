@@ -16,6 +16,8 @@ export interface TeamSlot {
     evs: Record<string, number>     // 0–252 per stat, max 508 total
     ivs: Record<string, number>     // 0–31 per stat
     level: number
+    ability: string | null
+    teraType: string | null
 }
 
 const DEFAULT_IVS: Record<string, number> = {
@@ -43,6 +45,8 @@ function makeSlot(pokemon: Pokemon): TeamSlot {
         evs: { ...DEFAULT_EVS },
         ivs: { ...DEFAULT_IVS },
         level: 50,
+        ability: null,
+        teraType: null,
     }
 }
 

@@ -16,6 +16,7 @@ export interface CpuSlot {
     types: string[]
     stats: Record<string, number>
     nature: string | null
+    ability: string | null
     item: string | null
     moves: [string | null, string | null, string | null, string | null]
     role: string | null
@@ -212,6 +213,7 @@ function applyMoveAction(
         const modAtk = Math.floor(baseAtk * atkNum / atkDen)
         const modDef = Math.floor(baseDef * defNum / defDen)
 
+        const atkAbility = (atkSlot as any).ability as string | null | undefined
         const attackerState: AttackerState = {
             level: atkSlot.level ?? 50,
             baseStat: atkSlot.stats[atkStatKey] ?? 50,
@@ -222,6 +224,10 @@ function applyMoveAction(
             types: atk.types,
             item: atkSlot.item,
             isBurned: atk.status === 'burn',
+            adaptability: atkAbility === 'adaptability',
+            hugepower: atkAbility === 'huge-power' || atkAbility === 'pure-power',
+            hustle: atkAbility === 'hustle',
+            guts: atkAbility === 'guts',
             overrideStat: modAtk,
         }
 
@@ -324,6 +330,12 @@ function applyMoveAction(
             atk = { ...atk, currentHp: Math.min(atk.maxHp, atk.currentHp + healed) }
             events.push(`${atk.name} recovered ${healed} HP!`)
         }
+    }
+
+    // Self-faint moves (Explosion, Self-Destruct, Memento)
+    if (effect?.selfFaint && !atk.fainted) {
+        atk = { ...atk, currentHp: 0, fainted: true }
+        events.push(`${atk.name} fainted!`)
     }
 
     return { attacker: atk, defender: def }
@@ -501,18 +513,27 @@ export function resolveTurn(
     if (!playerPkmn.fainted) playerPkmn = applyEndOfTurn(playerPkmn, events)
     if (!cpuPkmn.fainted) cpuPkmn = applyEndOfTurn(cpuPkmn, events)
 
-    // Write back
-    const newPlayerTeam = [...s.playerTeam]
-    newPlayerTeam[s.playerActive] = playerPkmn
-
-    const newCpuTeam = [...s.cpuTeam]
-    newCpuTeam[s.cpuActive] = cpuPkmn
-
-    // Handle switch index update
+    // Resolve active indices first (needed for correct write-back slot)
     let newPlayerActive = s.playerActive
     let newCpuActive = s.cpuActive
     if (pAction.type === 'switch') newPlayerActive = pAction.toIndex
     if (cAction.type === 'switch') newCpuActive = cAction.toIndex
+
+    // Write back — when a switch happened, playerPkmn is the switched-IN pokemon;
+    // write it to the new slot, leave the old slot (withdrawn pokemon) untouched.
+    const newPlayerTeam = [...s.playerTeam]
+    if (pAction.type === 'switch') {
+        newPlayerTeam[newPlayerActive] = playerPkmn
+    } else {
+        newPlayerTeam[s.playerActive] = playerPkmn
+    }
+
+    const newCpuTeam = [...s.cpuTeam]
+    if (cAction.type === 'switch') {
+        newCpuTeam[newCpuActive] = cpuPkmn
+    } else {
+        newCpuTeam[s.cpuActive] = cpuPkmn
+    }
 
     // Check battle end
     const playerAllFainted = newPlayerTeam.every(p => p.fainted)

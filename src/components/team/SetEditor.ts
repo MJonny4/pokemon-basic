@@ -8,6 +8,7 @@ import { calcStat } from '../../logic/statCalc'
 import { calcDamageRange } from '../../logic/damageCalc'
 import type { AttackerState, DefenderState, FieldState, DamageResult } from '../../logic/damageCalc'
 import itemsFullRaw from '../../data/items-full.json'
+import { TYPE_COLORS } from '../../data/typeColors'
 
 interface FullItem { name: string; slug: string; desc: string }
 const ITEMS_FULL: FullItem[] = itemsFullRaw as FullItem[]
@@ -40,14 +41,6 @@ const STAT_COLORS: Record<string, string> = {
     speed: '#10b981',
 }
 
-// Inline type→color map used for move type badges
-const TYPE_COLORS: Record<string, string> = {
-    normal: '#9CA3AF', fire: '#F97316', water: '#3B82F6', electric: '#EAB308',
-    grass: '#22C55E', ice: '#06B6D4', fighting: '#DC2626', poison: '#A855F7',
-    ground: '#CA8A04', flying: '#818CF8', psychic: '#EC4899', bug: '#84CC16',
-    rock: '#92400E', ghost: '#6D28D9', dragon: '#7C3AED', dark: '#374151',
-    steel: '#94A3B8', fairy: '#F472B6',
-}
 
 
 export function registerSetEditor(): void {
@@ -66,6 +59,11 @@ export function registerSetEditor(): void {
         movesLoading: false,
         openMoveSlot: null as number | null,
         moveQuery: '',
+
+        // ── ability + tera ────────────────────────────────────────
+        slotAbilities: [] as string[],
+        allTypes: ['normal','fire','water','electric','grass','ice','fighting','poison',
+                   'ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy'] as string[],
 
         // ── copy feedback ────────────────────────────────────────
         copied: false,
@@ -183,6 +181,7 @@ export function registerSetEditor(): void {
             try {
                 const pokemon = await fetchPokemon(s.pokemonName)
                 this.availableMoves = await fetchMoves(pokemon.moves, 200)
+                this.slotAbilities = (pokemon.abilities as any[]).map((a: any) => a.ability.name as string)
             } finally {
                 this.movesLoading = false
             }
@@ -381,6 +380,24 @@ export function registerSetEditor(): void {
             ;(Alpine.store('team') as any).updateSlot(i, { level: Math.max(1, Math.min(100, val)) })
         },
 
+        setAbility(name: string) {
+            const i = (Alpine.store('team') as any).activeSlot as number | null
+            if (i === null) return
+            const current = (this.slot as any)?.ability
+            ;(Alpine.store('team') as any).updateSlot(i, { ability: current === name ? null : name })
+        },
+
+        setTeraType(type: string) {
+            const i = (Alpine.store('team') as any).activeSlot as number | null
+            if (i === null) return
+            const current = (this.slot as any)?.teraType
+            ;(Alpine.store('team') as any).updateSlot(i, { teraType: current === type ? null : type })
+        },
+
+        typeColor(type: string): string {
+            return TYPE_COLORS[type] ?? '#9CA3AF'
+        },
+
         // ── move selector ─────────────────────────────────────────
         toggleMoveSearch(slotIdx: number) {
             if (this.openMoveSlot === slotIdx) {
@@ -439,6 +456,8 @@ export function registerSetEditor(): void {
                 .split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('-')
             const lines: string[] = []
             lines.push(s.item ? `${name} @ ${s.item}` : name)
+            if (s.ability) lines.push(`Ability: ${(s.ability as string).split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`)
+            if (s.teraType) lines.push(`Tera Type: ${(s.teraType as string).charAt(0).toUpperCase() + (s.teraType as string).slice(1)}`)
             lines.push(`Level: ${s.level ?? 50}`)
 
             const evParts = STAT_KEYS.filter((k) => (s.evs[k] ?? 0) > 0).map((k) => `${s.evs[k]} ${SHOWDOWN_LABELS[k]}`)

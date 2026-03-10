@@ -8,69 +8,21 @@
 
 ---
 
-## Battle Mode: Select Enemy Team
+## Pending
 
-Instead of (or alongside) the current random CPU team, let the player choose the enemy team before battling.
+### EV Tooltips on hover (battle)
+- Hovering over the **enemy active Pokémon sprite** should show a tooltip with its full EV spread (HP / Atk / Def / SpA / SpD / Spe)
+- Hovering over **any bench portrait** (both player and CPU rows at the bottom) should show a similar tooltip with name + EV spread
+- Tooltip style: dark card, stat labels + values, similar to the existing nature/ability badges already shown under the CPU HP bar
 
-**Two modes to support:**
-- **Random** (current behaviour) — CPU team is built automatically from `CPU_POOL`
-- **Custom** — player picks up to 6 Pokemon for the enemy team via a pre-battle selection screen
-
-**Pre-battle screen flow:**
-1. Click "Battle Mode" (passes validation)
-2. A prompt asks: "Random team" or "Pick enemy team"
-3. If "Pick enemy team": show a 6-slot search grid; CPU moves are auto-assigned by `buildCpuTeam` logic (role-based EVs + top damaging moves + useful status moves from `MOVE_EFFECTS`)
-4. Confirm -> battle starts as normal
-
-**Files:**
-- `src/components/team/BattleSim.ts` — add `battleMode: 'random' | 'custom'` state; expose `buildCpuTeam` so it accepts a pre-set name list instead of shuffling `CPU_POOL`
-- `team.html` — add pre-battle mode selection step between the "Battle Mode" button and the arena
-
----
-
-## Ability Selection + TERA Type in Set Editor
-
-Add two fields to `TeamSlot` and the Set Editor UI:
-
-- **Ability** — dropdown showing the Pokemon's available abilities (from `pokemon.abilities`). Store as `ability: string | null` in `TeamSlot`. Used by battle sim (e.g. Adaptability STAB x2, Guts ignores burn Atk drop, Intimidate on switch-in).
-- **Tera Type** — 18-type selector (any type). Store as `teraType: string | null` in `TeamSlot`. Replaces the Pokemon's typing for STAB and effectiveness when active in battle.
-
-**Files:**
-- `src/store/team.ts` — add `ability`, `teraType` to `TeamSlot` interface + defaults
-- `src/components/team/SetEditor.ts` — load abilities from already-fetched `fetchPokemon()` result; add `setAbility()`, `setTeraType()` methods
-- `team.html` — add ability dropdown + tera type grid below Nature section in Set Editor
-- `src/components/team/BattleSim.ts` — gate battle validation on ability being set once this field exists
+### Terastal mechanic (battle)
+- Tera types are **not implemented** in the battle engine or UI
+- Required work:
+  - Add `teraType: string | null` to `TeamSlot` (store) and `CpuSlot` (battleEngine) — PokeAPI does not expose official tera types so this will be user-defined or randomised for CPU
+  - Add a "Terastallize" button in the player action panel (usable once per battle)
+  - In `BattleState`, track `playerTerastallized: boolean` and `cpuTerastallized: boolean`
+  - When active, override the Pokémon's types array to `[teraType]` for damage calc (STAB applies if original types included teraType, or if teraType is the new mono type)
+  - CPU AI: terastallize when HP < 50% or when it would turn a resistance into neutral/super-effective hit
+  - Visual: show a crystal/tera icon on the active sprite when terastallized; change the type badge colour to the tera type
 
 ---
-
-## Gen Filter (Pokedex)
-
-Filter the Pokedex autocomplete and search results by generation.
-
-**Where:** Navbar or filter bar in `index.html`, above the search input.
-
-**What it does:** Limits autocomplete suggestions and search results to Pokemon IDs within the selected generation range (from `GEN_RANGES` in `src/data/constants.ts` — add if missing).
-
-```
-Gen I:   #1-151     Gen V:   #494-649
-Gen II:  #152-251   Gen VI:  #650-721
-Gen III: #252-386   Gen VII: #722-809
-Gen IV:  #387-493   Gen VIII:#810-905   Gen IX: #906-1025
-```
-
-**Files:**
-- `src/data/constants.ts` — add `GEN_RANGES` constant
-- `src/components/pokedex/SearchBar.ts` — add `genFilter` state, filter `allPokemon` list before autocomplete
-- `index.html` — add gen filter pill buttons above search
-
----
-
-## Pokedex EV/IV Calculator (Trainer Tips tab)
-
-Add a lightweight calculator inside the existing Trainer Tips tab (`src/components/tabs/TrainerTab.ts`).
-
-**What it shows:** Given a target final stat value and level, back-calculate the required EVs (assuming max IVs and a neutral nature, or user-adjustable).
-
-**Files:**
-- `src/logic/evCalc.ts` — inverse of `calcStat()`: `calcRequiredEv(key, base, iv, level, nature, targetStat) -> ev`
-- `src/components/tabs/TrainerTab.ts` — add EV calc section at bottom of tab
