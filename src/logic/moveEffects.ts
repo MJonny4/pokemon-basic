@@ -8,6 +8,7 @@ export interface MoveEffect {
     priority?: number                      // default 0
     protect?: true                         // blocks damage this turn
     recoil?: number                        // fraction of damage dealt as recoil
+    selfFaint?: true                       // user faints after using the move (Explosion, Self-Destruct)
 }
 
 export const MOVE_EFFECTS: Record<string, MoveEffect> = {
@@ -67,6 +68,11 @@ export const MOVE_EFFECTS: Record<string, MoveEffect> = {
     'healing-wish':     { heal: 1.0 },
     'wish':             { heal: 0.5 },
     'rest':             { heal: 1.0, selfStatus: 'sleep' },
+
+    // ── Self-faint moves ──────────────────────────────────────────────────────
+    'explosion':        { selfFaint: true },
+    'self-destruct':    { selfFaint: true },
+    'memento':          { selfFaint: true, statChanges: [{ target: 'foe', stat: 'attack', stages: -2 }, { target: 'foe', stat: 'special-attack', stages: -2 }] },
 
     // ── Priority moves ────────────────────────────────────────────────────────
     'protect':          { protect: true, priority: 4 },

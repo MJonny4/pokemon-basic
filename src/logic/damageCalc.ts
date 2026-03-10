@@ -13,7 +13,10 @@ export interface AttackerState {
     types: string[]             // lowercase
     item: string | null
     isBurned: boolean
-    adaptability?: boolean      // Adaptability ability → STAB ×2 instead of ×1.5
+    adaptability?: boolean      // Adaptability → STAB ×2 instead of ×1.5
+    hugepower?: boolean         // Huge Power / Pure Power → ×2 physical Attack
+    hustle?: boolean            // Hustle → ×1.5 physical Attack
+    guts?: boolean              // Guts → ×1.5 Attack when burned (and ignores burn penalty)
     overrideStat?: number       // if set, skip calcStat and use this value directly
 }
 
@@ -124,7 +127,7 @@ export function getTypeEffectiveness(moveType: string, defTypes: string[]): numb
     return mult
 }
 
-/** Compute the attacker's effective Attack/SpAtk including item modifiers. */
+/** Compute the attacker's effective Attack/SpAtk including item and ability modifiers. */
 export function getAttackerStat(atk: AttackerState, moveType: string): number {
     const base = atk.overrideStat ?? calcStat(atk.statKey, atk.baseStat, atk.iv, atk.ev, atk.level, atk.nature)
 
@@ -140,6 +143,21 @@ export function getAttackerStat(atk: AttackerState, moveType: string): number {
     const boostType = atk.item ? TYPE_BOOST_ITEMS[atk.item] : null
     if (boostType && boostType === moveType.toLowerCase()) {
         stat = Math.floor(stat * 6 / 5)
+    }
+
+    // Huge Power / Pure Power → ×2 physical Attack
+    if (atk.hugepower && atk.statKey === 'attack') {
+        stat = stat * 2
+    }
+
+    // Hustle → ×3/2 physical Attack
+    if (atk.hustle && atk.statKey === 'attack') {
+        stat = Math.floor(stat * 3 / 2)
+    }
+
+    // Guts → ×3/2 Attack when burned
+    if (atk.guts && atk.isBurned && atk.statKey === 'attack') {
+        stat = Math.floor(stat * 3 / 2)
     }
 
     return stat
@@ -256,8 +274,8 @@ export function calcDamageRange(
         }
     }
 
-    // 6. Burn (physical only, no Guts)
-    if (attacker.isBurned && category === 'physical') {
+    // 6. Burn (physical only; Guts negates the penalty)
+    if (attacker.isBurned && category === 'physical' && !attacker.guts) {
         for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] / 2)
     }
 

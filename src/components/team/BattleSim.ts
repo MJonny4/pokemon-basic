@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs'
 import gsap from 'gsap'
 import { fetchPokemon, fetchMoves, fetchPokemonList } from '../../api/pokeapi'
+import { TYPE_COLORS } from '../../data/typeColors'
 import type { MoveDetail } from '../../api/pokeapi'
 import { makeBattlePokemon, resolveTurn } from '../../logic/battleEngine'
 import type { BattleState, BattlePokemon, BattleAction, CpuSlot } from '../../logic/battleEngine'
@@ -11,6 +12,19 @@ import { MOVE_EFFECTS } from '../../logic/moveEffects'
 import type { TeamSlot } from '../../store/team'
 
 const DEFAULT_IVS = { hp: 31, attack: 31, defense: 31, 'special-attack': 31, 'special-defense': 31, speed: 31 }
+
+// Best nature to assign a CPU Pokémon based on its role
+const ROLE_NATURE: Record<string, string> = {
+    physical_sweeper: 'Jolly',
+    special_sweeper: 'Timid',
+    physical_attacker: 'Adamant',
+    special_attacker: 'Modest',
+    physical_wall: 'Bold',
+    special_wall: 'Calm',
+    tank: 'Careful',
+    fast_attacker: 'Jolly',
+    mixed_attacker: 'Hardy',
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -79,12 +93,17 @@ async function buildCpuTeam(excludeNames: string[] = [], nameList?: string[]): P
             while (top4Names.length < 4) top4Names.push(null)
             const top4 = top4Names as [string | null, string | null, string | null, string | null]
 
+            const abilities: string[] = (pokemon.abilities as any[]).map((a: any) => a.ability.name as string)
+            const cpuAbility = abilities.length > 0 ? abilities[Math.floor(Math.random() * abilities.length)] : null
+            const cpuNature = ROLE_NATURE[role.key] ?? 'Hardy'
+
             slots.push({
                 pokemonName: name,
                 pokemonId: pokemon.id,
                 types,
                 stats,
-                nature: null,
+                nature: cpuNature,
+                ability: cpuAbility,
                 item: role.key.includes('physical') ? 'Life Orb' : role.key.includes('special') ? 'Life Orb' : 'Leftovers',
                 moves: top4,
                 role: role.key,
@@ -112,13 +131,14 @@ export function registerBattleSim(): void {
         logEl: null as HTMLElement | null,
         animating: false,
         selectedMoveIndex: null as number | null,
+        validationErrors: [] as string[],
 
         // ── enemy team mode ───────────────────────────────────────────────────
         battlePhase: 'mode-select' as 'mode-select' | 'enemy-select' | 'battle',
-        customEnemyNames: Array(6).fill(null) as (string | null)[],
-        customEnemyQueries: Array(6).fill('') as string[],
-        customEnemyAcResults: Array(6).fill([]) as Array<Array<{ name: string; id: number }>>,
-        customEnemyAcOpen: Array(6).fill(false) as boolean[],
+        customEnemyNames: [null, null, null, null, null, null] as (string | null)[],
+        customEnemyQueries: ['', '', '', '', '', ''] as string[],
+        customEnemyAcResults: [[], [], [], [], [], []] as Array<Array<{ name: string; id: number }>>,
+        customEnemyAcOpen: [false, false, false, false, false, false] as boolean[],
         allPokemonList: [] as Array<{ name: string; id: number }>,
 
         get customEnemyFilled(): number {
@@ -128,25 +148,46 @@ export function registerBattleSim(): void {
         onCustomEnemySearch(i: number) {
             const q = ((this.customEnemyQueries as string[])[i] ?? '').toLowerCase()
             if (q.length < 2) {
-                ;(this.customEnemyAcResults as any[])[i] = []
-                ;(this.customEnemyAcOpen as boolean[])[i] = false
+                const r = [...(this.customEnemyAcResults as any[])]
+                r[i] = []
+                this.customEnemyAcResults = r
+                const o = [...(this.customEnemyAcOpen as boolean[])]
+                o[i] = false
+                this.customEnemyAcOpen = o
                 return
             }
-            ;(this.customEnemyAcResults as any[])[i] = (this.allPokemonList as Array<{ name: string; id: number }>)
+            const results = (this.allPokemonList as Array<{ name: string; id: number }>)
                 .filter(p => p.name.includes(q)).slice(0, 6)
-            ;(this.customEnemyAcOpen as boolean[])[i] = (this.customEnemyAcResults as any[])[i].length > 0
+            const r = [...(this.customEnemyAcResults as any[])]
+            r[i] = results
+            this.customEnemyAcResults = r
+            const o = [...(this.customEnemyAcOpen as boolean[])]
+            o[i] = results.length > 0
+            this.customEnemyAcOpen = o
         },
 
         selectCustomEnemy(i: number, name: string) {
-            ;(this.customEnemyNames as (string | null)[])[i] = name
-            ;(this.customEnemyQueries as string[])[i] = name
-            ;(this.customEnemyAcOpen as boolean[])[i] = false
+            const names = [...(this.customEnemyNames as (string | null)[])]
+            names[i] = name
+            this.customEnemyNames = names
+            const queries = [...(this.customEnemyQueries as string[])]
+            queries[i] = name
+            this.customEnemyQueries = queries
+            const o = [...(this.customEnemyAcOpen as boolean[])]
+            o[i] = false
+            this.customEnemyAcOpen = o
         },
 
         clearCustomEnemy(i: number) {
-            ;(this.customEnemyNames as (string | null)[])[i] = null
-            ;(this.customEnemyQueries as string[])[i] = ''
-            ;(this.customEnemyAcOpen as boolean[])[i] = false
+            const names = [...(this.customEnemyNames as (string | null)[])]
+            names[i] = null
+            this.customEnemyNames = names
+            const queries = [...(this.customEnemyQueries as string[])]
+            queries[i] = ''
+            this.customEnemyQueries = queries
+            const o = [...(this.customEnemyAcOpen as boolean[])]
+            o[i] = false
+            this.customEnemyAcOpen = o
         },
 
         // ── open / close ─────────────────────────────────────────────────────
@@ -157,10 +198,10 @@ export function registerBattleSim(): void {
 
             this.open = true
             this.battlePhase = 'mode-select'
-            this.customEnemyNames = Array(6).fill(null)
-            this.customEnemyQueries = Array(6).fill('')
-            this.customEnemyAcResults = Array(6).fill([])
-            this.customEnemyAcOpen = Array(6).fill(false)
+            this.customEnemyNames = [null, null, null, null, null, null]
+            this.customEnemyQueries = ['', '', '', '', '', '']
+            this.customEnemyAcResults = [[], [], [], [], [], []]
+            this.customEnemyAcOpen = [false, false, false, false, false, false]
             if ((this.allPokemonList as any[]).length === 0) {
                 fetchPokemonList().then(list => { this.allPokemonList = list }).catch(() => {})
             }
@@ -170,6 +211,26 @@ export function registerBattleSim(): void {
             const team = (Alpine.store('team') as any)
             const playerSlots: (TeamSlot | null)[] = team.slots
 
+            // Pre-flight validation
+            const errors: string[] = []
+            for (const slot of playerSlots.filter(Boolean) as TeamSlot[]) {
+                const display = slot.pokemonName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                if (!slot.moves.some(Boolean)) {
+                    errors.push(`${display}: no moves selected`)
+                }
+                if (!slot.ability) {
+                    errors.push(`${display}: no ability selected`)
+                }
+                if (!slot.nature) {
+                    errors.push(`${display}: no nature selected`)
+                }
+            }
+            if (errors.length > 0) {
+                this.validationErrors = errors
+                return
+            }
+            this.validationErrors = []
+
             this.battlePhase = 'battle'
             this.loading = true
             this.showSwitch = false
@@ -178,11 +239,11 @@ export function registerBattleSim(): void {
                 const playerNames = playerSlots.filter(Boolean).map(s => s!.pokemonName.toLowerCase())
                 const { slots: cpuSlots, moveSets: cpuMoveSets } = await buildCpuTeam(playerNames, nameList)
 
-                // Build player move sets
+                // Build player team and move sets from the same filtered slot list
+                // (must be parallel arrays: playerTeam[i] ↔ playerMoveSets[i])
+                const filledSlots = playerSlots.filter(Boolean) as TeamSlot[]
                 const playerMoveSets: MoveDetail[][] = []
-                for (let i = 0; i < 6; i++) {
-                    const slot = playerSlots[i]
-                    if (!slot) { playerMoveSets.push([]); continue }
+                for (const slot of filledSlots) {
                     try {
                         const pokemon = await fetchPokemon(slot.pokemonName)
                         const moves = await fetchMoves(pokemon.moves, 80)
@@ -192,7 +253,7 @@ export function registerBattleSim(): void {
                     }
                 }
 
-                const playerTeam = playerSlots.map(s => s ? makeBattlePokemon(s) : null).filter(Boolean) as BattlePokemon[]
+                const playerTeam = filledSlots.map(s => makeBattlePokemon(s))
                 const cpuTeam = cpuSlots.map(s => makeBattlePokemon(s))
 
                 this.state = {
@@ -272,18 +333,25 @@ export function registerBattleSim(): void {
         },
 
         moveTypeColor(m: MoveDetail | null): string {
-            const TYPE_COLORS: Record<string, string> = {
-                normal: '#9CA3AF', fire: '#F97316', water: '#3B82F6', electric: '#EAB308',
-                grass: '#22C55E', ice: '#06B6D4', fighting: '#DC2626', poison: '#A855F7',
-                ground: '#CA8A04', flying: '#818CF8', psychic: '#EC4899', bug: '#84CC16',
-                rock: '#92400E', ghost: '#6D28D9', dragon: '#7C3AED', dark: '#374151',
-                steel: '#94A3B8', fairy: '#F472B6',
-            }
             return TYPE_COLORS[m?.type?.name ?? 'normal'] ?? '#9CA3AF'
+        },
+
+        typeColor(type: string): string {
+            return TYPE_COLORS[type?.toLowerCase() ?? ''] ?? '#9CA3AF'
         },
 
         allLogLines(): string[] {
             return this.state?.turnLog ?? []
+        },
+
+        get lastTurnLog(): string[] {
+            const log = this.state?.turnLog ?? []
+            // Find the last "─── Turn X ───" separator
+            let lastSep = 0
+            for (let i = log.length - 1; i >= 0; i--) {
+                if ((log[i] as string).startsWith('───')) { lastSep = i; break }
+            }
+            return log.slice(lastSep)
         },
 
         logLineClass(line: string): string {
