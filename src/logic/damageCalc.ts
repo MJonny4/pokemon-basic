@@ -108,6 +108,11 @@ const TYPE_BOOST_ITEMS: Record<string, string> = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+/** 4096-based chain modifier used by the games for final damage modifiers. */
+function chainMod(mod4096: number, val: number): number {
+    return Math.floor((mod4096 * val + 0x800) / 0x1000)
+}
+
 /** Capitalize first letter (to match EFFECTIVENESS keys). */
 function cap(s: string): string {
     return s.charAt(0).toUpperCase() + s.slice(1)
@@ -279,24 +284,26 @@ export function calcDamageRange(
         for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] / 2)
     }
 
-    // 7. Screens
-    if (field.reflect && category === 'physical') {
-        for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] / 2)
-    }
-    if (field.lightScreen && category === 'special') {
-        for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] / 2)
+    // 7. Screens (crits bypass screens in Gen 9)
+    if (!field.isCrit) {
+        if (field.reflect && category === 'physical') {
+            for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] / 2)
+        }
+        if (field.lightScreen && category === 'special') {
+            for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] / 2)
+        }
     }
 
-    // 8. Item damage mods
+    // 8. Item damage mods (4096-based chain modifier to match game accuracy)
     if (attacker.item === 'Life Orb') {
-        for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] * 13 / 10)
+        for (let i = 0; i < rolls.length; i++) rolls[i] = chainMod(0x14CD, rolls[i])   // ×1.3
     } else if (attacker.item === 'Expert Belt' && effectiveness > 1) {
-        for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] * 6 / 5)
+        for (let i = 0; i < rolls.length; i++) rolls[i] = chainMod(0x1333, rolls[i])   // ×1.2
     } else if (
         (attacker.item === 'Muscle Band' && category === 'physical') ||
         (attacker.item === 'Wise Glasses' && category === 'special')
     ) {
-        for (let i = 0; i < rolls.length; i++) rolls[i] = Math.floor(rolls[i] * 11 / 10)
+        for (let i = 0; i < rolls.length; i++) rolls[i] = chainMod(0x119A, rolls[i])   // ×1.1
     }
 
     const min = rolls[0]

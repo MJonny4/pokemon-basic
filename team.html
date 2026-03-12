@@ -979,10 +979,42 @@
                     <!-- CPU team portraits (top) -->
                     <div class="absolute top-2 left-4 flex gap-1">
                         <template x-for="(p, i) in (state?.cpuTeam ?? [])" :key="i">
-                            <div class="relative">
+                            <div class="relative group">
                                 <img :src="spriteUrl(p.pokemonId)"
                                     :class="p.fainted ? 'opacity-30 grayscale' : state?.cpuActive === i ? 'ring-2 ring-violet-400 rounded-full' : ''"
                                     class="w-8 h-8 object-contain" style="image-rendering:pixelated">
+                                <!-- EV tooltip -->
+                                <div class="absolute z-[100] top-full left-0 mt-1 hidden group-hover:block pointer-events-none">
+                                    <div class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-[9px] font-bold whitespace-nowrap shadow-xl">
+                                        <div class="text-violet-300 mb-1 capitalize" x-text="p.name"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">HP</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.hp ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">Atk</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.attack ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">Def</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.defense ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">SpA</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.['special-attack'] ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">SpD</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.['special-defense'] ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">Spe</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.speed ?? 0"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </template>
                     </div>
@@ -1043,9 +1075,43 @@
                     </template>
 
                     <!-- CPU sprite -->
-                    <img id="cpu-sprite"
-                        :src="cpuActive ? spriteUrl(cpuActive.pokemonId) : ''"
-                        class="w-24 h-24 object-contain" style="image-rendering:pixelated; transform-origin: center bottom;">
+                    <div class="relative group inline-block">
+                        <img id="cpu-sprite"
+                            :src="cpuActive ? spriteUrl(cpuActive.pokemonId) : ''"
+                            class="w-24 h-24 object-contain" style="image-rendering:pixelated; transform-origin: center bottom;">
+                        <!-- EV tooltip -->
+                        <div class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block pointer-events-none">
+                            <div class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-[9px] font-bold whitespace-nowrap shadow-xl">
+                                <div class="text-violet-300 mb-1 capitalize" x-text="cpuActive?.name ?? ''"></div>
+                                <div class="space-y-0.5">
+                                    <div class="flex justify-between gap-3">
+                                        <span class="text-slate-400">HP</span>
+                                        <span class="text-white" x-text="cpuActive?.slot?.evs?.hp ?? 0"></span>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
+                                        <span class="text-slate-400">Atk</span>
+                                        <span class="text-white" x-text="cpuActive?.slot?.evs?.attack ?? 0"></span>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
+                                        <span class="text-slate-400">Def</span>
+                                        <span class="text-white" x-text="cpuActive?.slot?.evs?.defense ?? 0"></span>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
+                                        <span class="text-slate-400">SpA</span>
+                                        <span class="text-white" x-text="cpuActive?.slot?.evs?.['special-attack'] ?? 0"></span>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
+                                        <span class="text-slate-400">SpD</span>
+                                        <span class="text-white" x-text="cpuActive?.slot?.evs?.['special-defense'] ?? 0"></span>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
+                                        <span class="text-slate-400">Spe</span>
+                                        <span class="text-white" x-text="cpuActive?.slot?.evs?.speed ?? 0"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Player side -->
@@ -1084,10 +1150,42 @@
                     <!-- Player team portraits (bottom) -->
                     <div class="absolute bottom-2 left-4 flex gap-1">
                         <template x-for="(p, i) in (state?.playerTeam ?? [])" :key="i">
-                            <div class="relative">
+                            <div class="relative group">
                                 <img :src="spriteUrl(p.pokemonId)"
                                     :class="p.fainted ? 'opacity-30 grayscale' : state?.playerActive === i ? 'ring-2 ring-violet-400 rounded-full' : ''"
                                     class="w-8 h-8 object-contain" style="image-rendering:pixelated">
+                                <!-- EV tooltip -->
+                                <div class="absolute z-[100] bottom-full left-0 mb-1 hidden group-hover:block pointer-events-none">
+                                    <div class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-[9px] font-bold whitespace-nowrap shadow-xl">
+                                        <div class="text-emerald-300 mb-1 capitalize" x-text="p.name"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">HP</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.hp ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">Atk</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.attack ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">Def</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.defense ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">SpA</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.['special-attack'] ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">SpD</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.['special-defense'] ?? 0"></span>
+                                            </div>
+                                            <div class="flex justify-between gap-3">
+                                                <span class="text-slate-400">Spe</span>
+                                                <span class="text-white" x-text="p.slot?.evs?.speed ?? 0"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </template>
                     </div>

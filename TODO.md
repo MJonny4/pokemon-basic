@@ -10,11 +10,6 @@
 
 ## Pending
 
-### EV Tooltips on hover (battle)
-- Hovering over the **enemy active Pokémon sprite** should show a tooltip with its full EV spread (HP / Atk / Def / SpA / SpD / Spe)
-- Hovering over **any bench portrait** (both player and CPU rows at the bottom) should show a similar tooltip with name + EV spread
-- Tooltip style: dark card, stat labels + values, similar to the existing nature/ability badges already shown under the CPU HP bar
-
 ### Terastal mechanic (battle)
 - Tera types are **not implemented** in the battle engine or UI
 - Required work:
@@ -25,4 +20,9 @@
   - CPU AI: terastallize when HP < 50% or when it would turn a resistance into neutral/super-effective hit
   - Visual: show a crystal/tera icon on the active sprite when terastallized; change the type badge colour to the tera type
 
+- Check if theres any api for demage calculation I AM really paranoid about getting the damage right, else i'd like to make tests for the damage on all pokemon avaiable with their evs, items, abailtiies natures all and log inside a logs folder which would be needed to be added in the .gitignore file, and then check if the damage is right by comparing it with other damage calculators online, if not then i would need to check my damage calculation formula and see if theres any mistake in it.
+- Change battle.html Synergy Score, Offensive Coverage, Common Weaknesses and Team Immunities to adapt to the new changes (old code)
+
 ---
+
+LAST: CHECK CODE, OPTIMIZE CODE, TEST LOGIC WITH API IF NEEDED, CHECK ON HOW TO MAKE IT MORE SUSTAINABLE, CHECK FOR BUGS, CHECK FOR EDGE CASES, CHECK FOR PERFORMANCE ISSUES, CHECK FOR SECURITY ISSUES, CHECK FOR BEST PRACTICES, CHECK FOR CODE STYLE, CHECK FOR MAINTENANCE, CHECK FOR SCALABILITY, CHECK FOR USABILITY.
