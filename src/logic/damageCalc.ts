@@ -223,9 +223,15 @@ export function calcDamageRange(
     const A = getAttackerStat(attacker, move.type)
     const D = getDefenderStat(defender)
 
+    // Muscle Band (physical) / Wise Glasses (special) boost move power by ×11/10
+    const bp = (
+        (attacker.item === 'Muscle Band' && category === 'physical') ||
+        (attacker.item === 'Wise Glasses' && category === 'special')
+    ) ? Math.floor(move.power * 11 / 10) : move.power
+
     // Base damage: ⌊(⌊(2×Lv/5+2) × BP × A/D⌋ / 50) + 2⌋
     const lvFactor = Math.floor(2 * attacker.level / 5 + 2)
-    let dmg = Math.floor(Math.floor(lvFactor * move.power * A / D) / 50) + 2
+    let dmg = Math.floor(Math.floor(lvFactor * bp * A / D) / 50) + 2
 
     // 1. Weather modifier
     const mt = move.type.toLowerCase()
@@ -299,11 +305,6 @@ export function calcDamageRange(
         for (let i = 0; i < rolls.length; i++) rolls[i] = chainMod(0x14CD, rolls[i])   // ×1.3
     } else if (attacker.item === 'Expert Belt' && effectiveness > 1) {
         for (let i = 0; i < rolls.length; i++) rolls[i] = chainMod(0x1333, rolls[i])   // ×1.2
-    } else if (
-        (attacker.item === 'Muscle Band' && category === 'physical') ||
-        (attacker.item === 'Wise Glasses' && category === 'special')
-    ) {
-        for (let i = 0; i < rolls.length; i++) rolls[i] = chainMod(0x119A, rolls[i])   // ×1.1
     }
 
     const min = rolls[0]

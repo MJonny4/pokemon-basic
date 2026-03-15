@@ -149,11 +149,12 @@ export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: stri
     const cached = await idbGet<Array<{ name: string; id: number }>>(idbKey)
     if (cached) { cache.pokemonList = cached; return cached }
     const r = await fetch(`${BASE}/pokemon?limit=${limit}`)
+    if (!r.ok) throw new Error(`Failed to fetch Pokémon list (${r.status})`)
     const d = await r.json()
     const result = d.results.map((p: { name: string; url: string }) => ({
         name: p.name,
-        id: parseInt(p.url.split('/').filter(Boolean).pop()!),
-    }))
+        id: parseInt(p.url.split('/').filter(Boolean).pop() ?? '0'),
+    })).filter((p: { id: number }) => p.id > 0)
     cache.pokemonList = result
     idbSet(idbKey, result, TTL.POKEMON_LIST)
     return result
@@ -331,7 +332,9 @@ export async function fetchAbilities(abilityEntries: AbilityEntry[]): Promise<Ab
         const idbKey = `ability/${a.ability.url}`
         const cached = await idbGet<AbilityDetail>(idbKey)
         if (cached) return cached
-        const data: AbilityDetail = await fetch(a.ability.url).then((r) => r.json())
+        const res = await fetch(a.ability.url)
+        if (!res.ok) throw new Error(`Ability fetch failed: ${a.ability.url}`)
+        const data: AbilityDetail = await res.json()
         idbSet(idbKey, data, TTL.ABILITY)
         return data
     }))
@@ -343,6 +346,7 @@ export async function fetchEvolutionChain(url: string): Promise<EvolutionChain> 
     const cached = await idbGet<EvolutionChain>(idbKey)
     if (cached) { cache.evolution.set(url, cached); return cached }
     const r = await fetch(url)
+    if (!r.ok) throw new Error(`Evolution chain fetch failed (${r.status}): ${url}`)
     const data: EvolutionChain = await r.json()
     cache.evolution.set(url, data)
     idbSet(idbKey, data, TTL.EVOLUTION)
