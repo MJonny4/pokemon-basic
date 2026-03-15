@@ -2,6 +2,22 @@ import type { TeamSlot } from '../store/team'
 import { EFFECTIVENESS, TYPES } from '../data/constants'
 import { calcDefenseProfile } from './defense'
 
+// Abilities that grant a full type immunity (keyed by lowercase API ability name)
+const ABILITY_IMMUNITIES: Record<string, string> = {
+    'levitate':        'Ground',
+    'flash-fire':      'Fire',
+    'water-absorb':    'Water',
+    'dry-skin':        'Water',
+    'storm-drain':     'Water',
+    'volt-absorb':     'Electric',
+    'lightning-rod':   'Electric',
+    'motor-drive':     'Electric',
+    'sap-sipper':      'Grass',
+    'earth-eater':     'Ground',
+    'well-baked-body': 'Fire',
+    'wind-rider':      'Flying',
+}
+
 export interface TeamCoverage {
     offensiveCoverage: string[]              // lowercase types hit super-effectively via STAB
     teamWeaknesses: Record<string, number>   // capitalized type → count of members 2x+ weak
@@ -48,6 +64,17 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         for (const t of profile.half) teamResistances[t] = (teamResistances[t] ?? 0) + 1
         for (const t of profile.quarter) teamResistances[t] = (teamResistances[t] ?? 0) + 2
         for (const t of profile.immune) immunitiesSet.add(t)
+
+        // Ability-based immunity: add to immunities and remove the weakness entry for this slot
+        const abilityKey = slot.ability?.toLowerCase() ?? null
+        const abilityImmuneType = abilityKey ? ABILITY_IMMUNITIES[abilityKey] : null
+        if (abilityImmuneType) {
+            immunitiesSet.add(abilityImmuneType)
+            if (teamWeaknesses[abilityImmuneType]) {
+                teamWeaknesses[abilityImmuneType] = Math.max(0, teamWeaknesses[abilityImmuneType] - 1)
+                if (teamWeaknesses[abilityImmuneType] === 0) delete teamWeaknesses[abilityImmuneType]
+            }
+        }
     }
 
     const immunities = [...immunitiesSet]
