@@ -1,4 +1,4 @@
-import { TYPES, EFFECTIVENESS } from '../data/constants'
+import { TYPES, EFFECTIVENESS } from '../lib/data/constants'
 import { getTypeIcon } from './components'
 
 export function buildTypeChart(): void {

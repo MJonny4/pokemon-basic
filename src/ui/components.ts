@@ -1,4 +1,4 @@
-import { TYPE_COLORS, STAT_COLORS, STAT_LABELS } from '../data/constants'
+import { TYPE_COLORS, STAT_COLORS, STAT_LABELS } from '../lib/data/constants'
 
 export function darken(hex: string, amt: number): string {
     const n = parseInt(hex.replace('#', ''), 16)
