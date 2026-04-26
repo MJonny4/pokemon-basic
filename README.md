@@ -2,23 +2,25 @@
 
 A Pokémon reference tool. Look up any Pokémon's stats, type matchups, moves, and competitive tips — build and export your team in the Team Lab.
 
-**Stack:** Vite · TypeScript · Alpine.js · Tailwind CSS v4 · GSAP · PokéAPI
+**Stack:** Astro · TypeScript · Alpine.js (`@astrojs/alpinejs`) · Tailwind CSS v4 · GSAP · PokéAPI
+
+**Package manager:** bun
 
 ---
 
 ## Pages
 
-| Page | URL | Description |
+| Page | Route | Description |
 |---|---|---|
-| Pokédex | `index.html` | 18×18 type chart + full Pokédex modal |
-| Stats Explorer | `stats.html` | BST ranking table across all 1,025 Pokémon |
-| Team Lab | `team.html` | 6-slot team builder with Set Editor and Showdown export |
+| Pokédex | `/` | 18×18 type chart + full Pokédex modal |
+| Stats Explorer | `/stats` | BST ranking table across all 1,025 Pokémon |
+| Team Lab | `/team` | 6-slot team builder with Set Editor and Showdown export |
 
 ---
 
 ## Features
 
-### Pokédex (`index.html`)
+### Pokédex (`/`)
 - **Type Effectiveness Chart** — Full 18×18 grid. Highlights the searched Pokémon's types automatically.
 - **Pokédex Search** — Autocomplete across 1,025 Pokémon with gen filter, recent search history chips, and a clear button.
 - **Overview Tab** — Base stats with animated bars, Pokédex entry, ability descriptions, and evolution chain.
@@ -28,13 +30,13 @@ A Pokémon reference tool. Look up any Pokémon's stats, type matchups, moves, a
 - **Compare Tab** — Side-by-side stat comparison against all same-type Pokémon. Sortable by any stat. Click any entry to load it.
 - **"Add to Team Lab" button** — Sends the current Pokémon directly to the first empty Team Lab slot.
 
-### Stats Explorer (`stats.html`)
+### Stats Explorer (`/stats`)
 - All 1,025 Pokémon ranked by BST (default) or any individual stat.
 - Type filter (fetch by type from PokéAPI) and generation filter.
 - Lazy sprite loading, paginated 30/page.
 - Click any entry to open a quick-view modal with full stat breakdown.
 
-### Team Lab (`team.html`)
+### Team Lab (`/team`)
 - **6-slot builder** — Click an empty slot to search and add a Pokémon (GSAP pop-in). Drag slots to reorder.
 - **Set Editor** — Click any filled slot to open the editor:
   - Nature picker — top-5 recommended pills + expandable all-25 grid.
@@ -58,14 +60,15 @@ A Pokémon reference tool. Look up any Pokémon's stats, type matchups, moves, a
 ## Getting Started
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
-Open `http://localhost:5173` (or the port Vite picks).
+Open `http://localhost:4321`.
 
 ```bash
-npm run build   # production build → dist/
+bun run build    # production build → dist/
+bun run preview  # preview production build
 ```
 
 ---
@@ -74,55 +77,69 @@ npm run build   # production build → dist/
 
 ```
 src/
-├── data/
-│   ├── constants.ts        # TYPES, TYPE_COLORS, 18×18 EFFECTIVENESS matrix, STAT_COLORS, GEN_RANGES
-│   ├── natures.ts          # All 25 natures with stat pairs
-│   └── items.ts            # 12 held items with roles, colors, sprites, and descriptions
-│
-├── api/
-│   ├── pokeapi.ts          # TypeScript interfaces + fetch functions (L1 Map + L2 IndexedDB cache)
-│   └── idb-cache.ts        # IndexedDB TTL cache (idbGet, idbSet)
-│
-├── logic/
-│   ├── defense.ts          # calcDefenseProfile(types) → weakness/resistance breakdown
-│   ├── roleDetect.ts       # detectRole(stats) → 9 role types
-│   ├── natures.ts          # recommendNatures(role, stats) → scored nature list
-│   ├── items.ts            # recommendItems(role, types, canEvolve) → item list
-│   ├── statCalc.ts         # calcStat() — Gen 9 stat formula (HP + other stats)
-│   └── teamCoverage.ts     # analyzeTeam(slots) → TeamCoverage (synergy, coverage, speed tiers)
+├── lib/
+│   ├── data/
+│   │   ├── constants.ts        # TYPES, TYPE_COLORS, 18×18 EFFECTIVENESS matrix, STAT_COLORS, GEN_RANGES
+│   │   ├── natures.ts          # All 25 natures with stat pairs
+│   │   ├── items.ts            # 12 held items with roles, colors, sprites, and descriptions
+│   │   ├── type-colors.ts      # Modern type color palette (used by SetEditor)
+│   │   ├── cpu-pool.ts         # CPU_POOL names + CPU_EVS spreads per role
+│   │   ├── items-full.json     # Extended item data for Set Editor picker
+│   │   └── moves-data.json     # Static move metadata
+│   │
+│   ├── api/
+│   │   ├── pokeapi.ts          # TypeScript interfaces + fetch functions (L1 Map + L2 IndexedDB cache)
+│   │   └── idb-cache.ts        # IndexedDB TTL cache (idbGet, idbSet)
+│   │
+│   └── logic/
+│       ├── defense.ts          # calcDefenseProfile(types) → weakness/resistance breakdown
+│       ├── role-detect.ts      # detectRole(stats) → 9 role types
+│       ├── natures.ts          # recommendNatures(role, stats) → scored nature list
+│       ├── items.ts            # recommendItems(role, types, canEvolve) → item list
+│       ├── stat-calc.ts        # calcStat() — Gen 9 stat formula (HP + other stats)
+│       ├── team-coverage.ts    # analyzeTeam(slots) → TeamCoverage (synergy, coverage, speed tiers)
+│       ├── move-effects.ts     # MOVE_EFFECTS record (93 moves) + getMovePriority()
+│       ├── damage-calc.ts      # Gen 9 exact 10-step damage pipeline
+│       ├── battle-ai.ts        # Multi-tier CPU decision tree
+│       └── battle-engine.ts    # Immutable BattleState machine (~570 lines)
 │
 ├── ui/
-│   ├── components.ts       # Pure HTML string builders: typeBadge, typePillLg, statBar, getTypeIcon
-│   └── typeChart.ts        # buildTypeChart(), highlightChart(types), clearHighlight()
+│   ├── badges.ts               # typeBadge, typePillLg, getTypeIcon, darken
+│   ├── stat-bar.ts             # statBar HTML builder
+│   └── type-chart.ts           # buildTypeChart()
 │
-├── store/
-│   ├── pokemon.ts          # Alpine.store('pokemon') — shared reactive state for Pokédex
-│   └── team.ts             # Alpine.store('team') — TeamSlot interface, slots, coverage, persistence
+├── tabs/
+│   ├── overview.ts             # buildOverview(), appendEvoChain(), flatEvo()
+│   ├── defense.ts              # buildDefense()
+│   ├── moves.ts                # renderMoves()
+│   ├── trainer.ts              # buildTrainer()
+│   └── compare.ts              # buildCompare()
 │
-├── components/
-│   ├── pokedex/
-│   │   ├── SearchBar.ts    # Alpine component: autocomplete + gen filter + history chips
-│   │   └── Modal.ts        # Alpine component: tab state + move filter state + GSAP animations
-│   ├── stats/
-│   │   └── StatsPokemonModal.ts  # Quick-view modal for Stats Explorer
-│   ├── team/
-│   │   ├── TeamLab.ts      # Alpine component: slot management, drag-and-drop, toast, Copy Team
-│   │   └── SetEditor.ts    # Alpine component: nature/item/EV/IV/move editing, Showdown export
-│   └── tabs/
-│       ├── OverviewTab.ts  # buildOverview() → #overviewGrid, appendEvoChain()
-│       ├── DefenseTab.ts   # buildDefense() → #defenseContent
-│       ├── MovesTab.ts     # renderMoves() → #movesGrid + #coverageTypes
-│       ├── TrainerTab.ts   # buildTrainer() → #trainerContent (role, natures, items, stat calc)
-│       └── CompareTab.ts   # buildCompare() → #compareContent (type peer ranking)
+├── alpine/
+│   ├── stores/
+│   │   ├── pokemon.ts          # Alpine.store('pokemon') — shared reactive state for Pokédex
+│   │   └── team.ts             # Alpine.store('team') — TeamSlot interface, slots, coverage, persistence
+│   └── components/
+│       ├── pokedex/
+│       │   ├── search-bar.ts   # Alpine component: autocomplete + gen filter + history chips
+│       │   └── modal.ts        # Alpine component: tab state + move filter state + GSAP animations
+│       ├── stats/
+│       │   ├── stats-ranking.ts        # Alpine component: type/gen filter, sort, pagination
+│       │   └── stats-pokemon-modal.ts  # Quick-view modal for Stats Explorer
+│       └── team/
+│           ├── team-lab.ts     # Alpine component: slot management, drag-and-drop, toast, Copy Team
+│           ├── set-editor.ts   # Alpine component: nature/item/EV/IV/move editing, Showdown export
+│           └── battle-sim.ts   # Alpine component: full turn-based battle simulator
 │
-├── main.ts                 # Pokédex entry: wires Alpine store, components, event handlers
-├── stats.ts                # Stats Explorer entry
-├── team.ts                 # Team Lab entry
-└── style.css               # @import tailwindcss + custom CSS
-
-index.html                  # Pokédex shell
-stats.html                  # Stats Explorer shell
-team.html                   # Team Lab shell
+├── entrypoint.ts               # Registers all Alpine stores + components (loaded by @astrojs/alpinejs)
+├── layouts/
+│   └── Layout.astro            # Base HTML shell (Inter font, meta, CSS import)
+├── pages/
+│   ├── index.astro             # Pokédex: type chart + modal + event wiring
+│   ├── stats.astro             # Stats Explorer: ranking table + quick-view modal
+│   └── team.astro              # Team Lab: slots + Set Editor + Battle Simulator
+└── styles/
+    └── global.css              # @import tailwindcss + custom CSS (type chart, stat bars, tooltips…)
 ```
 
 ---
@@ -142,22 +159,22 @@ fetch() call
 
 ```
 'pokemon-search' event
-  └── main.ts
-        ├── api/pokeapi.ts   (typed, cached fetch functions)
-        ├── logic/*          (pure functions — no DOM, no Alpine)
-        ├── ui/*             (pure HTML string builders)
-        └── tabs/*           (render into named DOM elements)
+  └── <script> in index.astro
+        ├── lib/api/pokeapi.ts   (typed, cached fetch functions)
+        ├── lib/logic/*          (pure functions — no DOM, no Alpine)
+        ├── ui/*                 (pure HTML string builders)
+        └── tabs/*               (render into named DOM elements)
 
-Alpine.store('pokemon')      (shared reactive state read by index.html templates)
-Alpine components            (searchBar, modal — UI-only state)
+Alpine.store('pokemon')          (shared reactive state read by index.astro templates)
+Alpine components                (searchBar, modal — UI-only state)
 ```
 
 ### Key rules
 
-- `fetch()` only lives in `src/api/pokeapi.ts`
+- `fetch()` only lives in `src/lib/api/pokeapi.ts`
 - Logic files accept plain data — no DOM access, no Alpine imports
-- `main.ts` is the single place that wires data → logic → render for the Pokédex
-- HTML building goes through `src/ui/components.ts` helpers
+- `src/entrypoint.ts` is the single place that registers all Alpine stores and components
+- HTML building goes through `src/ui/` helpers
 
 ### Role detection thresholds
 
@@ -175,14 +192,20 @@ Alpine components            (searchBar, modal — UI-only state)
 
 ---
 
+## Deployment
+
+Deployed to GitHub Pages via `withastro/action`. The workflow lives at `.github/workflows/deploy.yml` and triggers on every push to `main`.
+
+---
+
 ## Dependencies
 
 | Package | Purpose |
 |---|---|
-| `vite` | Build tool and dev server |
+| `astro` | MPA framework + build tool |
+| `@astrojs/alpinejs` | Alpine.js integration (handles start + entrypoint) |
 | `typescript` | Type checking |
 | `alpinejs` | Reactive UI (store + components) |
-| `@types/alpinejs` | Alpine type definitions |
 | `tailwindcss` | Utility CSS |
 | `@tailwindcss/vite` | Tailwind v4 Vite plugin |
 | `gsap` | Animations (modal, sprites, slot fill) |
