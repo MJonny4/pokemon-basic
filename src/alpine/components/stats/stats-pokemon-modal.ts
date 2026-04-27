@@ -75,7 +75,7 @@ export function registerStatsPokemonModal(): void {
         },
 
         goToPokedex(name: string) {
-            window.open('/?search=' + encodeURIComponent(name), '_blank')
+            window.open(import.meta.env.BASE_URL + '?search=' + encodeURIComponent(name), '_blank')
         },
     }))
 

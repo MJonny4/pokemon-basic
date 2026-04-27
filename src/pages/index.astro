@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro'
+const base = import.meta.env.BASE_URL
 ---
 
 <Layout>
@@ -21,7 +22,7 @@ import Layout from '../layouts/Layout.astro'
             <!-- Search -->
             <div class="flex-1 min-w-52 max-w-lg relative flex gap-2">
                 <div class="relative flex-1">
-                    <img src="/search.svg" alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                    <img src={`${base}search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                     <input type="text" x-model="query" @input="handleInput()"
                         @keypress="if($event.key==='Enter') select(query.trim().toLowerCase())"
                         placeholder="Search Pokémon…"
@@ -52,8 +53,8 @@ import Layout from '../layouts/Layout.astro'
 
             <!-- Nav links -->
             <div class="flex items-center gap-2 shrink-0">
-                <a href="/stats" class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm flex items-center gap-1.5">📊 Stats</a>
-                <a href="/team" class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm flex items-center gap-1.5">🧪 Team Lab</a>
+                <a href={`${base}stats`} class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm flex items-center gap-1.5">📊 Stats</a>
+                <a href={`${base}team`} class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm flex items-center gap-1.5">🧪 Team Lab</a>
             </div>
 
             <!-- Gen filter -->
