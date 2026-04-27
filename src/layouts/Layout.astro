@@ -1,0 +1,44 @@
+---
+import '../styles/global.css'
+
+interface Props {
+    title?: string
+    description?: string
+}
+
+const {
+    title = 'PokeBasic — Pokédex & Type Chart',
+    description = 'PokeBasic is a fast Pokémon reference tool. Look up type effectiveness, base stats, moves, and competitive tips for any Pokémon — Gens I–IX.',
+} = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+
+    <meta name="description" content={description} />
+    <meta name="keywords" content="pokemon, pokedex, type chart, type effectiveness, competitive pokemon, pokemon moves, pokemon stats" />
+    <meta name="author" content="PokeBasic" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/icon.png" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="/icon.png" />
+
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <slot />
+</body>
+</html>
