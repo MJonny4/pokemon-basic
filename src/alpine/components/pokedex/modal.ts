@@ -146,7 +146,7 @@ export function registerModal(): void {
             if (firstEmpty === -1) {
                 window.dispatchEvent(new CustomEvent('team-toast', {
                     detail: {
-                        message: `Team is full! <a href="${import.meta.env.BASE_URL}team" class="underline font-bold">Open Team Lab →</a> to make room.`,
+                        message: `Team is full! <a href="${import.meta.env.BASE_URL}/team" class="underline font-bold">Open Team Lab →</a> to make room.`,
                         type: 'error',
                     },
                 }))
@@ -175,7 +175,7 @@ export function registerModal(): void {
 
             window.dispatchEvent(new CustomEvent('team-toast', {
                 detail: {
-                    message: `${name} added to your team! <a href="${import.meta.env.BASE_URL}team" class="underline font-bold">Open Team Lab →</a>`,
+                    message: `${name} added to your team! <a href="${import.meta.env.BASE_URL}/team" class="underline font-bold">Open Team Lab →</a>`,
                     type: 'success',
                 },
             }))
