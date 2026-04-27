@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
 // @ts-nocheck
+const base = import.meta.env.BASE_URL
 ---
 
 <Layout title="PokeBasic — Team Lab" description="PokeBasic Team Lab — build and analyze your competitive Pokémon team. Type coverage, synergy scores, speed tiers, and more.">
@@ -17,9 +18,9 @@ import Layout from '../layouts/Layout.astro'
                 </div>
             </div>
             <div class="flex-1"></div>
-            <a href="/"
+            <a href={base}
                 class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-violet-100 hover:text-violet-700 font-bold text-sm transition shrink-0">← Pokédex</a>
-            <a href="/stats"
+            <a href={`${base}stats`}
                 class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-sm transition shrink-0">📊 Stats</a>
         </div>
     </header>
@@ -814,7 +815,7 @@ import Layout from '../layouts/Layout.astro'
             <p class="text-sm text-slate-400 max-w-sm mx-auto mb-6">
                 Click any slot above to search, or open the Pokédex and use the "Add to Team Lab" button.
             </p>
-            <a href="/"
+            <a href={base}
                 class="inline-block px-6 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 font-bold text-sm transition shadow-md">
                 Open Pokédex →
             </a>
