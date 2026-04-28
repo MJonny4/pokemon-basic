@@ -1,28 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import SiteHeader from '../components/SiteHeader.astro'
 const base = import.meta.env.BASE_URL
 ---
 
 <Layout title="PokeBasic — Stats Explorer" description="Rank and compare all 1025 Pokémon by any base stat. Filter by type and generation, sort by BST, HP, Attack, Defense, and more.">
+    <SiteHeader subtitle="Stats Explorer" activeRoute="/stats" />
 <div x-data="statsRanking">
-
-    <!-- ══════════ HEADER ══════════ -->
-    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-5 py-3 flex items-center gap-4 flex-wrap">
-            <div class="flex items-center gap-2.5 shrink-0">
-                <div class="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-md">
-                    <span class="text-white font-black text-lg">P</span>
-                </div>
-                <div class="leading-tight">
-                    <div class="font-black text-slate-800 text-base">PokeBasic</div>
-                    <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">Stats Explorer</div>
-                </div>
-            </div>
-            <div class="flex-1"></div>
-            <a href={base} class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-violet-100 hover:text-violet-700 font-bold text-sm transition shrink-0">← Pokédex</a>
-            <a href={`${base}/team`} class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-bold text-sm transition shrink-0">🧪 Team Lab</a>
-        </div>
-    </header>
 
     <main class="max-w-7xl mx-auto px-4 py-6">
 

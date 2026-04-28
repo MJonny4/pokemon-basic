@@ -1,5 +1,5 @@
-import { TYPES, EFFECTIVENESS } from '../lib/data/constants'
-import { getTypeIcon } from '../ui/badges'
+import { TYPES, EFFECTIVENESS } from '../../../lib/data/constants'
+import { getTypeIcon } from '../../../ui/badges'
 
 export function buildTypeChart(): void {
     const table = document.getElementById('typeChart')

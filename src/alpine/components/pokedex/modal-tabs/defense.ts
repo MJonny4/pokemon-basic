@@ -1,6 +1,6 @@
-import type { Pokemon } from '../lib/api/pokeapi'
-import { calcDefenseProfile } from '../lib/logic/defense'
-import { typePillLg } from '../ui/badges'
+import type { Pokemon } from '../../../../lib/api/pokeapi'
+import { calcDefenseProfile } from '../../../../lib/logic/defense'
+import { typePillLg } from '../../../../ui/badges'
 import { gsap } from 'gsap'
 
 export function buildDefense(pokemon: Pokemon): void {

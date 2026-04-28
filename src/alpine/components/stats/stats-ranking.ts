@@ -39,7 +39,8 @@ function speedTier(spd: number): { label: string; color: string } {
     return { label: '🐢 Slow', color: '#ef4444' }
 }
 
-Alpine.data('statsRanking', () => ({
+export function registerStatsRanking(): void {
+    Alpine.data('statsRanking', () => ({
     selectedType: '' as string,
     sortKey: 'bst' as SortKey,
     loaded: [] as Pokemon[],
@@ -208,5 +209,5 @@ Alpine.data('statsRanking', () => ({
         if ((this.page as number) < (this.totalPages as number) - 1)
             this.page = (this.page as number) + 1
     },
-}))
-
+    }))
+}

@@ -1,9 +1,9 @@
-import type { Pokemon, Species } from '../lib/api/pokeapi'
-import { TYPE_COLORS, STAT_LABELS, STAT_COLORS } from '../lib/data/constants'
-import type { RoleResult } from '../lib/logic/role-detect'
-import { recommendNatures } from '../lib/logic/natures'
-import { recommendItems } from '../lib/logic/items'
-import { calcStat } from '../lib/logic/stat-calc'
+import type { Pokemon, Species } from '../../../../lib/api/pokeapi'
+import { TYPE_COLORS, STAT_LABELS, STAT_COLORS } from '../../../../lib/data/constants'
+import type { RoleResult } from '../../../../lib/logic/role-detect'
+import { recommendNatures } from '../../../../lib/logic/natures'
+import { recommendItems } from '../../../../lib/logic/items'
+import { calcStat } from '../../../../lib/logic/stat-calc'
 
 const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
 
