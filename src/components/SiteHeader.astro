@@ -1,0 +1,69 @@
+---
+type Route = '/' | '/stats' | '/team' | '/guide'
+
+interface Props {
+    subtitle: string
+    activeRoute: Route
+    maxWidth?: 'screen-2xl' | '7xl'
+    headerData?: string
+}
+
+const { subtitle, activeRoute, maxWidth = '7xl', headerData } = Astro.props
+const base = import.meta.env.BASE_URL
+
+const links: { route: Route; href: string; label: string }[] = [
+    { route: '/',       href: base,             label: '← Pokédex' },
+    { route: '/stats',  href: `${base}/stats`,  label: '📊 Stats' },
+    { route: '/team',   href: `${base}/team`,   label: '🧪 Team Lab' },
+    { route: '/guide',  href: `${base}/guide`,  label: '📖 Guide' },
+]
+const navLinks = links.filter((l) => l.route !== activeRoute)
+---
+
+<header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+    <div
+        class:list={[
+            'mx-auto px-5 py-3 flex items-center gap-4 flex-wrap',
+            maxWidth === 'screen-2xl' ? 'max-w-screen-2xl' : 'max-w-7xl',
+        ]}
+        x-data={headerData}
+    >
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-2.5 shrink-0">
+            <div class="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-md">
+                <span class="text-white font-black text-lg">P</span>
+            </div>
+            <div class="leading-tight">
+                <div class="font-black text-slate-800 text-base">PokeBasic</div>
+                <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">{subtitle}</div>
+            </div>
+        </div>
+
+        <!--
+            "middle" slot: search bar (index) or spacer (other pages).
+            Default fallback is a flex-1 spacer so nav links push to the right.
+        -->
+        <slot name="middle">
+            <div class="flex-1"></div>
+        </slot>
+
+        <!-- Nav Links -->
+        <nav class="flex items-center gap-2 shrink-0">
+            {navLinks.map((link) => (
+                <a
+                    href={link.href}
+                    class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm"
+                >
+                    {link.label}
+                </a>
+            ))}
+        </nav>
+
+        <!--
+            Default slot: extra full-width rows rendered as direct flex children.
+            Used by index for the gen-filter row and history row (both w-full,
+            so they wrap onto their own rows in the outer flex-wrap container).
+        -->
+        <slot />
+    </div>
+</header>

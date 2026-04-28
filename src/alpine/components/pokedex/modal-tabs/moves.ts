@@ -1,6 +1,6 @@
-import type { MoveDetail } from '../lib/api/pokeapi'
-import { TYPES, EFFECTIVENESS, TYPE_COLORS } from '../lib/data/constants'
-import { typeBadge, getTypeIcon } from '../ui/badges'
+import type { MoveDetail } from '../../../../lib/api/pokeapi'
+import { TYPES, EFFECTIVENESS, TYPE_COLORS } from '../../../../lib/data/constants'
+import { typeBadge, getTypeIcon } from '../../../../ui/badges'
 
 export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter: string, search: string): void {
     const grid = document.getElementById('movesGrid')

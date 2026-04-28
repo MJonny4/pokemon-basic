@@ -1,6 +1,6 @@
-import type { Pokemon, Species, AbilityDetail, EvolutionChain, EvolutionNode, EvolutionDetail } from '../lib/api/pokeapi'
-import { TYPE_COLORS } from '../lib/data/constants'
-import { statBar } from '../ui/stat-bar'
+import type { Pokemon, Species, AbilityDetail, EvolutionChain, EvolutionNode, EvolutionDetail } from '../../../../lib/api/pokeapi'
+import { TYPE_COLORS } from '../../../../lib/data/constants'
+import { statBar } from '../../../../ui/stat-bar'
 import { gsap } from 'gsap'
 
 export function buildOverview(pokemon: Pokemon, species: Species | null, abilityDetails: AbilityDetail[]): void {

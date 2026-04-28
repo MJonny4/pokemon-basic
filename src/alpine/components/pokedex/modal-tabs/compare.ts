@@ -1,7 +1,7 @@
-import type { Pokemon } from '../lib/api/pokeapi'
-import { fetchPokemon, fetchPokemonsByType } from '../lib/api/pokeapi'
-import { TYPE_COLORS, STAT_COLORS, STAT_LABELS } from '../lib/data/constants'
-import { typeBadge } from '../ui/badges'
+import type { Pokemon } from '../../../../lib/api/pokeapi'
+import { fetchPokemon, fetchPokemonsByType } from '../../../../lib/api/pokeapi'
+import { TYPE_COLORS, STAT_COLORS, STAT_LABELS } from '../../../../lib/data/constants'
+import { typeBadge } from '../../../../ui/badges'
 
 type SortKey = 'bst' | 'speed' | 'hp' | 'attack' | 'special-attack' | 'defense' | 'special-defense'
 

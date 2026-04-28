@@ -1,91 +1,77 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import SiteHeader from '../components/SiteHeader.astro'
 const base = import.meta.env.BASE_URL
 ---
 
 <Layout>
     <!-- ══════════ HEADER ══════════ -->
-    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
-        <div x-data="searchBar" class="max-w-screen-2xl mx-auto px-5 py-3 flex items-center gap-5 flex-wrap">
+    <!--
+        headerData puts x-data="searchBar" on the inner flex container so the
+        search input, gen filter, and history bar can all read searchBar state.
+        "middle" slot = the search input row (flex-1, sits between brand and nav).
+        Default slot = gen filter + history rows (w-full direct flex children,
+        so they wrap onto their own rows beneath the first line).
+    -->
+    <SiteHeader subtitle="Ultra Moon · Gen I–IX" activeRoute="/" maxWidth="screen-2xl" headerData="searchBar">
 
-            <!-- Brand -->
-            <div class="flex items-center gap-2.5 shrink-0">
-                <div class="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-md">
-                    <span class="text-white font-black text-lg">P</span>
+        <!-- Search input — named "middle" slot -->
+        <div slot="middle" class="flex-1 min-w-52 max-w-lg relative flex gap-2">
+            <div class="relative flex-1">
+                <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                <input type="text" x-model="query" @input="handleInput()"
+                    @keypress="if($event.key==='Enter') select(query.trim().toLowerCase())"
+                    placeholder="Search Pokémon…"
+                    class="w-full pl-9 pr-8 py-2 text-sm border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 bg-slate-50 font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400"
+                    autocomplete="off">
+                <button x-show="query.length > 0" @click="query=''; acOpen=false"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"
+                    tabindex="-1" title="Clear">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <!-- Autocomplete dropdown -->
+                <div class="ac-dropdown" x-show="acOpen" x-cloak>
+                    <template x-for="p in acResults" :key="p.name">
+                        <div class="ac-item" @click="select(p.name)">
+                            <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`" :alt="p.name">
+                            <span class="capitalize font-semibold text-sm text-slate-700" x-text="p.name"></span>
+                            <span class="text-slate-400 text-xs ml-auto" x-text="'#'+String(p.id).padStart(3,'0')"></span>
+                        </div>
+                    </template>
                 </div>
-                <div class="leading-tight">
-                    <div class="font-black text-slate-800 text-base">PokeBasic</div>
-                    <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">Ultra Moon · Gen I–IX</div>
-                </div>
             </div>
-
-            <!-- Search -->
-            <div class="flex-1 min-w-52 max-w-lg relative flex gap-2">
-                <div class="relative flex-1">
-                    <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
-                    <input type="text" x-model="query" @input="handleInput()"
-                        @keypress="if($event.key==='Enter') select(query.trim().toLowerCase())"
-                        placeholder="Search Pokémon…"
-                        class="w-full pl-9 pr-8 py-2 text-sm border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 bg-slate-50 font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400"
-                        autocomplete="off">
-                    <button x-show="query.length > 0" @click="query=''; acOpen=false"
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"
-                        tabindex="-1" title="Clear">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                    <!-- Autocomplete dropdown -->
-                    <div class="ac-dropdown" x-show="acOpen" x-cloak>
-                        <template x-for="p in acResults" :key="p.name">
-                            <div class="ac-item" @click="select(p.name)">
-                                <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`" :alt="p.name">
-                                <span class="capitalize font-semibold text-sm text-slate-700" x-text="p.name"></span>
-                                <span class="text-slate-400 text-xs ml-auto" x-text="'#'+String(p.id).padStart(3,'0')"></span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                <button @click="select(query.trim().toLowerCase())"
-                    class="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-bold text-sm transition shadow-sm shrink-0">Search</button>
-            </div>
-
-            <!-- Nav divider -->
-            <span class="hidden sm:block h-6 w-px bg-slate-200 shrink-0"></span>
-
-            <!-- Nav links -->
-            <div class="flex items-center gap-2 shrink-0">
-                <a href={`${base}/stats`} class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm flex items-center gap-1.5">📊 Stats</a>
-                <a href={`${base}/team`} class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm flex items-center gap-1.5">🧪 Team Lab</a>
-            </div>
-
-            <!-- Gen filter -->
-            <div class="w-full flex items-center gap-1.5 flex-wrap pb-1">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Gen</span>
-                <button @click="resetGens()"
-                    :class="allGensActive() ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-black border transition-all duration-150 hover:scale-105 active:scale-95">All</button>
-                <template x-for="(label, i) in genLabels" :key="i">
-                    <button @click="toggleGen(gens[i])"
-                        :class="isGenActive(gens[i]) ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
-                        class="px-2.5 py-0.5 rounded-full text-[10px] font-black border transition-all duration-150 hover:scale-105 active:scale-95"
-                        x-text="label"></button>
-                </template>
-            </div>
-
-            <!-- History bar -->
-            <div class="w-full flex items-center gap-2 flex-wrap pb-1" x-show="history.length > 0">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Recent</span>
-                <template x-for="h in history" :key="h.name">
-                    <button class="hchip" @click="select(h.name)">
-                        <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${h.id}.png`" :alt="h.name">
-                        <span x-text="capitalize(h.name)"></span>
-                    </button>
-                </template>
-                <button @click="clearHistory()"
-                    class="text-[10px] font-black text-slate-400 hover:text-red-400 uppercase tracking-wide ml-auto transition">✕ Clear</button>
-            </div>
-
+            <button @click="select(query.trim().toLowerCase())"
+                class="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-bold text-sm transition shadow-sm shrink-0">Search</button>
         </div>
-    </header>
+
+        <!-- Gen filter — default slot, w-full wraps to its own row in the outer flex -->
+        <div class="w-full flex items-center gap-1.5 flex-wrap pb-1">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Gen</span>
+            <button @click="resetGens()"
+                :class="allGensActive() ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-black border transition-all duration-150 hover:scale-105 active:scale-95">All</button>
+            <template x-for="(label, i) in genLabels" :key="i">
+                <button @click="toggleGen(gens[i])"
+                    :class="isGenActive(gens[i]) ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-black border transition-all duration-150 hover:scale-105 active:scale-95"
+                    x-text="label"></button>
+            </template>
+        </div>
+
+        <!-- History bar — default slot, w-full wraps to its own row -->
+        <div class="w-full flex items-center gap-2 flex-wrap pb-1" x-show="history.length > 0">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Recent</span>
+            <template x-for="h in history" :key="h.name">
+                <button class="hchip" @click="select(h.name)">
+                    <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${h.id}.png`" :alt="h.name">
+                    <span x-text="capitalize(h.name)"></span>
+                </button>
+            </template>
+            <button @click="clearHistory()"
+                class="text-[10px] font-black text-slate-400 hover:text-red-400 uppercase tracking-wide ml-auto transition">✕ Clear</button>
+        </div>
+
+    </SiteHeader>
 
     <!-- ══════════ TYPE CHART ══════════ -->
     <main class="max-w-screen-2xl mx-auto px-4 py-5">
@@ -227,7 +213,8 @@ const base = import.meta.env.BASE_URL
                         </div>
                         <div class="flex flex-wrap gap-1.5" id="coverageTypes"></div>
                     </div>
-                    <div id="movesGrid"></div>
+                    <div id="movesGrid" x-data x-effect="renderMoves($store.pokemon.moves, $store.pokemon.types, $store.pokemon.filter, $store.pokemon.search)">
+                    </div>
                 </div>
 
                 <!-- Trainer Tips -->
@@ -264,14 +251,14 @@ const base = import.meta.env.BASE_URL
 <script>
 import Alpine from 'alpinejs'
 import { gsap } from 'gsap'
-import { buildTypeChart } from '../renderers/type-chart'
+import { buildTypeChart } from '../alpine/components/pokedex/type-chart'
 import { fetchPokemon, fetchSpecies, fetchMoves, fetchAbilities, fetchEvolutionChain } from '../lib/api/pokeapi'
 import { detectRole } from '../lib/logic/role-detect'
-import { buildOverview, appendEvoChain, flatEvo } from '../renderers/overview'
-import { buildDefense } from '../renderers/defense'
-import { renderMoves } from '../renderers/moves'
-import { buildTrainer } from '../renderers/trainer'
-import { buildCompare } from '../renderers/compare'
+import { buildOverview, appendEvoChain, flatEvo } from '../alpine/components/pokedex/modal-tabs/overview'
+import { buildDefense } from '../alpine/components/pokedex/modal-tabs/defense'
+import { renderMoves } from '../alpine/components/pokedex/modal-tabs/moves'
+import { buildTrainer } from '../alpine/components/pokedex/modal-tabs/trainer'
+import { buildCompare } from '../alpine/components/pokedex/modal-tabs/compare'
 import { TYPE_COLORS } from '../lib/data/constants'
 import { typeBadge } from '../ui/badges'
 

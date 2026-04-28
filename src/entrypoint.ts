@@ -5,22 +5,31 @@ import { registerSearchBar } from './alpine/components/pokedex/search-bar'
 import { registerModal } from './alpine/components/pokedex/modal'
 
 import { registerStatsPokemonModal } from './alpine/components/stats/stats-pokemon-modal'
-import './alpine/components/stats/stats-ranking'
+import { registerStatsRanking } from './alpine/components/stats/stats-ranking'
 
 import { registerTeamLab } from './alpine/components/team/team-lab'
 import { registerSetEditor } from './alpine/components/team/set-editor'
 import { registerBattleSim } from './alpine/components/team/battle-sim'
 
+import { registerGuide } from './alpine/components/guide/guide'
+
+const uses = (name: string) => !!document.querySelector(`[x-data="${name}"]`)
+
 export default () => {
+    // Stores are always registered — they're lightweight and shared
     registerPokemonStore()
     registerTeamStore()
 
-    registerSearchBar()
-    registerModal()
+    // Components are registered only if the page actually uses them
+    if (uses('searchBar'))         registerSearchBar()
+    if (uses('modal'))             registerModal()
 
-    registerStatsPokemonModal()
+    if (uses('statsPokemonModal')) registerStatsPokemonModal()
+    if (uses('statsRanking'))      registerStatsRanking()
 
-    registerTeamLab()
-    registerSetEditor()
-    registerBattleSim()
+    if (uses('teamLab'))           registerTeamLab()
+    if (uses('setEditor'))         registerSetEditor()
+    if (uses('battleSim'))         registerBattleSim()
+
+    if (uses('guide'))             registerGuide()
 }
