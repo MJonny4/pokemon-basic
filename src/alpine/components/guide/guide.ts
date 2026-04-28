@@ -101,6 +101,11 @@ export function registerGuide(): void {
             return stops.findIndex((s: GuideStop) => s.id === stop.id)
         },
 
+        get isFirstStop(): boolean {
+            const stops = (this.currentGame as GameGuide).stops
+            return stops.length > 0 && this.activeStopId === stops[0].id
+        },
+
         hasNextStop(): boolean {
             const idx = this.currentStopIndex()
             return idx >= 0 && idx < (this.currentGame as GameGuide).stops.length - 1

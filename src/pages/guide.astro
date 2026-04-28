@@ -135,41 +135,49 @@ const base = import.meta.env.BASE_URL
 
                         <!-- Starter picker -->
                         <template x-if="currentGame.starters && currentGame.starters.length > 0">
-                            <!-- When no starter picked: show picker -->
-                            <template x-if="!selectedStarter">
-                                <div class="bg-white rounded-2xl border-2 border-violet-200 shadow-sm p-5">
-                                    <h3 class="text-xs font-black text-violet-600 uppercase tracking-widest mb-1">🌟 First, Choose Your Starter!</h3>
-                                    <p class="text-xs text-slate-500 mb-4">Your starter Pokémon will travel with you the whole game. Pick the one that fits your style!</p>
-                                    <div class="grid grid-cols-3 gap-3">
-                                        <template x-for="starter in currentGame.starters" :key="starter.name">
-                                            <button
-                                                @click="selectStarter(starter)"
-                                                class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-violet-400 hover:bg-violet-50 transition cursor-pointer">
-                                                <img
-                                                    :src="spriteUrl(starter.id)"
-                                                    :alt="starter.name"
-                                                    class="w-16 h-16 object-contain"
-                                                    style="image-rendering:pixelated">
-                                                <span class="font-black text-slate-700 text-sm capitalize" x-text="starter.name"></span>
-                                                <span x-html="typeBadgeHtml(starter.type)"></span>
-                                                <span class="text-[10px] text-slate-500 text-center leading-tight" x-text="starter.description"></span>
-                                            </button>
-                                        </template>
+                            <!-- Single root wrapper required: x-if only processes one direct child -->
+                            <div>
+                                <!-- When no starter picked AND on first stop: show picker -->
+                                <template x-if="!selectedStarter && isFirstStop">
+                                    <div class="bg-white rounded-2xl border-2 border-violet-200 shadow-sm p-5">
+                                        <h3 class="text-xs font-black text-violet-600 uppercase tracking-widest mb-1">🌟 First, Choose Your Starter!</h3>
+                                        <p class="text-xs text-slate-500 mb-4">Your starter Pokémon will travel with you the whole game. Pick the one that fits your style!</p>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <template x-for="starter in currentGame.starters" :key="starter.name">
+                                                <button
+                                                    @click="selectStarter(starter)"
+                                                    class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-violet-400 hover:bg-violet-50 transition cursor-pointer">
+                                                    <img
+                                                        :src="spriteUrl(starter.id)"
+                                                        :alt="starter.name"
+                                                        class="w-16 h-16 object-contain"
+                                                        style="image-rendering:pixelated">
+                                                    <span class="font-black text-slate-700 text-sm capitalize" x-text="starter.name"></span>
+                                                    <span x-html="typeBadgeHtml(starter.type)"></span>
+                                                    <span class="text-[10px] text-slate-500 text-center leading-tight" x-text="starter.description"></span>
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
-                                </div>
-                            </template>
+                                </template>
 
-                            <!-- When starter is picked: show compact banner -->
-                            <template x-if="selectedStarter">
-                                <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 flex items-center gap-3">
-                                    <img :src="spriteUrl(selectedStarter.id)" :alt="selectedStarter.name" class="w-10 h-10 object-contain" style="image-rendering:pixelated">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-[10px] font-black text-violet-500 uppercase tracking-widest">Your Starter</div>
-                                        <div class="font-black text-slate-800 text-sm capitalize" x-text="selectedStarter.name"></div>
+                                <!-- When starter is picked: show compact banner on all stops; Change button only on first stop -->
+                                <template x-if="selectedStarter">
+                                    <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 flex items-center gap-3">
+                                        <img :src="spriteUrl(selectedStarter.id)" :alt="selectedStarter.name" class="w-10 h-10 object-contain" style="image-rendering:pixelated">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-[10px] font-black text-violet-500 uppercase tracking-widest">Your Starter</div>
+                                            <div class="font-black text-slate-800 text-sm capitalize" x-text="selectedStarter.name"></div>
+                                        </div>
+                                        <button
+                                            x-show="isFirstStop"
+                                            @click="clearStarter()"
+                                            class="text-[10px] font-bold text-slate-400 hover:text-violet-600 transition px-2 py-1 rounded-lg hover:bg-violet-100">
+                                            Change
+                                        </button>
                                     </div>
-                                    <button @click="clearStarter()" class="text-[10px] font-bold text-slate-400 hover:text-violet-600 transition px-2 py-1 rounded-lg hover:bg-violet-100">Change</button>
-                                </div>
-                            </template>
+                                </template>
+                            </div>
                         </template>
 
                         <!-- What to do -->
