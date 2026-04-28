@@ -1,0 +1,364 @@
+---
+import Layout from '../layouts/Layout.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+const base = import.meta.env.BASE_URL
+---
+
+<Layout
+    title="PokeBasic — Game Guide"
+    description="Step-by-step walkthrough for Pokémon Red/Blue and Gold/Silver. Items, wild Pokémon, gym teams, Elite Four strategy, and progress tracking."
+>
+    <SiteHeader subtitle="Game Guide · Gen I–II" activeRoute="/guide" />
+
+    <!-- ══════════ MAIN ══════════ -->
+    <div x-data="guide" x-cloak class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- Page title + game selector -->
+        <div class="mb-5 flex flex-col sm:flex-row sm:items-end gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 mb-1">📖 Game Guide</h1>
+                <p class="text-sm text-slate-400 font-medium">Step-by-step walkthrough. Mark stops as you complete them — progress saves automatically.</p>
+            </div>
+            <div class="flex gap-2 sm:ml-auto flex-wrap">
+                <template x-for="game in games" :key="game.id">
+                    <button
+                        @click="selectGame(game.id)"
+                        :class="activeGameId === game.id ? 'fchip-active' : ''"
+                        class="fchip"
+                        x-text="game.title">
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Progress</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-slate-600" x-text="`${completedStops.length} / ${currentGame.stops.length} stops completed`"></span>
+                    <button
+                        @click="resetProgress()"
+                        class="text-[10px] font-bold text-slate-400 hover:text-red-400 transition uppercase tracking-wide">
+                        ✕ Reset
+                    </button>
+                </div>
+            </div>
+            <div class="stat-bar-track">
+                <div class="stat-bar-fill bg-violet-500 transition-all duration-300" :style="`width:${progressPct}%`"></div>
+            </div>
+        </div>
+
+        <!-- Sidebar + panel layout -->
+        <div class="flex gap-5 items-start">
+
+            <!-- ══════════ SIDEBAR ══════════ -->
+            <aside class="w-56 shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-20 max-h-[calc(100vh-6rem)] flex-col max-lg:hidden lg:flex">
+                <div class="px-4 py-3 border-b border-slate-100 shrink-0">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest" x-text="currentGame.title + ' — ' + currentGame.stops.length + ' stops'"></p>
+                </div>
+                <nav class="overflow-y-auto flex-1">
+                    <template x-for="stop in currentGame.stops" :key="stop.id">
+                        <button
+                            @click="selectStop(stop.id)"
+                            :class="{
+                                'bg-violet-50 border-l-4 border-violet-500 text-violet-700': activeStopId === stop.id,
+                                'border-l-4 border-transparent hover:bg-slate-50 text-slate-600': activeStopId !== stop.id
+                            }"
+                            class="w-full text-left px-3 py-2.5 flex items-center gap-2 transition text-xs font-semibold">
+                            <span
+                                :class="isCompleted(stop.id) ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-300'"
+                                class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] shrink-0 font-black">
+                                <template x-if="isCompleted(stop.id)">
+                                    <span>✓</span>
+                                </template>
+                            </span>
+                            <span x-text="stop.icon || stopIcon(stop.kind)" class="shrink-0"></span>
+                            <span x-text="stop.name" class="leading-tight truncate" :class="isCompleted(stop.id) ? 'line-through text-slate-400' : ''"></span>
+                        </button>
+                    </template>
+                </nav>
+            </aside>
+
+            <!-- Mobile stop selector -->
+            <div class="lg:hidden w-full mb-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Select Stop</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <template x-for="stop in currentGame.stops" :key="stop.id">
+                            <button
+                                @click="selectStop(stop.id)"
+                                :class="{
+                                    'bg-violet-600 text-white': activeStopId === stop.id,
+                                    'bg-slate-100 text-slate-600 hover:bg-violet-100': activeStopId !== stop.id,
+                                    'opacity-60': isCompleted(stop.id) && activeStopId !== stop.id
+                                }"
+                                class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
+                                <span x-text="stop.icon || stopIcon(stop.kind)"></span>
+                                <span x-text="stop.name"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════ MAIN PANEL ══════════ -->
+            <main class="flex-1 min-w-0 space-y-4 lg:block" :class="{'hidden': !currentStop}">
+                <template x-if="currentStop">
+                    <div class="space-y-4">
+
+                        <!-- Stop header -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                            <div class="flex items-start justify-between gap-4 flex-wrap">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span x-text="currentStop.icon || stopIcon(currentStop.kind)" class="text-2xl"></span>
+                                        <h2 class="text-xl font-black text-slate-800" x-text="currentStop.name"></h2>
+                                    </div>
+                                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-2 py-0.5 bg-slate-100 rounded-full" x-text="currentStop.kind.replace('-', ' ')"></span>
+                                </div>
+                                <button
+                                    @click="toggleStop(currentStop.id)"
+                                    :class="isCompleted(currentStop.id)
+                                        ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-red-50 hover:text-red-500 hover:border-red-300'
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-violet-400 hover:text-violet-700'"
+                                    class="px-4 py-2 rounded-xl border-2 font-bold text-sm transition flex items-center gap-2 shrink-0">
+                                    <template x-if="isCompleted(currentStop.id)">
+                                        <span>✓ Completed</span>
+                                    </template>
+                                    <template x-if="!isCompleted(currentStop.id)">
+                                        <span>Mark Complete</span>
+                                    </template>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Starter picker -->
+                        <template x-if="currentGame.starters && currentGame.starters.length > 0">
+                            <!-- When no starter picked: show picker -->
+                            <template x-if="!selectedStarter">
+                                <div class="bg-white rounded-2xl border-2 border-violet-200 shadow-sm p-5">
+                                    <h3 class="text-xs font-black text-violet-600 uppercase tracking-widest mb-1">🌟 First, Choose Your Starter!</h3>
+                                    <p class="text-xs text-slate-500 mb-4">Your starter Pokémon will travel with you the whole game. Pick the one that fits your style!</p>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <template x-for="starter in currentGame.starters" :key="starter.name">
+                                            <button
+                                                @click="selectStarter(starter)"
+                                                class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-violet-400 hover:bg-violet-50 transition cursor-pointer">
+                                                <img
+                                                    :src="spriteUrl(starter.id)"
+                                                    :alt="starter.name"
+                                                    class="w-16 h-16 object-contain"
+                                                    style="image-rendering:pixelated">
+                                                <span class="font-black text-slate-700 text-sm capitalize" x-text="starter.name"></span>
+                                                <span x-html="typeBadgeHtml(starter.type)"></span>
+                                                <span class="text-[10px] text-slate-500 text-center leading-tight" x-text="starter.description"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- When starter is picked: show compact banner -->
+                            <template x-if="selectedStarter">
+                                <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 flex items-center gap-3">
+                                    <img :src="spriteUrl(selectedStarter.id)" :alt="selectedStarter.name" class="w-10 h-10 object-contain" style="image-rendering:pixelated">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-[10px] font-black text-violet-500 uppercase tracking-widest">Your Starter</div>
+                                        <div class="font-black text-slate-800 text-sm capitalize" x-text="selectedStarter.name"></div>
+                                    </div>
+                                    <button @click="clearStarter()" class="text-[10px] font-bold text-slate-400 hover:text-violet-600 transition px-2 py-1 rounded-lg hover:bg-violet-100">Change</button>
+                                </div>
+                            </template>
+                        </template>
+
+                        <!-- What to do -->
+                        <template x-if="currentStop.steps && currentStop.steps.length > 0">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">📋 What To Do</h3>
+                                <ol class="space-y-3">
+                                    <template x-for="(step, i) in currentStop.steps" :key="i">
+                                        <li class="flex gap-3 text-sm text-slate-700 leading-relaxed">
+                                            <span class="w-6 h-6 rounded-full bg-violet-100 text-violet-700 font-black text-xs flex items-center justify-center shrink-0 mt-0.5" x-text="i + 1"></span>
+                                            <span x-text="step"></span>
+                                        </li>
+                                    </template>
+                                </ol>
+                            </div>
+                        </template>
+
+                        <!-- Gym battle -->
+                        <template x-if="currentStop.gym">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">🏟️ Gym Battle</h3>
+
+                                <!-- Leader info row -->
+                                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+                                    <div>
+                                        <div class="font-black text-slate-800 text-lg" x-text="currentStop.gym.leader"></div>
+                                        <div class="text-sm text-slate-400 font-semibold" x-text="`Specialty: ${currentStop.gym.type}`"></div>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1">
+                                        <template x-if="currentStop.gym.badge">
+                                            <span class="text-xs font-black text-violet-700 bg-violet-50 border border-violet-200 px-3 py-1 rounded-full" x-text="currentStop.gym.badge"></span>
+                                        </template>
+                                        <template x-if="currentStop.gym.tmReward">
+                                            <span class="text-[11px] font-bold text-slate-500" x-text="currentStop.gym.tmReward"></span>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Team -->
+                                <div class="flex flex-wrap gap-3 mb-4">
+                                    <template x-for="mon in currentStop.gym.team" :key="mon.name + mon.level">
+                                        <div class="flex flex-col items-center gap-1 bg-slate-50 rounded-xl p-2.5 border border-slate-100 min-w-18">
+                                            <img
+                                                :src="spriteUrl(mon.id)"
+                                                :alt="mon.name"
+                                                class="w-14 h-14 object-contain"
+                                                style="image-rendering:pixelated"
+                                                loading="lazy">
+                                            <span class="text-[11px] font-black text-slate-700 capitalize" x-text="mon.name"></span>
+                                            <span class="text-[10px] text-slate-400 font-semibold" x-text="`Lv. ${mon.level}`"></span>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!-- Strategy -->
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mb-3">
+                                    <p class="text-sm text-amber-800 font-medium leading-relaxed">
+                                        <span class="font-black text-amber-700">Strategy: </span>
+                                        <span x-text="currentStop.gym.strategy"></span>
+                                    </p>
+                                </div>
+
+                                <!-- Starter hint -->
+                                <template x-if="selectedStarter && currentStop.gym.starterHints && currentStop.gym.starterHints[selectedStarter.name.toLowerCase()]">
+                                    <div class="bg-violet-50 border border-violet-200 rounded-xl p-3 mb-3 flex items-center gap-2">
+                                        <img :src="spriteUrl(selectedStarter.id)" class="w-6 h-6 object-contain" style="image-rendering:pixelated">
+                                        <p class="text-sm text-violet-900 font-medium leading-relaxed">
+                                            <span class="font-black text-violet-700" x-text="'With your ' + selectedStarter.name + ': '"></span>
+                                            <span x-text="currentStop.gym.starterHints[selectedStarter.name.toLowerCase()]"></span>
+                                        </p>
+                                    </div>
+                                </template>
+
+                                <!-- Weaknesses -->
+                                <template x-if="currentStop.gym.weaknesses && currentStop.gym.weaknesses.length > 0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weak to:</span>
+                                        <template x-for="type in currentStop.gym.weaknesses" :key="type">
+                                            <span x-html="typeBadgeHtml(type)"></span>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Items -->
+                        <template x-if="currentStop.items && currentStop.items.length > 0">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">🎒 Items</h3>
+                                <div class="space-y-2">
+                                    <template x-for="item in currentStop.items" :key="item.name">
+                                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                            <span class="text-xl shrink-0" x-text="item.icon ?? '📦'"></span>
+                                            <div>
+                                                <div class="text-sm font-black text-slate-700" x-text="item.name"></div>
+                                                <div class="text-xs text-slate-400 font-medium mt-0.5" x-text="item.location"></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Wild Pokémon -->
+                        <template x-if="currentStop.wildPokemon && currentStop.wildPokemon.length > 0">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">🌿 Wild Pokémon</h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                                    <template x-for="entry in currentStop.wildPokemon" :key="entry.name + entry.method">
+                                        <div
+                                            @click="openPokedex(entry.name)"
+                                            class="flex flex-col items-center gap-1.5 bg-slate-50 rounded-xl p-3 border border-slate-100 cursor-pointer hover:border-violet-300 hover:bg-violet-50 transition">
+                                            <img
+                                                :src="spriteUrl(entry.id)"
+                                                :alt="entry.name"
+                                                class="w-14 h-14 object-contain"
+                                                style="image-rendering:pixelated"
+                                                loading="lazy">
+                                            <span class="text-[11px] font-black text-slate-700 capitalize" x-text="entry.name"></span>
+                                            <span class="text-[10px] text-slate-500 font-semibold" x-text="`Lv. ${entry.minLevel}–${entry.maxLevel}`"></span>
+                                            <span
+                                                class="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize"
+                                                :class="{
+                                                    'bg-green-100 text-green-700': entry.method === 'grass',
+                                                    'bg-blue-100 text-blue-700': entry.method === 'surf',
+                                                    'bg-cyan-100 text-cyan-700': entry.method === 'fishing',
+                                                    'bg-stone-100 text-stone-600': entry.method === 'cave',
+                                                    'bg-amber-100 text-amber-700': entry.method === 'gift' || entry.method === 'trade',
+                                                }"
+                                                x-text="entry.method">
+                                            </span>
+                                            <template x-if="entry.rarity">
+                                                <span
+                                                    class="text-[9px] font-black uppercase tracking-wide"
+                                                    :class="{
+                                                        'text-slate-400': entry.rarity === 'common',
+                                                        'text-amber-500': entry.rarity === 'uncommon',
+                                                        'text-violet-500': entry.rarity === 'rare',
+                                                    }"
+                                                    x-text="entry.rarity">
+                                                </span>
+                                            </template>
+                                            <span class="text-[9px] text-violet-400 font-semibold">View in Pokédex</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Tips -->
+                        <template x-if="currentStop.tips && currentStop.tips.length > 0">
+                            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+                                <h3 class="text-xs font-black text-blue-600 uppercase tracking-widest mb-3">💡 Tips</h3>
+                                <ul class="space-y-2">
+                                    <template x-for="(tip, i) in currentStop.tips" :key="i">
+                                        <li class="text-sm text-blue-900 font-medium leading-relaxed flex gap-2">
+                                            <span class="shrink-0 text-blue-400 font-black">•</span>
+                                            <span x-text="tip"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+
+                        <!-- Navigation buttons -->
+                        <div class="flex justify-between items-center">
+                            <template x-if="hasPreviousStop()">
+                                <button @click="goPrevious()" class="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 font-bold text-sm transition flex items-center gap-2">
+                                    ← Previous Stop
+                                </button>
+                            </template>
+                            <template x-if="!hasPreviousStop()">
+                                <div></div>
+                            </template>
+                            <template x-if="hasNextStop()">
+                                <button @click="goNext()" class="px-5 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 font-bold text-sm transition flex items-center gap-2">
+                                    Next Stop →
+                                </button>
+                            </template>
+                            <template x-if="isLastStop()">
+                                <div class="px-5 py-2.5 bg-emerald-100 text-emerald-700 rounded-xl font-bold text-sm flex items-center gap-2">
+                                    🏆 You've reached the end!
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                </template>
+            </main>
+        </div>
+    </div>
+</Layout>
