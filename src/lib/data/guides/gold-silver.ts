@@ -4,15 +4,36 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
     id: 'gold-silver',
     title: 'Gold / Silver',
     gen: 2,
+    starters: [
+        {
+            name: 'Chikorita',
+            id: 152,
+            type: 'grass',
+            description: 'Defensive and reliable, but has a tougher early gym matchup spread.',
+        },
+        {
+            name: 'Cyndaquil',
+            id: 155,
+            type: 'fire',
+            description: 'Most beginner-friendly Johto starter with strong early and mid-game matchups.',
+        },
+        {
+            name: 'Totodile',
+            id: 158,
+            type: 'water',
+            description: 'High physical power and great neutral coverage for most mandatory battles.',
+        },
+    ],
     stops: [
         {
             id: 'new-bark-town',
             name: 'New Bark Town',
             kind: 'town',
             steps: [
-                'Talk to Prof. Elm in his lab to receive your starter Pokémon.',
-                'Choose Chikorita (defensive, harder early), Cyndaquil (balanced, great fire type), or Totodile (strong attacker, easiest early).',
-                'Head west to Route 29 toward Cherrygrove City.',
+                'Talk to Prof. Elm in his lab to receive your starter Pokémon and begin the Johto journey.',
+                'Choose Chikorita (safer defensively but harder early gyms), Cyndaquil (best beginner route), or Totodile (strong physical attacker).',
+                'Before leaving town, talk to your mom and set your money saving preference; saved money can auto-buy useful items later.',
+                'Head west to Route 29 toward Cherrygrove City, then north to Mr. Pokémon via Route 30.',
             ],
             items: [
                 { name: 'Pokédex', location: 'Prof. Elm\'s Lab — given after choosing starter', icon: '📕' },
@@ -21,7 +42,8 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             wildPokemon: [],
             tips: [
                 'Cyndaquil is recommended for beginners — Quilava/Typhlosion dominate mid-game.',
-                'Check your PC before leaving — there\'s an item inside.',
+                'Check your PC before leaving — there\'s a free Potion inside.',
+                'Early team core idea: keep your starter + catch Hoothoot for utility and sleep support later.',
             ],
         },
         {
@@ -29,7 +51,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Cherrygrove City',
             kind: 'town',
             steps: [
-                'An old man guides you through the city and gives you the Running Shoes.',
+                'An old man guides you through the city and upgrades your Pokégear with the Map Card.',
                 'Visit the Poké Mart to pick up basic supplies.',
                 'Head north to Route 30 toward Mr. Pokémon\'s house.',
                 'After getting the Mystery Egg from Mr. Pokémon, your rival steals a Pokémon from Elm\'s lab on your way back.',
@@ -37,13 +59,16 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Return to Elm with the Mystery Egg and report your rival — note his name from the trainer ID.',
             ],
             items: [
-                { name: 'Running Shoes', location: 'Old man\'s guided tour of Cherrygrove City', icon: '👟' },
+                { name: 'Pokégear Map Card', location: 'Old man\'s guided tour of Cherrygrove City', icon: '🗺️' },
                 { name: 'Mystery Egg', location: 'Mr. Pokémon\'s house on Route 30 — bring it to Prof. Elm', icon: '🥚' },
             ],
             wildPokemon: [
                 { name: 'rattata', id: 19, minLevel: 2, maxLevel: 5, method: 'grass', rarity: 'common' },
                 { name: 'sentret', id: 161, minLevel: 2, maxLevel: 5, method: 'grass', rarity: 'common' },
                 { name: 'hoothoot', id: 163, minLevel: 2, maxLevel: 5, method: 'grass', rarity: 'uncommon' },
+            ],
+            tips: [
+                'Recommended catch: Hoothoot gives early Flying coverage and useful status options.',
             ],
         },
         {
@@ -52,7 +77,8 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'town',
             steps: [
                 'Head north from New Bark through Route 31 and 32 to reach Violet City.',
-                'Visit the Sprout Tower north of the city — Team Rocket is inside. Defeat the sages and get HM05 (Flash) at the top.',
+                'Visit the Sprout Tower north of the city and defeat the sages to prepare for the first gym.',
+                'After beating Falkner, talk to Prof. Elm by phone and then collect the Mystery Egg from his aide in Violet\'s Poké Mart.',
                 'Challenge the Violet City Gym.',
             ],
             items: [
@@ -64,6 +90,9 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 { name: 'zubat', id: 41, minLevel: 3, maxLevel: 6, method: 'cave', rarity: 'common' },
                 { name: 'gastly', id: 92, minLevel: 5, maxLevel: 8, method: 'cave', rarity: 'uncommon' },
             ],
+            tips: [
+                'Team core target: catch Bellsprout (or Oddish later) for status + utility in long fights.',
+            ],
         },
         {
             id: 'gym-1-violet',
@@ -71,8 +100,8 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'gym',
             steps: [
                 'Falkner uses Flying types — Electric and Rock moves are super-effective.',
-                'His Pidgeot is faster than most early-game Pokémon.',
-                'The Togepi egg from Elm hatches at around 20 steps in your party.',
+                'His Pidgeotto is faster than most early-game Pokémon and can spam Mud-Slap accuracy drops.',
+                'Geodude (Dark Cave/Route 46) or Mareep (Route 32 in Crystal only) can make this gym much easier.',
             ],
             items: [
                 { name: 'TM31 (Mud-Slap)', location: 'Received from Falkner after defeating him', icon: '📀' },
@@ -89,6 +118,12 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Electric or Rock moves are ideal. Geodude from Union Cave is great here. Totodile\'s Water Gun also works since Falkner\'s team is frail. Chikorita players may struggle — grind to Lv12 before challenging.',
                 weaknesses: ['Electric', 'Rock', 'Ice'],
+                starterHints: {
+                    chikorita: 'This is your hardest early gym. Use Reflect and Razor Leaf chip, or bring Rock-type help like Geodude.',
+                    cyndaquil: 'You can win with Ember and good levels, but Mud-Slap can snowball. Keep Potions ready.',
+                    totodile: 'Water Gun plus Bite pressure is usually enough. Focus Pidgeotto first and heal through Mud-Slap.',
+                },
+                recommendedLevel: 11,
             },
         },
         {
@@ -138,6 +173,12 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Fire or Flying moves dominate. Scyther knows Fury Cutter which doubles in power each hit — don\'t let it stack. Lead with your strongest offensive Pokémon and take it out fast. Cyndaquil\'s Ember one-shots everything here.',
                 weaknesses: ['Fire', 'Flying', 'Rock'],
+                starterHints: {
+                    chikorita: 'Set Reflect early and avoid letting Scyther stack Fury Cutter. Flying support helps a lot.',
+                    cyndaquil: 'This is a favorable gym. Ember handles all three Pokemon efficiently.',
+                    totodile: 'Use Rage/Water Gun to clear cocoons quickly, then focus Scyther before Fury Cutter ramps.',
+                },
+                recommendedLevel: 16,
             },
         },
         {
@@ -166,6 +207,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             tips: [
                 'Use Headbutt on trees to find Pokémon — Heracross, Exeggcute, and Pineco can be found this way.',
                 'The Goldenrod Underground has useful items and the Haircut brothers who raise Pokémon friendship.',
+                'Team core target: Heracross from Headbutt trees can carry multiple gym and Elite Four fights.',
             ],
         },
         {
@@ -194,7 +236,10 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 strategy: 'Miltank is one of the hardest gym leaders in the series. Rollout gets stronger every turn; Attract locks male Pokémon. Use Sand-Attack repeatedly to reduce accuracy, then chip away. A Geodude or any Fighting type makes this manageable. Lemonade to heal, and be patient.',
                 weaknesses: ['Fighting'],
             },
-            tips: ['Whitney cries after losing — talk to her again to receive the Plain Badge and TM.'],
+            tips: [
+                'Whitney cries after losing — talk to her again to receive the Plain Badge and TM.',
+                'Recommended level is around 20–22. If Miltank overwhelms you, train just a bit and retry.',
+            ],
         },
         {
             id: 'ecruteak-city',
@@ -217,6 +262,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             tips: [
                 'The legendary beasts (Raikou, Entei, Suicune) roam Johto — check the Pokédex map to track them.',
                 'Use a Pokémon with Mean Look or Block to prevent them from fleeing.',
+                'Team core target: Eevee from Bill in Goldenrod can evolve into Espeon/Umbreon and helps through mid-game.',
             ],
         },
         {
@@ -245,7 +291,16 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Dark-type moves (Bite, Crunch) are super-effective. Shadow Ball from TM works great once you have it. Haunter and Gengar know Hypnosis — bring Awakening. Avoid using Normal or Fighting moves entirely. Espeon/Umbreon with Bite is strong here.',
                 weaknesses: ['Dark', 'Ghost'],
+                starterHints: {
+                    chikorita: 'Use Chikorita for support and switch to Bite users like Croconaw/Umbreon for clean KOs.',
+                    cyndaquil: 'Fire is mostly neutral here; rely on Bite or other Dark/Ghost coverage to end fights quickly.',
+                    totodile: 'Croconaw with Bite is one of the safest ways to handle Morty in Johto.',
+                },
+                recommendedLevel: 24,
             },
+            tips: [
+                'If Hypnosis keeps landing, use Mint Berry or Awakenings immediately to avoid snowball losses.',
+            ],
         },
         {
             id: 'olivine-cianwood',
@@ -253,7 +308,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'town',
             steps: [
                 'The Olivine Gym is closed — Jasmine is tending to a sick Ampharos at the top of the Lighthouse.',
-                'Surf west to Cianwood City — defeat the Cianwood Gym to get Surf.',
+                'Use Surf (already obtained in Ecruteak) to travel west to Cianwood City.',
                 'Get the SecretPotion from the Cianwood pharmacy and return to Jasmine.',
                 'After healing Amphy, Jasmine returns to the gym.',
                 'Also pick up HM02 (Fly) from a woman in Cianwood City.',
@@ -266,6 +321,9 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 { name: 'tentacool', id: 72, minLevel: 15, maxLevel: 25, method: 'surf', rarity: 'common' },
                 { name: 'mantine', id: 226, minLevel: 15, maxLevel: 25, method: 'surf', rarity: 'uncommon' },
             ],
+            tips: [
+                'Catch Tentacool if needed: Tentacruel is fast, bulky, and great for Surf utility.',
+            ],
         },
         {
             id: 'gym-5-cianwood',
@@ -274,7 +332,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             steps: [
                 'Chuck uses Fighting types — Psychic and Flying moves are super-effective.',
                 'His Poliwrath also knows Water moves — be careful with Fire types.',
-                'A waterfall outside the gym — Primeape is in the front.',
+                'The gym puzzle uses waterfall currents and movable boulders; Primeape usually appears first.',
             ],
             items: [
                 { name: 'TM01 (DynamicPunch)', location: 'Received from Chuck after defeating him', icon: '📀' },
@@ -290,8 +348,17 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Poliwrath', id: 62, level: 30 },
                 ],
                 strategy: 'Psychic or Flying moves are your best bet. Kadabra, Slowpoke, or Pidgeot work great. Poliwrath has Water moves, so avoid Fire types. Chuck loves Hypnosis — bring Awakening.',
-                weaknesses: ['Psychic', 'Flying', 'Fairy'],
+                weaknesses: ['Psychic', 'Flying'],
+                starterHints: {
+                    chikorita: 'Use support moves (Reflect/Light Screen) and let a Flying or Psychic teammate do the main damage.',
+                    cyndaquil: 'Typhlosion can help with neutral damage, but Psychic/Flying teammates are safer for Poliwrath.',
+                    totodile: 'Feraligatr can brute-force with strong neutral hits, but a Psychic type is still the cleanest option.',
+                },
+                recommendedLevel: 30,
             },
+            tips: [
+                'DynamicPunch is strong but inaccurate. If Chuck misses, punish with your strongest move right away.',
+            ],
         },
         {
             id: 'gym-6-olivine',
@@ -316,9 +383,18 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Magnemite', id: 81, level: 30 },
                     { name: 'Steelix', id: 208, level: 35 },
                 ],
-                strategy: 'Fire types dominate — Typhlosion, Arcanine, or even Growlithe makes this easy. Fighting moves (Machamp, Heracross) also work great on Steelix. Ground moves hit Steelix but not Magnemite (they\'re Steel/Electric — immune to Ground). Bring plenty of healing items; Steelix has high Defense.',
+                strategy: 'Fire types dominate — Typhlosion, Arcanine, or even Growlithe makes this easy. Fighting moves (Machamp, Heracross) also work great on Steelix. Ground moves are super-effective against both Magnemite and Steelix, so Dig/Earthquake users are excellent here. Bring plenty of healing items; Steelix has high Defense.',
                 weaknesses: ['Fire', 'Fighting', 'Ground'],
+                starterHints: {
+                    chikorita: 'Use support (Reflect/Light Screen) and let Fire or Ground teammates break Steelix safely.',
+                    cyndaquil: 'This gym favors you. Use Flame Wheel/Ember pressure and keep a Ground backup for consistency.',
+                    totodile: 'Water is neutral here; bring Ground or Fighting support for faster KOs on Magnemite and Steelix.',
+                },
+                recommendedLevel: 33,
             },
+            tips: [
+                'Steelix is very bulky. Special attacks or super-effective coverage are much better than neutral physical chip.',
+            ],
         },
         {
             id: 'mahogany-town',
@@ -343,6 +419,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             tips: [
                 'Red Gyarados is the first guaranteed shiny in any Pokémon game — catch it, it\'s special.',
                 'Trade the Red Scale to Mr. Pokemon (Route 30) to get EXP Share.',
+                'Team core anchor: Red Gyarados can carry the rest of Johto if you keep it leveled.',
             ],
         },
         {
@@ -370,7 +447,16 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Fire types destroy this gym (Typhlosion is ideal). Fighting moves also work. Piloswine is Ice/Ground — watch out for Earthquake. Electric moves hit Seel/Dewgong but not Piloswine. Rock Slide is solid against everything here.',
                 weaknesses: ['Fire', 'Fighting', 'Rock', 'Steel'],
+                starterHints: {
+                    chikorita: 'Avoid staying in on Ice moves; pivot into Fire/Fighting support and keep Reflect available.',
+                    cyndaquil: 'Great matchup. Fire STAB handles most of this gym, but watch Piloswine\'s Ground coverage.',
+                    totodile: 'Use neutral physical pressure and bring Fighting or Fire support to close fights faster.',
+                },
+                recommendedLevel: 31,
             },
+            tips: [
+                'If you struggle with the ice puzzle, reset to entrance and line up each push from corners first.',
+            ],
         },
         {
             id: 'goldenrod-radio-tower',
@@ -389,7 +475,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             ],
             wildPokemon: [],
             tips: [
-                'In Gold: Clear Bell summons Lugia at Whirl Islands. In Silver: Rainbow Wing summons Ho-Oh at Tin Tower.',
+                'The version mascot legendary is tied to this quest chain. Bring Ultra Balls and status moves before attempting it.',
                 'Both legendaries are at Lv40 — prepare your team and bring plenty of Ultra Balls.',
             ],
         },
@@ -401,11 +487,10 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Reach Blackthorn via Ice Path from Mahogany Town — solve the ice puzzles.',
                 'In Ice Path, pick up HM07 (Waterfall).',
                 'Challenge the final Johto gym.',
-                'After the gym, the Dragon Elder will give you HM08 (Rock Smash) and your rival is defeated again.',
+                'After beating Clair, complete the Dragon\'s Den trial to officially receive the Rising Badge and TM24.',
             ],
             items: [
                 { name: 'HM07 (Waterfall)', location: 'Ice Path — item ball inside the cave', icon: '💦' },
-                { name: 'HM08 (Rock Smash)', location: 'Dragon\'s Den — Dragon Elder after getting 8 badges', icon: '💥' },
                 { name: 'Dratini', location: 'Dragon\'s Den — old man gives one if you answer his quiz correctly', icon: '🐲' },
             ],
             wildPokemon: [
@@ -441,7 +526,16 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Ice moves are essential — Blizzard, Ice Beam, or even Icy Wind. Kingdra is Water/Dragon and only weak to Dragon moves in Gen 2 (no Fairy type). Use a Dragon type move or chip away with Ice. Dragonair can use Hyper Beam — keep your HP up.',
                 weaknesses: ['Ice', 'Dragon'],
+                starterHints: {
+                    chikorita: 'Set screens and let Ice/Dragon coverage teammates handle Dragonair and Kingdra.',
+                    cyndaquil: 'Bring dedicated Ice or Dragon coverage; Fire alone is not enough for Clair.',
+                    totodile: 'Teach Ice Punch or Icy Wind support if possible; your bulk helps stabilize the fight.',
+                },
+                recommendedLevel: 39,
             },
+            tips: [
+                'Save before entering Dragon\'s Den after Clair so you can retry the elder quiz without repeating the gym.',
+            ],
         },
         {
             id: 'mt-silver-victory-road',
@@ -487,7 +581,11 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Dark type moves (Bite, Crunch, Shadow Ball) are your best tools. Umbreon is an excellent lead. Bug moves work too — Heracross with Megahorn is phenomenal. Avoid Fighting and Poison types.',
                 weaknesses: ['Dark', 'Bug', 'Ghost'],
+                recommendedLevel: 41,
             },
+            tips: [
+                'Lead with a Dark user if possible to reduce risk against Will\'s opening Xatu.',
+            ],
         },
         {
             id: 'elite-four-koga',
@@ -514,7 +612,11 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Koga uses Mean Look + Baton Pass combos and toxic stalling. Fire types handle Forretress easily. Psychic moves handle most of his team. Crobat is very fast — use your own fast attacker. Bring Antidote and Full Heals for status conditions.',
                 weaknesses: ['Ground', 'Psychic', 'Fire'],
+                recommendedLevel: 42,
             },
+            tips: [
+                'Prioritize Forretress quickly to avoid long status-heavy turns.',
+            ],
         },
         {
             id: 'elite-four-bruno',
@@ -523,7 +625,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             steps: [
                 'Bruno returns from Gen 1 — now with an upgraded team.',
                 'Fighting types are weak to Psychic and Flying moves.',
-                'His Machamp has No Guard (in later games) — hit fast and hard.',
+                'His Machamp is the biggest threat in this fight — hit fast and hard with Psychic or Flying coverage.',
             ],
             items: [],
             wildPokemon: [],
@@ -541,7 +643,11 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Psychic and Flying moves sweep his fighting types. Machamp is the biggest threat with Cross Chop. Water moves handle Onix. Espeon or Alakazam are excellent here. Keep your team healthy going into the fight — Machamp hits hard.',
                 weaknesses: ['Psychic', 'Flying', 'Water'],
+                recommendedLevel: 43,
             },
+            tips: [
+                'Save your strongest Psychic/Flying move user for Machamp specifically.',
+            ],
         },
         {
             id: 'elite-four-karen',
@@ -568,7 +674,11 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Fighting moves destroy Umbreon, Murkrow, and Houndoom. Heracross with Megahorn is your best friend here. Umbreon will try to stall with Moonlight — hit it hard with Fighting moves. Watch out for Gengar (Ghost — immune to Fighting) and Vileplume. Use Fire for Vileplume.',
                 weaknesses: ['Fighting', 'Bug', 'Fire'],
+                recommendedLevel: 44,
             },
+            tips: [
+                'Bring one dedicated Fighting move for Umbreon and one Fire move for Vileplume.',
+            ],
         },
         {
             id: 'champion-lance',
@@ -597,10 +707,17 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Ice Beam/Blizzard is your best friend — hits Gyarados, Dragonite, and Aerodactyl. Electric moves handle Gyarados. Rock Slide for Aerodactyl and Charizard. Lapras is perfect for this fight. Keep Revives handy — his Dragonite at Lv50 hits very hard.',
                 weaknesses: ['Ice', 'Electric', 'Rock'],
+                starterHints: {
+                    chikorita: 'Use support utility and pivot to your Ice/Electric attackers; this is not a solo starter fight.',
+                    cyndaquil: 'Typhlosion helps with Charizard, but Lance is won by Ice/Electric coverage and careful healing.',
+                    totodile: 'Feraligatr can contribute a lot with Ice coverage and bulk; keep Revives for Dragonite endgame.',
+                },
+                recommendedLevel: 47,
             },
             tips: [
                 'After beating Lance, Kanto opens up — you can now travel there and challenge all 8 Kanto gyms.',
                 'The ultimate goal is reaching Mt. Silver to battle the Red (the protagonist from Gen 1).',
+                'If Lance is overwhelming, level in Victory Road and rematch with a dedicated Ice attacker as your lead.',
             ],
         },
         {
@@ -611,16 +728,16 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Travel to Kanto via the Magnet Train (get the Pass from the girl in Saffron after delivering her lost Spearow).',
                 'Challenge all 8 Kanto Gyms — they are much harder than in Gen 1 (all leaders have stronger teams).',
                 'Brock (Rock, Pewter) → Misty (Water, Cerulean) → Lt. Surge (Electric, Vermilion) → Erika (Grass, Celadon) → Janine (Poison, Fuchsia — replaces Koga) → Sabrina (Psychic, Saffron) → Blaine (Fire, Seafoam Islands) → Blue (Mixed, Viridian).',
-                'After all 8 badges, Prof. Oak gives you HM06 (Rock Climb) to reach Mt. Silver.',
+                'After all 16 badges total (8 Johto + 8 Kanto), Prof. Oak opens access to Mt. Silver.',
             ],
             items: [
                 { name: 'Magnet Train Pass', location: 'Saffron City — return the Spearow with a Mail to Goldenrod', icon: '🎟️' },
-                { name: 'HM06 (Rock Climb)', location: 'Given by Prof. Oak after collecting all 16 badges', icon: '🧗' },
             ],
             wildPokemon: [],
             tips: [
                 'All 8 Kanto leaders have Lv50–60 Pokémon — level your team to 50+ before challenging them.',
                 'Blue (Viridian Gym, Gen 2) is one of the hardest gym leaders in the series.',
+                'Balanced late-game team core: Water + Electric + Ice + Fighting coverage handles most Kanto threats.',
             ],
         },
         {
@@ -629,7 +746,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'champion',
             steps: [
                 'Enter Mt. Silver from the west of Pallet Town after all 16 badges.',
-                'Navigate to the summit (use Rock Climb and Surf).',
+                'Navigate to the summit using cave traversal and Surf where needed.',
                 'Red stands at the peak — he says nothing. This is the ultimate challenge.',
                 'Red\'s team is the highest level of any trainer in Gen 1/2 — be ready.',
             ],
@@ -654,6 +771,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 ],
                 strategy: 'Red\'s team is Lv75–81 — the highest levels in Gen 2. Pikachu has Light Ball — enormous Special Attack. Bring your strongest Pokémon at Lv70+. Electric moves for Lapras, Fighting for Snorlax, Ice for Charizard/Venusaur, Fire for Venusaur, Electric for Blastoise. This is the hardest battle in the game.',
                 weaknesses: ['Fire', 'Ice', 'Electric', 'Fighting', 'Ground'],
+                recommendedLevel: 72,
             },
             tips: [
                 'Recommended team level: 70+. This is the hardest battle in Gen 1/2.',
