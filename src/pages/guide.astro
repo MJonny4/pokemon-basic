@@ -6,9 +6,9 @@ const base = import.meta.env.BASE_URL
 
 <Layout
     title="PokeBasic — Game Guide"
-    description="Step-by-step walkthrough for Pokémon Red/Blue, Gold/Silver, and Ruby/Sapphire. Items, wild Pokémon, gym teams, Elite Four strategy, and progress tracking."
+    description="Step-by-step walkthrough for Pokémon Red/Blue and Gold/Silver. Items, wild Pokémon, gym teams, Elite Four strategy, and progress tracking."
 >
-    <SiteHeader subtitle="Game Guide · Gen I–III" activeRoute="/guide" />
+    <SiteHeader subtitle="Game Guide · Gen I–II" activeRoute="/guide" />
 
     <!-- ══════════ MAIN ══════════ -->
     <div x-data="guide" x-cloak class="max-w-7xl mx-auto px-4 py-6">
@@ -205,9 +205,6 @@ const base = import.meta.env.BASE_URL
                                     <div>
                                         <div class="font-black text-slate-800 text-lg" x-text="currentStop.gym.leader"></div>
                                         <div class="text-sm text-slate-400 font-semibold" x-text="`Specialty: ${currentStop.gym.type}`"></div>
-                                        <template x-if="currentStop.gym.recommendedLevel">
-                                            <div class="text-xs text-violet-600 font-bold mt-1" x-text="`Recommended team level: ${currentStop.gym.recommendedLevel}+`"></div>
-                                        </template>
                                     </div>
                                     <div class="flex flex-col items-end gap-1">
                                         <template x-if="currentStop.gym.badge">

@@ -2,10 +2,9 @@ import Alpine from 'alpinejs'
 import type { GameGuide, GuideStop, StarterChoice } from '../../../lib/data/guides/types'
 import { RED_BLUE_GUIDE } from '../../../lib/data/guides/red-blue'
 import { GOLD_SILVER_GUIDE } from '../../../lib/data/guides/gold-silver'
-import { RUBY_SAPPHIRE_GUIDE } from '../../../lib/data/guides/ruby-sapphire'
 import { typeBadge } from '../../../ui/badges'
 
-const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE]
+const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE]
 
 const STOP_ICONS: Record<string, string> = {
     'town':       '🏘️',
