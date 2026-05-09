@@ -4,6 +4,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
     id: 'ruby-sapphire',
     title: 'Ruby / Sapphire',
     gen: 3,
+    completeness: 'full',
     starters: [
         {
             name: 'Treecko',

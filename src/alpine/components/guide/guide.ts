@@ -2,9 +2,11 @@ import Alpine from 'alpinejs'
 import type { GameGuide, GuideStop, StarterChoice } from '../../../lib/data/guides/types'
 import { RED_BLUE_GUIDE } from '../../../lib/data/guides/red-blue'
 import { GOLD_SILVER_GUIDE } from '../../../lib/data/guides/gold-silver'
+import { RUBY_SAPPHIRE_GUIDE } from '../../../lib/data/guides/ruby-sapphire'
+import { DIAMOND_PEARL_GUIDE } from '../../../lib/data/guides/diamond-pearl'
 import { typeBadge } from '../../../ui/badges'
 
-const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE]
+const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE, DIAMOND_PEARL_GUIDE]
 
 const STOP_ICONS: Record<string, string> = {
     'town':       '🏘️',
@@ -164,6 +166,20 @@ export function registerGuide(): void {
 
         typeBadgeHtml(type: string): string {
             return typeBadge(type, 'sm')
+        },
+
+        guideCompletenessLabel(game: GameGuide): string {
+            const level = game.completeness ?? 'early-access'
+            if (level === 'verified') return 'Verified'
+            if (level === 'full') return 'Full'
+            return 'Early Access'
+        },
+
+        guideCompletenessClass(game: GameGuide): string {
+            const level = game.completeness ?? 'early-access'
+            if (level === 'verified') return 'bg-emerald-100 text-emerald-700 border-emerald-200'
+            if (level === 'full') return 'bg-violet-100 text-violet-700 border-violet-200'
+            return 'bg-amber-100 text-amber-700 border-amber-200'
         },
 
         openPokedex(pokemonName: string): void {

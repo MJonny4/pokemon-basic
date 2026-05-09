@@ -4,6 +4,27 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
     id: 'gold-silver',
     title: 'Gold / Silver',
     gen: 2,
+    completeness: 'full',
+    starters: [
+        {
+            name: 'Chikorita',
+            id: 152,
+            type: 'grass',
+            description: 'Defensive and reliable, but has a tougher early gym matchup spread.',
+        },
+        {
+            name: 'Cyndaquil',
+            id: 155,
+            type: 'fire',
+            description: 'Most beginner-friendly Johto starter with strong early and mid-game matchups.',
+        },
+        {
+            name: 'Totodile',
+            id: 158,
+            type: 'water',
+            description: 'High physical power and great neutral coverage for most mandatory battles.',
+        },
+    ],
     stops: [
         {
             id: 'new-bark-town',
@@ -29,7 +50,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Cherrygrove City',
             kind: 'town',
             steps: [
-                'An old man guides you through the city and gives you the Running Shoes.',
+                'An old man guides you through the city and upgrades your Pokégear with the Map Card.',
                 'Visit the Poké Mart to pick up basic supplies.',
                 'Head north to Route 30 toward Mr. Pokémon\'s house.',
                 'After getting the Mystery Egg from Mr. Pokémon, your rival steals a Pokémon from Elm\'s lab on your way back.',
@@ -37,7 +58,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Return to Elm with the Mystery Egg and report your rival — note his name from the trainer ID.',
             ],
             items: [
-                { name: 'Running Shoes', location: 'Old man\'s guided tour of Cherrygrove City', icon: '👟' },
+                { name: 'Pokégear Map Card', location: 'Old man\'s guided tour of Cherrygrove City', icon: '🗺️' },
                 { name: 'Mystery Egg', location: 'Mr. Pokémon\'s house on Route 30 — bring it to Prof. Elm', icon: '🥚' },
             ],
             wildPokemon: [
@@ -52,7 +73,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'town',
             steps: [
                 'Head north from New Bark through Route 31 and 32 to reach Violet City.',
-                'Visit the Sprout Tower north of the city — Team Rocket is inside. Defeat the sages and get HM05 (Flash) at the top.',
+                'Visit the Sprout Tower north of the city and defeat the sages to prepare for the first gym.',
                 'Challenge the Violet City Gym.',
             ],
             items: [
@@ -71,8 +92,8 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'gym',
             steps: [
                 'Falkner uses Flying types — Electric and Rock moves are super-effective.',
-                'His Pidgeot is faster than most early-game Pokémon.',
-                'The Togepi egg from Elm hatches at around 20 steps in your party.',
+                'His Pidgeotto is faster than most early-game Pokémon and can spam Mud-Slap accuracy drops.',
+                'Geodude from nearby routes is a reliable answer if you need extra safety.',
             ],
             items: [
                 { name: 'TM31 (Mud-Slap)', location: 'Received from Falkner after defeating him', icon: '📀' },
@@ -290,7 +311,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Poliwrath', id: 62, level: 30 },
                 ],
                 strategy: 'Psychic or Flying moves are your best bet. Kadabra, Slowpoke, or Pidgeot work great. Poliwrath has Water moves, so avoid Fire types. Chuck loves Hypnosis — bring Awakening.',
-                weaknesses: ['Psychic', 'Flying', 'Fairy'],
+                weaknesses: ['Psychic', 'Flying'],
             },
         },
         {
@@ -523,7 +544,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             steps: [
                 'Bruno returns from Gen 1 — now with an upgraded team.',
                 'Fighting types are weak to Psychic and Flying moves.',
-                'His Machamp has No Guard (in later games) — hit fast and hard.',
+                'His Machamp is the biggest threat in this room — hit fast and hard with Psychic or Flying pressure.',
             ],
             items: [],
             wildPokemon: [],
@@ -611,11 +632,10 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Travel to Kanto via the Magnet Train (get the Pass from the girl in Saffron after delivering her lost Spearow).',
                 'Challenge all 8 Kanto Gyms — they are much harder than in Gen 1 (all leaders have stronger teams).',
                 'Brock (Rock, Pewter) → Misty (Water, Cerulean) → Lt. Surge (Electric, Vermilion) → Erika (Grass, Celadon) → Janine (Poison, Fuchsia — replaces Koga) → Sabrina (Psychic, Saffron) → Blaine (Fire, Seafoam Islands) → Blue (Mixed, Viridian).',
-                'After all 8 badges, Prof. Oak gives you HM06 (Rock Climb) to reach Mt. Silver.',
+                'After all 16 badges total (8 Johto + 8 Kanto), Prof. Oak opens access to Mt. Silver.',
             ],
             items: [
                 { name: 'Magnet Train Pass', location: 'Saffron City — return the Spearow with a Mail to Goldenrod', icon: '🎟️' },
-                { name: 'HM06 (Rock Climb)', location: 'Given by Prof. Oak after collecting all 16 badges', icon: '🧗' },
             ],
             wildPokemon: [],
             tips: [
@@ -629,7 +649,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'champion',
             steps: [
                 'Enter Mt. Silver from the west of Pallet Town after all 16 badges.',
-                'Navigate to the summit (use Rock Climb and Surf).',
+                'Navigate to the summit using cave traversal and Surf where needed.',
                 'Red stands at the peak — he says nothing. This is the ultimate challenge.',
                 'Red\'s team is the highest level of any trainer in Gen 1/2 — be ready.',
             ],
