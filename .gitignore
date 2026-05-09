@@ -6,6 +6,7 @@ dist/
 
 # visual studio code settings
 .vscode/
+.cursor/
 
 # dependencies
 node_modules/
