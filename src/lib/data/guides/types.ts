@@ -1,5 +1,6 @@
 export type EncounterMethod = 'grass' | 'surf' | 'fishing' | 'cave' | 'gift' | 'trade'
 export type StopKind = 'town' | 'route' | 'gym' | 'dungeon' | 'elite-four' | 'champion'
+export type GuideCompleteness = 'early-access' | 'full' | 'verified'
 
 export interface StarterChoice {
     name: string        // 'Bulbasaur', 'Charmander', 'Squirtle'
@@ -57,6 +58,7 @@ export interface GameGuide {
     id: string
     title: string
     gen: number
+    completeness?: GuideCompleteness
     starters?: StarterChoice[]
     stops: GuideStop[]
 }

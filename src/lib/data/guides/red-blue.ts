@@ -4,6 +4,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
     id: 'red-blue',
     title: 'Red / Blue',
     gen: 1,
+    completeness: 'verified',
     starters: [
         {
             name: 'Bulbasaur',
