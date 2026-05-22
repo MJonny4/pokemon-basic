@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import SiteHeader from '../components/SiteHeader.astro'
+import PokedexModal from '../components/PokedexModal.astro'
 const base = import.meta.env.BASE_URL
 ---
 
@@ -56,8 +57,30 @@ const base = import.meta.env.BASE_URL
             </div>
         </div>
 
+        <!-- Mobile stop selector -->
+        <div class="lg:hidden w-full mb-4">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Select Stop</p>
+                <div class="flex flex-wrap gap-1.5">
+                    <template x-for="stop in currentGame.stops" :key="stop.id">
+                        <button
+                            @click="selectStop(stop.id)"
+                            :class="{
+                                'bg-violet-600 text-white': activeStopId === stop.id,
+                                'bg-slate-100 text-slate-600 hover:bg-violet-100': activeStopId !== stop.id,
+                                'opacity-60': isCompleted(stop.id) && activeStopId !== stop.id
+                            }"
+                            class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
+                            <span x-text="stop.icon || stopIcon(stop.kind)"></span>
+                            <span x-text="stop.name"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+
         <!-- Sidebar + panel layout -->
-        <div class="flex gap-5 items-start">
+        <div class="flex flex-col lg:flex-row gap-5 items-start">
 
             <!-- ══════════ SIDEBAR ══════════ -->
             <aside class="w-56 shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-20 max-h-[calc(100vh-6rem)] flex-col max-lg:hidden lg:flex">
@@ -87,30 +110,8 @@ const base = import.meta.env.BASE_URL
                 </nav>
             </aside>
 
-            <!-- Mobile stop selector -->
-            <div class="lg:hidden w-full mb-4">
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Select Stop</p>
-                    <div class="flex flex-wrap gap-1.5">
-                        <template x-for="stop in currentGame.stops" :key="stop.id">
-                            <button
-                                @click="selectStop(stop.id)"
-                                :class="{
-                                    'bg-violet-600 text-white': activeStopId === stop.id,
-                                    'bg-slate-100 text-slate-600 hover:bg-violet-100': activeStopId !== stop.id,
-                                    'opacity-60': isCompleted(stop.id) && activeStopId !== stop.id
-                                }"
-                                class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
-                                <span x-text="stop.icon || stopIcon(stop.kind)"></span>
-                                <span x-text="stop.name"></span>
-                            </button>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
             <!-- ══════════ MAIN PANEL ══════════ -->
-            <main class="flex-1 min-w-0 space-y-4 lg:block" :class="{'hidden': !currentStop}">
+            <main class="flex-1 min-w-0 w-full space-y-4 lg:block" :class="{'hidden': !currentStop}">
                 <template x-if="currentStop">
                     <div class="space-y-4">
 
@@ -379,4 +380,6 @@ const base = import.meta.env.BASE_URL
             </main>
         </div>
     </div>
+
+    <PokedexModal />
 </Layout>
