@@ -183,7 +183,7 @@ export function registerGuide(): void {
         },
 
         openPokedex(pokemonName: string): void {
-            window.open(`${import.meta.env.BASE_URL}?search=${pokemonName}`, '_blank')
+            window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: pokemonName } }))
         },
 
         // --- Navigation ---

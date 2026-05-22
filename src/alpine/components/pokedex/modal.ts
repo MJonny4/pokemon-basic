@@ -8,11 +8,11 @@ export function registerModal(): void {
         open: false,
         activeTab: 'overview' as string,
         tabs: [
-            { id: 'overview', label: '📊 Overview' },
-            { id: 'defense', label: '🛡️ Defense' },
-            { id: 'moves', label: '⚔️ Moves' },
-            { id: 'trainer', label: '🎯 Trainer Tips' },
-            { id: 'compare', label: '🔄 Compare' },
+            { id: 'overview', label: '📊 Overview', icon: '📊', shortLabel: 'Overview' },
+            { id: 'defense',  label: '🛡️ Defense',  icon: '🛡️', shortLabel: 'Defense' },
+            { id: 'moves',    label: '⚔️ Moves',    icon: '⚔️', shortLabel: 'Moves' },
+            { id: 'trainer',  label: '🎯 Trainer Tips', icon: '🎯', shortLabel: 'Tips' },
+            { id: 'compare',  label: '🔄 Compare',  icon: '🔄', shortLabel: 'Compare' },
         ],
         modalQuery: '',
         modalAcResults: [] as Array<{ name: string; id: number }>,
@@ -21,6 +21,9 @@ export function registerModal(): void {
         modalAcTimer: 0,
         moveFilter: 'all',
         moveSearch: '',
+        searchOpen: false,
+        sheetY: 0,
+        dragStart: null as number | null,
         moveFilters: [
             { id: 'all', label: 'All' },
             { id: 'damaging', label: 'Damaging' },
@@ -33,6 +36,7 @@ export function registerModal(): void {
 
         init() {
             fetchPokemonList().then((list) => { this.modalAllPokemon = list })
+            this.searchOpen = window.innerWidth >= 640
 
             window.addEventListener('pokemon-search', () => {
                 this.open = true
@@ -45,20 +49,25 @@ export function registerModal(): void {
 
             this.$watch('open', (val: boolean) => {
                 if (val) {
-                    // Set initial state before Alpine removes display:none
+                    const isMobile = window.innerWidth < 640
                     gsap.set('#modal-overlay', { opacity: 0 })
-                    gsap.set('#modal-box', { y: 40, scale: 0.93, opacity: 0 })
+                    if (isMobile) {
+                        gsap.set('#modal-box', { y: '100%' })
+                    } else {
+                        gsap.set('#modal-box', { y: 40, scale: 0.93, opacity: 0 })
+                    }
                     this.$nextTick(() => {
                         gsap.killTweensOf(['#modal-overlay', '#modal-box'])
                         gsap.to('#modal-overlay', { opacity: 1, duration: 0.25, ease: 'power2.out' })
-                        gsap.to('#modal-box', {
-                            y: 0,
-                            scale: 1,
-                            opacity: 1,
-                            duration: 0.38,
-                            ease: 'back.out(1.6)',
-                            clearProps: 'transform,opacity',
-                        })
+                        if (isMobile) {
+                            gsap.to('#modal-box', { y: 0, duration: 0.4, ease: 'power3.out', clearProps: 'transform' })
+                        } else {
+                            gsap.to('#modal-box', {
+                                y: 0, scale: 1, opacity: 1,
+                                duration: 0.38, ease: 'back.out(1.6)',
+                                clearProps: 'transform,opacity',
+                            })
+                        }
                     })
                 }
             })
@@ -66,9 +75,38 @@ export function registerModal(): void {
 
         close() {
             gsap.killTweensOf(['#modal-overlay', '#modal-box'])
-            const tl = gsap.timeline({ onComplete: () => { this.open = false } })
-            tl.to('#modal-box', { y: 18, scale: 0.96, opacity: 0, duration: 0.18, ease: 'power2.in' }, 0)
+            const isMobile = window.innerWidth < 640
+            const tl = gsap.timeline({ onComplete: () => { this.open = false; this.sheetY = 0 } })
+            if (isMobile) {
+                tl.to('#modal-box', { y: '100%', duration: 0.3, ease: 'power2.in' }, 0)
+            } else {
+                tl.to('#modal-box', { y: 18, scale: 0.96, opacity: 0, duration: 0.18, ease: 'power2.in' }, 0)
+            }
             tl.to('#modal-overlay', { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0)
+        },
+
+        onTouchStart(e: TouchEvent) {
+            this.dragStart = e.touches[0].clientY
+        },
+
+        onTouchMove(e: TouchEvent) {
+            if (this.dragStart === null) return
+            const panels = this.$refs.panels as HTMLElement | undefined
+            if (panels && panels.scrollTop > 0) return
+            const delta = e.touches[0].clientY - this.dragStart
+            if (delta > 0) {
+                e.preventDefault()
+                this.sheetY = delta
+            }
+        },
+
+        onTouchEnd() {
+            if (this.sheetY > 120) {
+                this.close()
+            } else {
+                this.sheetY = 0
+            }
+            this.dragStart = null
         },
 
         setTab(id: string) {

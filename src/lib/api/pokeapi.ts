@@ -44,6 +44,7 @@ export interface Pokemon {
     types: TypeEntry[]
     abilities: AbilityEntry[]
     moves: MoveEntry[]
+    species: { name: string; url: string }
 }
 
 export interface Species {

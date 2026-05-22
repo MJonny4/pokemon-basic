@@ -449,6 +449,19 @@ button {
     font-size: 1.5rem;
 }
 
+/* ── Modal box height (bottom sheet on mobile, centered box on desktop) ── */
+#modal-box {
+    height: 95dvh;
+    max-height: 95dvh;
+}
+
+@media (min-width: 640px) {
+    #modal-box {
+        height: 90vh;
+        max-height: 90vh;
+    }
+}
+
 /* ── Tab styles ── */
 .tab-active {
     border-bottom: 2.5px solid #7c3aed;
