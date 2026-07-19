@@ -1,17 +1,22 @@
 ---
 import '../styles/global.css'
+import PokedexModal from '../components/PokedexModal.astro'
 
 interface Props {
     title?: string
     description?: string
+    /** Site-relative path (e.g. "/moves/thunderbolt") — emits canonical + og:url */
+    canonicalPath?: string
 }
 
 const {
     title = 'PokeBasic — Pokédex & Type Chart',
     description = 'PokeBasic is a fast Pokémon reference tool. Look up type effectiveness, base stats, moves, and competitive tips for any Pokémon — Gens I–IX.',
+    canonicalPath,
 } = Astro.props
 
 const base = import.meta.env.BASE_URL
+const canonicalUrl = canonicalPath ? `${Astro.site ?? ''}${base}${canonicalPath}`.replace(/([^:])\/\//g, '$1/') : null
 ---
 
 <!doctype html>
@@ -26,6 +31,8 @@ const base = import.meta.env.BASE_URL
     <meta name="author" content="PokeBasic" />
     <meta name="robots" content="index, follow" />
 
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -36,11 +43,21 @@ const base = import.meta.env.BASE_URL
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${base}/icon.png`} />
 
-    <link rel="icon" type="image/png" href={`${base}/icon.png`} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href={`${base}/favicon.ico`} />
+
+    <!-- Prevent dark mode flash before Alpine hydrates -->
+    <script is:inline>
+        (function () {
+            const saved = localStorage.getItem('pb_dark')
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+            if (saved === 'true' || (saved === null && prefersDark)) {
+                document.documentElement.classList.add('dark')
+            }
+        })()
+    </script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-bg-base min-h-screen transition-colors duration-200">
     <slot />
+    <PokedexModal />
 </body>
 </html>

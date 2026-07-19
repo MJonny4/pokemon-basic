@@ -4,7 +4,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
     id: 'red-blue',
     title: 'Red / Blue',
     gen: 1,
-    completeness: 'verified',
+    completeness: 'partial',
     starters: [
         {
             name: 'Bulbasaur',
@@ -35,13 +35,12 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 'Inside the lab, you\'ll see three Poké Balls on a table. This is where you choose your Starter Pokémon — the Pokémon that will be by your side the whole journey!',
                 'Click on a Poké Ball to choose: Bulbasaur is a Grass/Poison type — great for beginners. Charmander is Fire type — tougher start but evolves into the amazing Charizard. Squirtle is Water type — solid all-around choice.',
                 'The boy in the lab is your Rival. He\'ll pick the Pokémon with a type advantage over yours. You\'ll battle him many times, so get ready!',
-                'Professor Oak gives you a Pokédex (a digital encyclopedia that records every Pokémon you see or catch) and 5 Poké Balls to start catching Pokémon.',
+                'Professor Oak gives you a Pokédex (a digital encyclopedia that records every Pokémon you see or catch). You don\'t have any Poké Balls yet — you\'ll earn some after your first errand!',
                 'IMPORTANT — Before you leave: Go upstairs in your house. Check the PC in your bedroom (walk up to it and press A). Select "Withdraw item" and take the FREE Potion — it heals your Pokémon and will help early on!',
                 'Now head north out of Pallet Town — your adventure begins on Route 1!',
             ],
             items: [
                 { name: 'Pokédex', location: 'Oak\'s Lab — given by Prof. Oak', icon: '📕' },
-                { name: '5× Poké Ball', location: 'Oak\'s Lab — given by Oak after Pokédex', icon: '🔴' },
             ],
             wildPokemon: [],
             tips: [
@@ -77,13 +76,13 @@ export const RED_BLUE_GUIDE: GameGuide = {
             steps: [
                 'When you arrive, go to the Poké Mart (the blue building with a white Poké Ball sign). A man inside will give you a Parcel — deliver it to Professor Oak back in Pallet Town.',
                 'Walk back south to Pallet Town and go to Professor Oak\'s lab. Give him the Parcel (select it in your bag and choose "Use").',
-                'REWARD: Oak\'s Aide will now give you 5 more Poké Balls! Now you can catch Pokémon on Route 1!',
+                'REWARD: Professor Oak himself will give you 5 Poké Balls! Now you can catch Pokémon on Route 1!',
                 'Walk back north to Viridian City. The Gym (arena-style building) is locked right now — come back much later.',
                 'Optionally: Go west of Viridian City to Route 22 and fight your Rival for some experience points (XP). Your starter will gain levels and become stronger.',
                 'When ready, head north through Viridian City to find Viridian Forest — the next area!',
             ],
             items: [
-                { name: 'Poké Ball ×5', location: 'Poké Mart (after delivering Parcel to Oak)', icon: '🔴' },
+                { name: 'Poké Ball ×5', location: 'Oak\'s Lab — given by Prof. Oak after returning the Parcel', icon: '🔴' },
             ],
             wildPokemon: [
                 { name: 'rattata', id: 19, minLevel: 3, maxLevel: 5, method: 'grass', rarity: 'common' },
@@ -115,7 +114,8 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 { name: 'pikachu', id: 25, minLevel: 3, maxLevel: 5, method: 'grass', rarity: 'rare' },
             ],
             tips: [
-                'Caterpie evolves into Butterfree fast (Lv7→Metapod, Lv10→Butterfree). Confusion helps vs Brock\'s Rock types.',
+                'Version note: In Red, Caterpie is common and Weedle is rare. In Blue, Weedle is common and Caterpie is very rare — Blue players should rely on Weedle/Beedrill instead.',
+                'Caterpie evolves into Butterfree fast (Lv7→Metapod, Lv10→Butterfree). Butterfree\'s Confusion is useful early on.',
                 'XP (experience points) is what makes your Pokémon level up and grow stronger. Every battle gives XP!',
             ],
         },
@@ -145,7 +145,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                     { name: 'Geodude', id: 74, level: 12 },
                     { name: 'Onix', id: 95, level: 14 },
                 ],
-                strategy: 'Both Pokémon are Rock/Ground type. Water or Grass starter wins easily. Charmander players should use Butterfree\'s Confusion — it\'s not super-effective but Brock\'s Pokémon have low Sp.Def. Avoid Normal moves; they do reduced damage on Rock types.',
+                strategy: 'Both Pokémon are Rock/Ground type. Water or Grass starter wins easily. Charmander players should use Butterfree\'s Confusion — it\'s not super-effective but Brock\'s Pokémon have low Sp.Def. Normal moves deal standard damage to Rock in Gen 1 — focus on Water or Grass for true super-effective hits.',
                 weaknesses: ['Water', 'Grass'],
                 starterHints: {
                     bulbasaur: 'Great news! Vine Whip is super effective against Rock types. Just spam Vine Whip and you should win without any trouble!',
@@ -165,11 +165,11 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 'Keep heading east until you reach the entrance of Mt. Moon — a big cave. Go inside.',
                 'IMPORTANT: Stock up on Poké Balls before entering the cave — there are rare Pokémon inside like Clefairy!',
                 'Inside Mt. Moon it\'s dark but still navigable. Walk east, fighting Trainers and wild Pokémon as you go.',
-                'On the lowest floor (B2F), a Team Rocket Grunt will offer you a choice between TWO fossils: Dome Fossil (will become Kabuto later) or Helix Fossil (will become Omanyte). You can only pick ONE — choose carefully! You can turn it into a real Pokémon later at Cinnabar Island.',
+                'On the lowest floor (B2F), a Super Nerd (not a Team Rocket Grunt — don\'t mix them up!) will offer you a choice between TWO fossils: Dome Fossil (will become Kabuto later) or Helix Fossil (will become Omanyte). You can only pick ONE — choose carefully! You can turn it into a real Pokémon later at Cinnabar Island.',
                 'Exit the cave to the east, then continue east on Route 4 to reach Cerulean City.',
             ],
             items: [
-                { name: 'Dome Fossil or Helix Fossil', location: 'Mt. Moon B2F — choose one from the Rocket Grunt', icon: '🦴' },
+                { name: 'Dome Fossil or Helix Fossil', location: 'Mt. Moon B2F — choose one from a Super Nerd (not a Team Rocket Grunt)', icon: '🦴' },
                 { name: 'Moon Stone', location: 'Mt. Moon B2F — hidden on the ground', icon: '🌙' },
                 { name: 'Escape Rope', location: 'Mt. Moon B1F — item ball', icon: '🪢' },
                 { name: 'TM12 (Water Gun)', location: 'Route 4, west of Cerulean', icon: '📀' },
@@ -178,7 +178,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 { name: 'zubat', id: 41, minLevel: 6, maxLevel: 8, method: 'cave', rarity: 'common' },
                 { name: 'geodude', id: 74, minLevel: 8, maxLevel: 10, method: 'cave', rarity: 'common' },
                 { name: 'clefairy', id: 35, minLevel: 8, maxLevel: 10, method: 'cave', rarity: 'rare' },
-                { name: 'paras', id: 46, minLevel: 8, maxLevel: 10, method: 'grass', rarity: 'uncommon' },
+                { name: 'paras', id: 46, minLevel: 8, maxLevel: 10, method: 'cave', rarity: 'uncommon' },
             ],
             tips: [
                 'Helix Fossil → Omanyte. Dome Fossil → Kabuto. You can only pick one!',
@@ -201,7 +201,6 @@ export const RED_BLUE_GUIDE: GameGuide = {
             items: [
                 { name: 'TM11 (BubbleBeam)', location: 'Received from Misty after defeating her', icon: '📀' },
                 { name: 'Nugget', location: 'Nugget Bridge — end of bridge reward', icon: '💛' },
-                { name: 'Bike Voucher', location: 'Vermilion City fan club — trade for Bicycle', icon: '🎟️' },
             ],
             wildPokemon: [],
             gym: {
@@ -270,11 +269,9 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 badge: 'Thunder Badge',
                 tmReward: 'TM24 (Thunderbolt)',
                 team: [
-                    { name: 'Voltorb', id: 100, level: 21 },
-                    { name: 'Pikachu', id: 25, level: 18 },
-                    { name: 'Raichu', id: 26, level: 24 },
+                    { name: 'Raichu', id: 26, level: 28 },
                 ],
-                strategy: 'Ground types are completely immune to Electric. Dugtrio from Diglett\'s Cave (Route 11 direction) trivializes this fight. Raichu is the ace — fast and hits hard. Avoid Water and Flying types here.',
+                strategy: 'Lt. Surge has only one Pokémon in Red/Blue: Raichu at level 28. Ground types are completely immune to Electric — Dugtrio from Diglett\'s Cave trivializes this fight. Raichu is fast and hits hard, so bring a Ground type and end it in one turn.',
                 weaknesses: ['Ground'],
                 starterHints: {
                     bulbasaur: 'Grass types take normal damage from Electric — just make sure to catch a Diglett from Diglett\'s Cave! Ground moves are fully immune to Electric attacks.',
@@ -315,7 +312,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
             kind: 'town',
             steps: [
                 'Celadon City is a big city! First, go to the Celadon Department Store (the tall building) — buy Potions and stock up on items. You can also buy evolution stones here.',
-                'Find the Rocket Game Corner — it\'s a casino building. Behind the poster inside is a hidden stairway. Use Cut on the tree outside the back entrance to get in!',
+                'Find the Rocket Game Corner — it\'s a casino building. Inside, look for a poster on the wall and press A on it. Behind the poster is a hidden stairway leading to the Rocket Hideout below.',
                 'Inside the Rocket Hideout (underground), navigate the floors and find the Lift Key — it opens the elevator. Ride down to B4F and defeat Team Rocket\'s Boss, Giovanni.',
                 'Giovanni drops the Silph Scope — a device that lets you see Ghost Pokémon in Pokémon Tower!',
                 'In the Celadon Mansion (the building behind the Department Store), take the back stairs up to the rooftop. Inside the top room is a Poké Ball containing a free Eevee — pick it up!',
@@ -393,7 +390,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 { name: 'cubone', id: 104, minLevel: 15, maxLevel: 19, method: 'cave', rarity: 'uncommon' },
             ],
             tips: [
-                'Ghost types can only be damaged by Normal and Psychic moves in Gen 1 (unique mechanic).',
+                'Gen 1 Ghost type mechanic: Normal and Fighting moves have NO effect on Ghost types (0× damage). Psychic and other non-Normal/Fighting moves hit them normally. Haunter and Gengar can still be hit by Psychic.',
                 'Catch a Haunter here — it evolves into Gengar when traded.',
                 'Snorlax (both on Route 12 and 16) can be caught — it\'s a powerful Normal type.',
             ],
@@ -407,7 +404,8 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 'Saffron City is huge — it has two important buildings: Silph Co. (the tall skyscraper) and the Saffron Gym.',
                 'Team Rocket has taken over Silph Co.! Enter the building and fight your way through many floors of Rocket Grunts.',
                 'On Floor 5F, find the Card Key item ball — it unlocks all the doors in the building. You\'ll need it to progress!',
-                'On Floor 11F, defeat Team Rocket\'s Boss Giovanni. The Silph Co. president thanks you with a FREE Lapras — a Water/Ice type that can learn Surf and Ice Beam. This is one of the best Pokémon in the game!',
+                'On Floor 7F, find a Silph Co. employee who gives you a FREE Lapras — a Water/Ice type that can learn Surf and Ice Beam. This is one of the best Pokémon in the game!',
+                'On Floor 11F, defeat Team Rocket\'s Boss Giovanni. The Silph Co. president thanks you with the Master Ball.',
                 'Now challenge the Saffron Gym — it\'s a maze of warp tiles that teleport you around. Step on tiles carefully to find Sabrina.',
                 'Optionally: Visit the Fighting Dojo next to the gym. Beat the master and choose Hitmonlee (fast, kicking specialist) or Hitmonchan (boxing specialist) as a free Pokémon.',
             ],
@@ -454,11 +452,11 @@ export const RED_BLUE_GUIDE: GameGuide = {
                     { name: 'Koffing', id: 109, level: 37 },
                     { name: 'Weezing', id: 110, level: 43 },
                 ],
-                strategy: 'Koga loves to use Smokescreen, Toxic, and stalling moves. Bring Antidotes or a Pokémon with high Sp.Def. Psychic types (Alakazam, Starmie, Hypno) or Fire types clean this gym quickly. Avoid Grass and Bug types.',
-                weaknesses: ['Ground', 'Psychic', 'Fire'],
+                strategy: 'Koga loves to use Smokescreen, Toxic, and stalling moves. Bring Antidotes or a Pokémon with high Sp.Def. Psychic types (Alakazam, Starmie, Hypno) or Ground types clean this gym quickly. Fire is NOT super effective against Poison in Gen 1 — use Psychic or Ground instead.',
+                weaknesses: ['Ground', 'Psychic', 'Bug'],
                 starterHints: {
-                    bulbasaur: 'Poison is NOT very effective against other Poison types. Use Psychic moves (like from Kadabra or Hypno) or Fire types to hit hard.',
-                    charmander: 'Fire is super effective against Poison! Your Charizard or Arcanine should clean up this gym easily.',
+                    bulbasaur: 'Poison is NOT very effective against other Poison types. Use Psychic moves (like from Kadabra or Hypno) to hit hard.',
+                    charmander: 'Fire is neutral against Poison in Gen 1 — it is NOT super effective. Use Psychic or Ground types instead of relying on fire moves here.',
                     squirtle: 'Water is not effective here. Use Psychic types like Kadabra or Alakazam for best results.',
                 },
                 recommendedLevel: 40,
@@ -472,7 +470,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 'The Saffron Gym is a maze of warp tiles — stepping on certain floor tiles teleports you to a different room. It can be confusing! Try different paths and you\'ll eventually reach Sabrina.',
                 'Heal fully before entering — Sabrina is one of the toughest Gym Leaders in the game!',
                 'Sabrina uses Psychic type Pokémon. In Generation 1, Bug moves are the ONLY type super-effective against Psychic. Use Parasect (Bug/Grass) or Scyther (Bug) if you have them.',
-                'Gengar (Ghost type) is immune to Psychic moves entirely — it cannot be hurt by her main attacks. If you have one, bring it!',
+                'Important Gen 1 note: In Gen 1, Ghost types are NOT immune to Psychic moves — that immunity only exists from Gen 2 onward. Due to a coding bug, Ghost moves deal 0 damage to Psychic types (not the other way around). Gengar takes normal damage from Sabrina\'s Psychic attacks.',
                 'If you don\'t have Bug or Ghost types, just use your strongest, highest-level Pokémon and heal frequently.',
                 'REWARD: Marsh Badge (Badge 6!) and TM46 Psywave. The Marsh Badge makes even higher-level traded Pokémon obey you!',
             ],
@@ -491,11 +489,11 @@ export const RED_BLUE_GUIDE: GameGuide = {
                     { name: 'Venomoth', id: 49, level: 38 },
                     { name: 'Alakazam', id: 65, level: 43 },
                 ],
-                strategy: 'Alakazam is one of the fastest Pokémon in Gen 1 with massive Sp.Atk. Ghost types are completely immune to Psychic in Gen 1 (Gengar!). Otherwise bring your strongest Normal or Water attacker and pray you outspeed. Avoid Poison and Fighting types.',
-                weaknesses: ['Bug', 'Ghost'],
+                strategy: 'Alakazam is one of the fastest Pokémon in Gen 1 with massive Sp.Atk. In Gen 1, Bug moves are the only type super-effective against Psychic — use Parasect or Scyther if you have them. Ghost types are NOT immune to Psychic in Gen 1 (that bug runs the opposite direction). Bring your strongest Pokémon and be ready to heal.',
+                weaknesses: ['Bug'],
                 starterHints: {
-                    bulbasaur: 'Psychic is strong against Grass — be careful! Use Bug types like Parasect or Scyther, or try a Gengar (Ghost is immune to Psychic in Gen 1!)',
-                    charmander: 'Psychic is strong against Fire too — be careful. Use Bug types or your own Psychic Pokémon to outspeed her.',
+                    bulbasaur: 'Psychic is neutral against Grass in Gen 1 — no special danger. Use Bug types like Parasect or Scyther for super-effective damage.',
+                    charmander: 'Psychic is neutral against Fire in Gen 1. Use Bug types or high-level physical attackers to deal with her team.',
                     squirtle: 'Psychic is neutral against Water — your Blastoise can hold its own if leveled up. But Bug types like Parasect will work better.',
                 },
                 recommendedLevel: 42,
@@ -521,8 +519,8 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 { name: 'Revived Fossil Pokémon', location: 'Cinnabar Lab — give your fossil to the scientist', icon: '🦴' },
             ],
             wildPokemon: [
-                { name: 'magmar', id: 126, minLevel: 30, maxLevel: 36, method: 'cave', rarity: 'rare' },
-                { name: 'growlithe', id: 58, minLevel: 26, maxLevel: 30, method: 'cave', rarity: 'uncommon' },
+                { name: 'magmar', id: 126, minLevel: 30, maxLevel: 36, method: 'cave', rarity: 'rare' }, // Blue version only
+                { name: 'growlithe', id: 58, minLevel: 26, maxLevel: 30, method: 'cave', rarity: 'uncommon' }, // Red version only
             ],
             gym: {
                 leader: 'Blaine',
@@ -605,11 +603,11 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 { name: 'Full Restore', location: 'Victory Road — item ball', icon: '💊' },
             ],
             wildPokemon: [
-                { name: 'machoke', id: 67, minLevel: 22, maxLevel: 28, method: 'cave', rarity: 'uncommon' },
-                { name: 'geodude', id: 74, minLevel: 22, maxLevel: 28, method: 'cave', rarity: 'common' },
-                { name: 'graveler', id: 75, minLevel: 25, maxLevel: 30, method: 'cave', rarity: 'uncommon' },
-                { name: 'zubat', id: 41, minLevel: 22, maxLevel: 28, method: 'cave', rarity: 'common' },
-                { name: 'onix', id: 95, minLevel: 22, maxLevel: 28, method: 'cave', rarity: 'uncommon' },
+                { name: 'machoke', id: 67, minLevel: 37, maxLevel: 41, method: 'cave', rarity: 'uncommon' },
+                { name: 'geodude', id: 74, minLevel: 36, maxLevel: 39, method: 'cave', rarity: 'common' },
+                { name: 'graveler', id: 75, minLevel: 37, maxLevel: 40, method: 'cave', rarity: 'uncommon' },
+                { name: 'zubat', id: 41, minLevel: 36, maxLevel: 40, method: 'cave', rarity: 'common' },
+                { name: 'onix', id: 95, minLevel: 36, maxLevel: 39, method: 'cave', rarity: 'uncommon' },
             ],
             tips: [
                 'Recommended team level before entering: 45–50. If you\'re lower, go train on Routes around Viridian first.',
@@ -684,7 +682,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
             steps: [
                 'Save your game before entering Agatha\'s room!',
                 'Agatha uses Ghost and Poison type Pokémon — mostly Gengar (at very high levels).',
-                'Here\'s a special Gen 1 fact: Ghost types can only be hurt by Normal and Psychic moves — NOT by other Ghost moves! This is unusual but that\'s how the game works.',
+                'Gen 1 Ghost type fact: Normal and Fighting moves have NO effect on Ghost types (0× damage). Psychic moves DO work on Ghosts normally. Agatha\'s Gengar is NOT immune to Psychic — bring your best Psychic attacker.',
                 'Psychic moves are your best weapon here — Alakazam or Starmie can sweep through most of her team.',
                 'Agatha loves using Confuse Ray (makes your Pokémon confused and hurt itself) and Hypnosis (puts it to sleep). Bring Full Heals to cure confusion and Awakenings for sleep.',
                 'Hit her Gengar fast and hard before it can use its annoying status moves.',
@@ -703,7 +701,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                     { name: 'Arbok', id: 24, level: 54 },
                     { name: 'Gengar', id: 94, level: 60 },
                 ],
-                strategy: 'Agatha loves Confuse Ray and Sleep moves. Bring Awakening and Persim Berry (if available). Psychic move destroys everything here. Gengar is fast and nasty with Hypnosis — hit it hard before it can move. Ground moves don\'t hit Ghost types.',
+                strategy: 'Agatha loves Confuse Ray and Sleep moves. Bring Awakening and Full Heals for confusion. Psychic moves destroy everything here — Gengar takes normal damage from Psychic in Gen 1. Gengar is fast and nasty with Hypnosis — hit it hard before it can move. Normal and Fighting moves have zero effect on Ghost types.',
                 weaknesses: ['Psychic', 'Ground', 'Fire'],
             },
         },
@@ -746,7 +744,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                 'Use all your healing items to get every Pokémon back to full health before this fight! This is the final battle.',
                 'Save your game right before walking through the door — if you lose, you can try again from this save.',
                 'Your Rival (Blue) has been here before you and already beat the Elite Four — he\'s the current Champion! He has a team of 6 well-trained Pokémon.',
-                'His team changes slightly depending on your starter (he always picked the one strong against yours), but includes Pidgeot, Alakazam, Rhydon, Exeggutor, Gyarados, and a starter Pokémon.',
+                'His team changes based on your starter choice — he always picked the one with a type advantage over yours. The team below is for Squirtle starters (Rival uses Charizard). If you chose Bulbasaur, he uses Blastoise. If you chose Charmander, he uses Venusaur.',
                 'No single type beats his whole team — use your strongest moves and heal when HP gets low.',
                 'Good moves to use: Ice moves for Exeggutor and Gyarados. Electric for Gyarados. Rock or Electric for Pidgeot. Water for Rhydon.',
                 'Alakazam is very fast — try to hit it before it can attack, or use a Bug or Ghost type move.',
@@ -767,7 +765,7 @@ export const RED_BLUE_GUIDE: GameGuide = {
                     { name: 'Gyarados', id: 130, level: 61 },
                     { name: 'Charizard', id: 6, level: 63 },
                 ],
-                strategy: 'Rival\'s team varies slightly based on which starter you chose (he picks the counter). Bring a diverse team: Ice for Exeggutor and Gyarados, Electric for Gyarados, Rock/Electric for Pidgeot, Water for Rhydon. Alakazam is fast — hit it with a Dark or Bug move or outspeed with your own Psychic type.',
+                strategy: 'Rival\'s team varies based on your starter (he picks the counter — team shown is for Squirtle starters). Bring a diverse team: Ice for Exeggutor and Gyarados, Electric for Gyarados, Rock/Electric for Pidgeot, Water for Rhydon. Alakazam is fast — hit it with a Bug move (super-effective vs Psychic in Gen 1) or outspeed with your own Psychic type. Dark moves do not exist in Gen 1.',
                 weaknesses: ['Ice', 'Electric', 'Water', 'Rock'],
             },
             tips: [

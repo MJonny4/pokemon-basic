@@ -1,0 +1,108 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import SiteHeader from '../../components/SiteHeader.astro'
+import itemsCatalog from '../../lib/data/items-catalog.json'
+import { EXCLUDED_ITEM_CATEGORIES, type ItemListEntry } from '../../ui/item-card'
+
+const base = import.meta.env.BASE_URL
+
+interface CatalogItem { name: string; slug: string; category: string; pocket: string; gen: number | null; cost: number; effect: string }
+const CATALOG = itemsCatalog as unknown as CatalogItem[]
+
+// Effect text stays detail-only — keeps the inline payload lean
+const payload: ItemListEntry[] = CATALOG
+    .filter((i) => !EXCLUDED_ITEM_CATEGORIES.has(i.category))
+    .map(({ name, slug, category, pocket, gen, cost }) => ({ name, slug, category, pocket, gen, cost }))
+---
+
+<Layout
+    title="PokeBasic — Items"
+    description={`All ${payload.length} Pokémon items with categories, effects, and the generation they debuted in. Filter by pocket and generation.`}
+>
+    <SiteHeader subtitle="Item Dex" activeRoute="/items" />
+    <div x-data="itemsIndex" data-items={JSON.stringify(payload)} x-cloak>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+
+            <!-- ══════════ PAGE TITLE ══════════ -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-black text-text-primary mb-1">🎒 Items</h1>
+                <p class="text-sm text-text-tertiary font-medium">
+                    The full item catalog — held items, berries, Poké Balls, TMs, medicine, and more. Click an item for details.
+                </p>
+            </div>
+
+            <!-- ══════════ POCKET + GENERATION · SORT + SEARCH ══════════ -->
+            <div class="grid gap-5 lg:grid-cols-[1fr_minmax(16rem,22rem)] mb-5">
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Pocket</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="selectPocket('all')" :class="selectedPocket === 'all' ? 'fchip-active' : ''" class="fchip">All</button>
+                        <template x-for="p in pockets" :key="p">
+                            <button @click="selectPocket(p)" :class="selectedPocket === p ? 'fchip-active' : ''" class="fchip" x-text="pocketLabel(p)"></button>
+                        </template>
+                    </div>
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mt-4 mb-3">Generation</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="resetGens()" :class="allGensActive() ? 'fchip-active' : ''" class="fchip">All</button>
+                        <template x-for="(label, i) in genLabels" :key="i">
+                            <button @click="toggleGen(gens[i])" :class="isGenActive(gens[i]) ? 'fchip-active' : ''" class="fchip" x-text="'Gen ' + label"></button>
+                        </template>
+                    </div>
+                </div>
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Sort by</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button @click="setSort('name')" :class="sortKey === 'name' ? 'fchip-active' : ''" class="fchip">Name</button>
+                        <button @click="setSort('gen')" :class="sortKey === 'gen' ? 'fchip-active' : ''" class="fchip">Gen</button>
+                        <button @click="setSort('cost')" :class="sortKey === 'cost' ? 'fchip-active' : ''" class="fchip">Cost</button>
+                    </div>
+                    <div class="relative">
+                        <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                        <input type="text" x-model="searchQuery" @input="page = 0" placeholder="Search items…"
+                            class="w-full pl-8 pr-3 py-2 text-xs border-2 border-border rounded-lg focus:outline-none focus:border-action font-semibold bg-bg-elevated text-text-primary placeholder:text-text-tertiary">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════ NO RESULTS ══════════ -->
+            <div x-show="sorted.length === 0"
+                class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-8 text-center">
+                <p class="text-text-tertiary font-semibold">No items match the current filters</p>
+            </div>
+
+            <!-- ══════════ RESULTS ══════════ -->
+            <div x-show="sorted.length > 0">
+                <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <p class="text-sm text-text-secondary font-semibold">
+                        <strong x-text="sorted.length" class="text-text-primary"></strong>
+                        items ·
+                        <span x-text="'Page ' + (page + 1) + ' of ' + totalPages"></span>
+                    </p>
+                    <div class="flex items-center gap-2" x-show="totalPages > 1">
+                        <button @click="prevPage()" :disabled="page === 0"
+                            class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                        <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                        <button @click="nextPage()" :disabled="page >= totalPages - 1"
+                            class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <template x-for="i in pageItems" :key="i.slug">
+                        <div x-html="itemCardHtml(i)"></div>
+                    </template>
+                </div>
+
+                <div class="flex items-center justify-center gap-2 mt-5" x-show="totalPages > 1">
+                    <button @click="prevPage()" :disabled="page === 0"
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                    <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                    <button @click="nextPage()" :disabled="page >= totalPages - 1"
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</Layout>

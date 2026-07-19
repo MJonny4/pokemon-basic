@@ -43,7 +43,7 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
             return `<div class="nature-card ${isTop ? 'recommended' : ''}">
       <div class="flex items-center justify-between mb-1">
         <div class="flex items-center gap-2">
-          <span class="font-black text-sm text-slate-800">${n.name}</span>
+          <span class="font-black text-sm text-text-primary">${n.name}</span>
           ${isTop ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-200 text-violet-700 font-black uppercase tracking-wide">${i === 0 ? 'Best pick' : 'Recommended'}</span>` : ''}
         </div>
       </div>
@@ -51,31 +51,37 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
         ${n.plus ? `<span class="stat-plus">▲ +10% ${statLabel(n.plus)}</span>` : ''}
         ${n.minus ? `<span class="stat-minus">▼ −10% ${statLabel(n.minus)}</span>` : ''}
       </div>
-      ${n.flavor ? `<p class="text-xs text-slate-500 leading-relaxed">${n.flavor}</p>` : ''}
+      ${n.flavor ? `<p class="text-xs text-text-secondary leading-relaxed">${n.flavor}</p>` : ''}
     </div>`
         })
         .join('')
 
-    const neutralHTML = `<p class="text-xs text-slate-500 mt-2">Neutral natures (no effect): ${neutralNatures.map((n) => n.name).join(', ')}</p>`
+    const neutralHTML = `<p class="text-xs text-text-secondary mt-2">Neutral natures (no effect): ${neutralNatures.map((n) => n.name).join(', ')}</p>`
 
     // Items
     const matchedItems = recommendItems(role.key, pokemonTypes, canEvolve)
 
     const itemCards = matchedItems
         .map(
-            (item, i) => `
-    <div class="item-card" style="border-color:${item.border}; background:${item.color || '#fff'}">
-      <div class="item-icon" style="background:${item.border}33">
+            (item, i) => {
+                // Accent layered at low alpha over the theme surface — reads
+                // correctly in both light and dark mode for every item.
+                const cardBg = `linear-gradient(${item.border}26, ${item.border}26), var(--bg-surface)`
+                const iconBg = `linear-gradient(${item.border}4d, ${item.border}4d), var(--bg-elevated)`
+                return `
+    <div class="item-card" style="border-color:${item.border}; background:${cardBg}">
+      <div class="item-icon" style="background:${iconBg}">
         <img src="${item.emoji}" alt="${item.name}" class="w-6 h-6 object-contain" />
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-1">
-          <span class="font-black text-sm ${item.textLight ? 'text-white' : 'text-slate-800'}">${item.name}</span>
+          <span class="font-black text-sm text-text-primary">${item.name}</span>
           ${i === 0 ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-200 text-violet-700 font-black uppercase tracking-wide">Top pick</span>` : ''}
         </div>
-        <p class="text-xs ${item.textLight ? 'text-slate-300' : 'text-slate-500'} leading-relaxed">${item.desc}</p>
+        <p class="text-xs text-text-secondary leading-relaxed">${item.desc}</p>
       </div>
-    </div>`,
+    </div>`
+            },
         )
         .join('')
 
@@ -99,13 +105,13 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
         const barPct = Math.min(100, Math.round((final / 255) * 100))
         return `<div class="flex items-center gap-2 text-xs">
       <span class="w-8 text-right font-black shrink-0" style="color:${col}">${label}</span>
-      <span class="w-7 text-right text-slate-300 font-semibold shrink-0">${base}</span>
-      <span class="w-7 text-right font-bold shrink-0 ${ev > 0 ? 'text-violet-500' : 'text-slate-200'}">${ev > 0 ? ev : '—'}</span>
-      <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+      <span class="w-7 text-right text-text-tertiary font-semibold shrink-0">${base}</span>
+      <span class="w-7 text-right font-bold shrink-0 ${ev > 0 ? 'text-violet-500' : 'text-text-tertiary'}">${ev > 0 ? ev : '—'}</span>
+      <div class="flex-1 h-1.5 rounded-full bg-bg-elevated">
         <div class="h-1.5 rounded-full" style="background:${col};width:${barPct}%"></div>
       </div>
       <span class="w-3 shrink-0 text-center">${arrow}</span>
-      <span class="w-7 text-right font-black shrink-0 text-slate-700">${final}</span>
+      <span class="w-7 text-right font-black shrink-0 text-text-primary">${final}</span>
     </div>`
     }).join('')
 
@@ -116,40 +122,38 @@ export function buildTrainer(pokemon: Pokemon, role: RoleResult, species: Specie
     const spreadLabel = topNature ? `${topNature.name} · ${evEntries}` : evEntries
 
     const statCalcHTML = `
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm mb-5">
-      <h3 class="font-black text-slate-800 text-sm mb-1">📊 Stat Calculator (Lv 50)</h3>
-      <p class="text-xs text-slate-400 mb-4">${spreadLabel} · 31 IVs</p>
+    <div class="bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm mb-5">
+      <h3 class="font-black text-text-primary text-sm mb-1">📊 Stat Calculator (Lv 50)</h3>
+      <p class="text-xs text-text-tertiary mb-4">${spreadLabel} · 31 IVs</p>
       <div class="space-y-2">${statRows}</div>
     </div>`
 
     el.innerHTML = `
     <!-- Role card -->
-    <div class="bg-linear-to-br from-violet-50 to-indigo-50 border border-violet-200 rounded-2xl p-5 mb-5">
+    <div class="bg-bg-elevated border border-violet-400/40 rounded-2xl p-5 mb-5">
       <div class="flex items-center gap-3 mb-3">
-        <h3 class="font-black text-slate-800 text-sm">🧠 Role Analysis</h3>
+        <h3 class="font-black text-text-primary text-sm">🧠 Role Analysis</h3>
         <span class="role-badge text-white font-black text-xs px-3 py-1 rounded-full" style="background:${bannerColor}">${role.label}</span>
       </div>
-      <p class="text-sm text-slate-600 leading-relaxed">${role.description}</p>
+      <p class="text-sm text-text-secondary leading-relaxed">${role.description}</p>
     </div>
 
     ${statCalcHTML}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <!-- Natures -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 class="font-black text-slate-800 text-sm mb-1">🌿 Recommended Natures</h3>
-        <p class="text-xs text-slate-400 mb-4">Based on this Pokémon's role and stat distribution</p>
+      <div class="bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm">
+        <h3 class="font-black text-text-primary text-sm mb-1">🌿 Recommended Natures</h3>
+        <p class="text-xs text-text-tertiary mb-4">Based on this Pokémon's role and stat distribution</p>
         <div class="space-y-2.5">${natureCards}</div>
         ${neutralHTML}
       </div>
 
       <!-- Items -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 class="font-black text-slate-800 text-sm mb-1">🎒 Best Held Items (Basic Logic)</h3>
-        <p class="text-xs text-slate-400 mb-4">Recommended for the <strong>${role.label}</strong> role</p>
+      <div class="bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm">
+        <h3 class="font-black text-text-primary text-sm mb-1">🎒 Best Held Items (Basic Logic)</h3>
+        <p class="text-xs text-text-tertiary mb-4">Recommended for the <strong>${role.label}</strong> role</p>
         <div class="space-y-3">${itemCards}</div>
       </div>
-    </div>
-
-    `
+    </div>`
 }

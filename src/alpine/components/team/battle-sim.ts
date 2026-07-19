@@ -1,9 +1,9 @@
 import Alpine from 'alpinejs'
 import gsap from 'gsap'
 import { fetchPokemon, fetchMoves, fetchPokemonList } from '../../../lib/api/pokeapi'
-import { TYPE_COLORS } from '../../../lib/data/type-colors'
+import { TYPE_COLORS } from '../../../lib/data/constants'
 import type { MoveDetail } from '../../../lib/api/pokeapi'
-import { makeBattlePokemon, resolveTurn } from '../../../lib/logic/battle-engine'
+import { makeBattlePokemon, resolveTurn, applyOnEntry, validateTeamForBattle } from '../../../lib/logic/battle-engine'
 import type { BattleState, BattlePokemon, BattleAction, CpuSlot } from '../../../lib/logic/battle-engine'
 import { selectCpuAction } from '../../../lib/logic/battle-ai'
 import { detectRole } from '../../../lib/logic/role-detect'
@@ -45,6 +45,11 @@ function hpColor(pct: number): string {
 
 function spriteUrl(id: number): string {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+}
+
+// Back sprites are missing for most Gen 9 ids — callers must fall back to spriteUrl on error
+function spriteBackUrl(id: number): string {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${id}.png`
 }
 
 // ── CPU team builder ──────────────────────────────────────────────────────────
@@ -211,20 +216,8 @@ export function registerBattleSim(): void {
             const team = (Alpine.store('team') as any)
             const playerSlots: (TeamSlot | null)[] = team.slots
 
-            // Pre-flight validation
-            const errors: string[] = []
-            for (const slot of playerSlots.filter(Boolean) as TeamSlot[]) {
-                const display = slot.pokemonName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-                if (!slot.moves.some(Boolean)) {
-                    errors.push(`${display}: no moves selected`)
-                }
-                if (!slot.ability) {
-                    errors.push(`${display}: no ability selected`)
-                }
-                if (!slot.nature) {
-                    errors.push(`${display}: no nature selected`)
-                }
-            }
+            // Pre-flight validation — same rules as the Battle Mode button gate
+            const errors = validateTeamForBattle(playerSlots)
             if (errors.length > 0) {
                 this.validationErrors = errors
                 return
@@ -246,7 +239,9 @@ export function registerBattleSim(): void {
                 for (const slot of filledSlots) {
                     try {
                         const pokemon = await fetchPokemon(slot.pokemonName)
-                        const moves = await fetchMoves(pokemon.moves, 80)
+                        // limit 200 matches the set editor's learnset fetch — a lower
+                        // limit here made late-TM picks silently resolve to Struggle
+                        const moves = await fetchMoves(pokemon.moves, 200)
                         playerMoveSets.push(moves)
                     } catch {
                         playerMoveSets.push([])
@@ -255,6 +250,11 @@ export function registerBattleSim(): void {
 
                 const playerTeam = filledSlots.map(s => makeBattlePokemon(s))
                 const cpuTeam = cpuSlots.map(s => makeBattlePokemon(s))
+
+                // On-entry abilities (Intimidate) for the initial send-outs
+                const startLog: string[] = [`Battle started! Turn 1.`]
+                cpuTeam[0] = applyOnEntry(playerTeam[0], cpuTeam[0], startLog)
+                playerTeam[0] = applyOnEntry(cpuTeam[0], playerTeam[0], startLog)
 
                 this.state = {
                     playerTeam,
@@ -266,7 +266,7 @@ export function registerBattleSim(): void {
                         playerReflect: false, playerLightScreen: false,
                         cpuReflect: false, cpuLightScreen: false,
                     },
-                    turnLog: [`Battle started! Turn 1.`],
+                    turnLog: startLog,
                     phase: 'selecting',
                     winner: null,
                     turn: 1,
@@ -322,6 +322,10 @@ export function registerBattleSim(): void {
             return spriteUrl(id)
         },
 
+        spriteBackUrl(id: number): string {
+            return spriteBackUrl(id)
+        },
+
         statusLabel(s: string | null): string {
             if (!s) return ''
             return { burn: '🔥', paralysis: '⚡', sleep: '💤', poison: '☠', toxic: '💀', freeze: '🧊' }[s] ?? s
@@ -361,12 +365,13 @@ export function registerBattleSim(): void {
             if (line.includes('super effective')) return 'text-orange-400 font-bold'
             if (line.includes('not very effective')) return 'text-slate-500 italic'
             if (line.includes("doesn't affect")) return 'text-slate-600 italic'
+            if (line.includes('missed')) return 'text-slate-400 italic'
             if (line.includes('took') && line.includes('damage')) return 'text-red-300'
             if (line.includes('recovered') || line.includes('restored') || line.includes('woke up') || line.includes('thawed')) return 'text-green-400'
             if (line.includes('is now') || line.includes('paralyzed') || line.includes('burned') || line.includes('poisoned') || line.includes('asleep') || line.includes('frozen')) return 'text-yellow-300'
             if (line.includes("'s") && (line.includes('rose') || line.includes('fell'))) return 'text-blue-300'
             if (line.includes('used')) return 'text-white font-semibold'
-            if (line.includes('Battle started')) return 'text-violet-400 font-bold'
+            if (line.includes('Battle started')) return 'text-action font-bold'
             return 'text-slate-400'
         },
 
@@ -406,12 +411,16 @@ export function registerBattleSim(): void {
             if (this.state.phase === 'switching') {
                 // Forced switch — no CPU move this turn
                 this.resetSprites()
+                const entryLog: string[] = [`Go, ${target.name}!`]
                 const newPlayerTeam = [...this.state.playerTeam]
+                const newCpuTeam = [...this.state.cpuTeam]
+                newCpuTeam[this.state.cpuActive] = applyOnEntry(target, newCpuTeam[this.state.cpuActive], entryLog)
                 this.state = {
                     ...this.state,
                     playerActive: toIndex,
                     playerTeam: newPlayerTeam,
-                    turnLog: [...this.state.turnLog, `Go, ${target.name}!`],
+                    cpuTeam: newCpuTeam,
+                    turnLog: [...this.state.turnLog, ...entryLog],
                     phase: 'selecting',
                 }
                 this.scrollLog()

@@ -1,12 +1,6 @@
 import Alpine from 'alpinejs'
 import type { GameGuide, GuideStop, StarterChoice } from '../../../lib/data/guides/types'
-import { RED_BLUE_GUIDE } from '../../../lib/data/guides/red-blue'
-import { GOLD_SILVER_GUIDE } from '../../../lib/data/guides/gold-silver'
-import { RUBY_SAPPHIRE_GUIDE } from '../../../lib/data/guides/ruby-sapphire'
-import { DIAMOND_PEARL_GUIDE } from '../../../lib/data/guides/diamond-pearl'
 import { typeBadge } from '../../../ui/badges'
-
-const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE, DIAMOND_PEARL_GUIDE]
 
 const STOP_ICONS: Record<string, string> = {
     'town':       '🏘️',
@@ -19,41 +13,34 @@ const STOP_ICONS: Record<string, string> = {
 
 export function registerGuide(): void {
     Alpine.data('guide', () => ({
-        games: GAMES,
-        activeGameId: 'red-blue' as string,
+        game: null as unknown as GameGuide,
         activeStopId: '' as string,
         completedStops: [] as string[],
         selectedStarter: null as StarterChoice | null,
 
-        get currentGame(): GameGuide {
-            return this.games.find((g: GameGuide) => g.id === this.activeGameId) ?? this.games[0]
-        },
-
         get currentStop(): GuideStop | null {
-            const stops = (this.currentGame as GameGuide).stops
+            const stops = this.game.stops
             if (!this.activeStopId) return stops[0] ?? null
             return stops.find((s: GuideStop) => s.id === this.activeStopId) ?? null
         },
 
         get progressPct(): number {
-            const total = (this.currentGame as GameGuide).stops.length
+            const total = this.game.stops.length
             if (!total) return 0
             return Math.round(((this.completedStops as string[]).length / total) * 100)
         },
 
         init() {
+            const raw = (this.$el as HTMLElement).dataset.game
+            try {
+                if (raw) this.game = JSON.parse(raw) as GameGuide
+            } catch {
+                // build-time-guaranteed valid JSON; defensive only
+            }
             this.loadProgress()
             this.loadStarter()
-            const stops = (this.currentGame as GameGuide).stops
+            const stops = this.game.stops
             if (stops.length) this.activeStopId = stops[0].id
-        },
-
-        selectGame(id: string) {
-            this.activeGameId = id
-            this.loadProgress()
-            this.loadStarter()
-            const stops = (this.currentGame as GameGuide).stops
-            this.activeStopId = stops[0]?.id ?? ''
         },
 
         selectStop(id: string) {
@@ -62,7 +49,7 @@ export function registerGuide(): void {
         },
 
         storageKey(): string {
-            return `pokebasic-guide-${this.activeGameId}-progress`
+            return `pokebasic-guide-${this.game.id}-progress`
         },
 
         loadProgress() {
@@ -97,20 +84,20 @@ export function registerGuide(): void {
         },
 
         currentStopIndex(): number {
-            const stops = (this.currentGame as GameGuide).stops
+            const stops = this.game.stops
             const stop = this.currentStop as GuideStop | null
             if (!stop) return -1
             return stops.findIndex((s: GuideStop) => s.id === stop.id)
         },
 
         get isFirstStop(): boolean {
-            const stops = (this.currentGame as GameGuide).stops
+            const stops = this.game.stops
             return stops.length > 0 && this.activeStopId === stops[0].id
         },
 
         hasNextStop(): boolean {
             const idx = this.currentStopIndex()
-            return idx >= 0 && idx < (this.currentGame as GameGuide).stops.length - 1
+            return idx >= 0 && idx < this.game.stops.length - 1
         },
 
         isLastStop(): boolean {
@@ -119,7 +106,7 @@ export function registerGuide(): void {
 
         goNext() {
             const idx = this.currentStopIndex()
-            const next = (this.currentGame as GameGuide).stops[idx + 1]
+            const next = this.game.stops[idx + 1]
             if (next) this.selectStop(next.id)
         },
 
@@ -134,7 +121,7 @@ export function registerGuide(): void {
         // --- Starter selection ---
 
         starterStorageKey(): string {
-            return `pokebasic-guide-${this.activeGameId}-starter`
+            return `pokebasic-guide-${this.game.id}-starter`
         },
 
         loadStarter(): void {
@@ -168,20 +155,6 @@ export function registerGuide(): void {
             return typeBadge(type, 'sm')
         },
 
-        guideCompletenessLabel(game: GameGuide): string {
-            const level = game.completeness ?? 'early-access'
-            if (level === 'verified') return 'Verified'
-            if (level === 'full') return 'Full'
-            return 'Early Access'
-        },
-
-        guideCompletenessClass(game: GameGuide): string {
-            const level = game.completeness ?? 'early-access'
-            if (level === 'verified') return 'bg-emerald-100 text-emerald-700 border-emerald-200'
-            if (level === 'full') return 'bg-violet-100 text-violet-700 border-violet-200'
-            return 'bg-amber-100 text-amber-700 border-amber-200'
-        },
-
         openPokedex(pokemonName: string): void {
             window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: pokemonName } }))
         },
@@ -194,7 +167,7 @@ export function registerGuide(): void {
 
         goPrevious(): void {
             const idx = this.currentStopIndex()
-            const prev = (this.currentGame as GameGuide).stops[idx - 1]
+            const prev = this.game.stops[idx - 1]
             if (prev) this.selectStop(prev.id)
         },
     }))

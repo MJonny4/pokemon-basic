@@ -12,6 +12,12 @@ export function getTypeIcon(type: string): string {
     return `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${type.toLowerCase()}.svg`
 }
 
+/** Colored-border card skin keyed to a type — same technique as moveCardStyle/itemCardStyle. */
+export function typeCardStyle(type: string): string {
+    const c = TYPE_COLORS[type.toLowerCase()] ?? '#999'
+    return `border-left:4px solid ${c};background:linear-gradient(90deg,${c}26,transparent 70%),var(--bg-surface)`
+}
+
 export function typeBadge(t: string, size: 'sm' | 'md' = 'sm'): string {
     const c = TYPE_COLORS[t.toLowerCase()] ?? '#999'
     const px = size === 'md' ? 'px-3 py-1' : 'px-2 py-0.5'

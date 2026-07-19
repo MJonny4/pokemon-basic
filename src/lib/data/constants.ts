@@ -91,3 +91,16 @@ export const GEN_RANGES: Record<number, [number, number]> = {
     7: [722, 809], 8: [810, 905],  9: [906, 1025],
 }
 
+// PokeAPI version group slug → generation number (mainline + side games)
+export const VG_GEN: Record<string, number> = {
+    'red-blue': 1, 'yellow': 1,
+    'gold-silver': 2, 'crystal': 2,
+    'ruby-sapphire': 3, 'emerald': 3, 'firered-leafgreen': 3, 'colosseum': 3, 'xd': 3,
+    'diamond-pearl': 4, 'platinum': 4, 'heartgold-soulsilver': 4,
+    'black-white': 5, 'black-2-white-2': 5,
+    'x-y': 6, 'omega-ruby-alpha-sapphire': 6,
+    'sun-moon': 7, 'ultra-sun-ultra-moon': 7, 'lets-go-pikachu-lets-go-eevee': 7,
+    'sword-shield': 8, 'brilliant-diamond-shining-pearl': 8, 'legends-arceus': 8,
+    'scarlet-violet': 9,
+}
+

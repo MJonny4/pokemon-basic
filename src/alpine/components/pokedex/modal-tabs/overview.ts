@@ -35,23 +35,23 @@ export function buildOverview(pokemon: Pokemon, species: Species | null, ability
                 'No description available.'
             const short = desc.length > 110 ? desc.slice(0, 110) + '…' : desc
             const fmt = (s: string) => s.replace(/-/g, ' ')
-            return `<div class="p-3 rounded-xl border ${a.is_hidden ? 'border-violet-200 bg-violet-50' : 'border-slate-200 bg-slate-50'}">
+            return `<div class="p-3 rounded-xl border ${a.is_hidden ? 'border-violet-400/40 bg-violet-500/10' : 'border-border-subtle bg-bg-elevated'}">
       <div class="flex items-center gap-2 mb-1">
-        <span class="text-sm font-black text-slate-800 capitalize">${fmt(a.ability.name)}</span>
+        <span class="text-sm font-black text-text-primary capitalize">${fmt(a.ability.name)}</span>
         ${a.is_hidden ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-200 text-violet-700 font-black uppercase tracking-wide">Hidden</span>' : ''}
       </div>
-      <p class="text-xs text-slate-500 leading-relaxed" data-tip="${desc.replace(/"/g, '&quot;').replace(/\n/g, ' ')}">${short}</p>
+      <p class="text-xs text-text-secondary leading-relaxed" data-tip="${desc.replace(/"/g, '&quot;').replace(/\n/g, ' ')}">${short}</p>
     </div>`
         })
         .join('')
 
     grid.innerHTML = `
     <!-- Stats card -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+    <div class="bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h3 class="font-black text-slate-800 text-sm">📊 Base Stats</h3>
-          ${genus ? `<p class="text-xs text-slate-400 mt-0.5">${genus}</p>` : ''}
+          <h3 class="font-black text-text-primary text-sm">📊 Base Stats</h3>
+          ${genus ? `<p class="text-xs text-text-tertiary mt-0.5">${genus}</p>` : ''}
         </div>
         <span class="text-xs font-black px-2.5 py-1 rounded-full bg-violet-100 text-violet-700">BST ${bst}</span>
       </div>
@@ -62,14 +62,14 @@ export function buildOverview(pokemon: Pokemon, species: Species | null, ability
     <div class="flex flex-col gap-4">
       ${
           dex
-              ? `<div class="bg-linear-to-br from-slate-50 to-violet-50 border border-slate-200 rounded-2xl p-5">
-        <h3 class="font-black text-slate-800 text-sm mb-2">📖 Pokédex Entry</h3>
-        <p class="text-slate-600 text-sm leading-relaxed italic">"${dex}"</p>
+              ? `<div class="bg-bg-elevated border border-border-subtle rounded-2xl p-5">
+        <h3 class="font-black text-text-primary text-sm mb-2">📖 Pokédex Entry</h3>
+        <p class="text-text-secondary text-sm leading-relaxed italic">"${dex}"</p>
       </div>`
               : ''
       }
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 class="font-black text-slate-800 text-sm mb-3">💡 Abilities</h3>
+      <div class="bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm">
+        <h3 class="font-black text-text-primary text-sm mb-3">💡 Abilities</h3>
         <div class="space-y-2">${abHTML}</div>
       </div>
     </div>`
@@ -144,8 +144,8 @@ export function appendEvoChain(
           <div class="w-20 h-20 rounded-2xl flex items-center justify-center mb-1.5 transition group-hover:scale-110 group-hover:shadow-md" style="background:${tc}22;border:2px solid ${tc}55">
             <img src="${p.sprites.front_default ?? ''}" class="w-16 h-16 object-contain" style="image-rendering:pixelated">
           </div>
-          <p class="text-xs font-black text-slate-700 capitalize">${p.name}</p>
-          <p class="text-xs text-slate-400">#${String(p.id).padStart(3, '0')}</p>
+          <p class="text-xs font-black text-text-primary capitalize">${p.name}</p>
+          <p class="text-xs text-text-tertiary">#${String(p.id).padStart(3, '0')}</p>
         </div>`
     }
 
@@ -158,8 +158,8 @@ export function appendEvoChain(
         for (let i = 1; i < levels.length; i++) {
             const label = evoLabel(levels[i][0].evolution_details)
             parts.push(`<div class="flex flex-col items-center gap-0.5 shrink-0">
-              ${label ? `<span class="text-[10px] font-semibold text-slate-400 capitalize">${label}</span>` : ''}
-              <span class="text-slate-300 font-black text-xl">→</span>
+              ${label ? `<span class="text-[10px] font-semibold text-text-tertiary capitalize">${label}</span>` : ''}
+              <span class="text-text-tertiary font-black text-xl">→</span>
             </div>`)
             parts.push(card(levels[i][0].species.name))
         }
@@ -170,18 +170,18 @@ export function appendEvoChain(
             const cards = level.map((n) => {
                 const label = stageIdx > 0 ? evoLabel(n.evolution_details) : ''
                 return `<div class="flex flex-col items-center gap-0.5">
-                  ${label ? `<span class="text-[10px] font-semibold text-slate-400 capitalize">${label}</span>` : ''}
+                  ${label ? `<span class="text-[10px] font-semibold text-text-tertiary capitalize">${label}</span>` : ''}
                   ${card(n.species.name)}
                 </div>`
             }).join('')
             return `<div class="flex flex-wrap gap-3 justify-center">${cards}</div>`
-        }).join('<div class="evo-arrow text-center text-slate-400 font-black text-lg">↓</div>')
+        }).join('<div class="evo-arrow text-center text-text-tertiary font-black text-lg">↓</div>')
         chainHTML = `<div class="flex flex-col gap-3">${rows}</div>`
     }
 
     const div = document.createElement('div')
-    div.className = 'md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm'
-    div.innerHTML = `<h3 class="font-black text-slate-800 text-sm mb-4">🔗 Evolution Chain</h3>${chainHTML}`
+    div.className = 'md:col-span-2 bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm'
+    div.innerHTML = `<h3 class="font-black text-text-primary text-sm mb-4">🔗 Evolution Chain</h3>${chainHTML}`
     grid.appendChild(div)
     gsap.fromTo(div, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', clearProps: 'transform,opacity' })
 }

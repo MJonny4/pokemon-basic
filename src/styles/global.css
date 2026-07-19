@@ -1,12 +1,89 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
 
-*,
+/* ── Dark mode via .dark class on <html> ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ── */
+:root {
+    /* Surfaces */
+    --bg-base:     #f2f2f7;
+    --bg-surface:  #ffffff;
+    --bg-elevated: #f2f2f7;
+    --bg-raised:   #e5e5ea;
+
+    /* Text */
+    --text-primary:   #1c1c1e;
+    --text-secondary: #636366;
+    --text-tertiary:  #aeaeb2;
+
+    /* Borders */
+    --border:        #c6c6c8;
+    --border-subtle: #e5e5ea;
+
+    /* Accent */
+    --action:       #007AFF;
+    --action-hover: #0066d6;
+    --action-subtle: #e8f2ff;
+    --brand:        #FF3B30;
+
+    /* Fonts */
+    --font-sans: 'Geist Variable', system-ui, sans-serif;
+    --font-mono: 'Geist Mono Variable', 'Menlo', monospace;
+}
+
+.dark {
+    --bg-base:     #000000;
+    --bg-surface:  #1c1c1e;
+    --bg-elevated: #2c2c2e;
+    --bg-raised:   #3a3a3c;
+
+    --text-primary:   #ffffff;
+    --text-secondary: rgba(235, 235, 245, 0.6);
+    --text-tertiary:  rgba(235, 235, 245, 0.3);
+
+    --border:        #38383a;
+    --border-subtle: #2c2c2e;
+
+    --action-subtle: rgba(0, 122, 255, 0.15);
+}
+
+/* ── Tailwind v4 theme registration ── */
+@theme inline {
+    --color-bg-base:     var(--bg-base);
+    --color-bg-surface:  var(--bg-surface);
+    --color-bg-elevated: var(--bg-elevated);
+    --color-bg-raised:   var(--bg-raised);
+    --color-text-primary:   var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-tertiary:  var(--text-tertiary);
+    --color-border:        var(--border);
+    --color-border-subtle: var(--border-subtle);
+    --color-action:        var(--action);
+    --color-action-hover:  var(--action-hover);
+    --color-action-subtle: var(--action-subtle);
+    --color-brand:         var(--brand);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+}
+
+/* ── Base ── */
+*, body {
+    font-family: var(--font-sans);
+}
+
 body {
-    font-family: 'Inter', sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
 }
 
 button {
     cursor: pointer;
+}
+
+code, pre, .mono {
+    font-family: var(--font-mono);
 }
 
 /* ── Scrollbars ── */
@@ -16,16 +93,17 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #c4b5fd;
+    background: var(--action);
+    opacity: 0.5;
     border-radius: 9px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #a78bfa;
+    background: var(--action-hover);
 }
 
 /* ── Alpine cloak ── */
@@ -72,9 +150,14 @@ button {
     color: #334155;
 }
 
+.dark .normal-damage {
+    background: linear-gradient(135deg, #3a3a3c, #2c2c2e);
+    color: #ebebf5;
+}
+
 /* Chart highlight when pokemon searched */
 .row-dimmed td.type-cell,
-.row-dimmed td:first-child>div {
+.row-dimmed td:first-child > div {
     opacity: .12 !important;
 }
 
@@ -119,82 +202,24 @@ button {
 }
 
 /* ── Type Colors ── */
-.type-normal {
-    background: linear-gradient(135deg, #A8A878, #8A8A59);
-}
-
-.type-fire {
-    background: linear-gradient(135deg, #F08030, #DD6610);
-}
-
-.type-water {
-    background: linear-gradient(135deg, #6890F0, #386CEB);
-}
-
-.type-electric {
-    background: linear-gradient(135deg, #F8D030, #F0C108);
-    color: #333 !important;
-}
-
-.type-grass {
-    background: linear-gradient(135deg, #78C850, #5CA935);
-}
-
-.type-ice {
-    background: linear-gradient(135deg, #98D8D8, #69C6C6);
-    color: #1e3a3a !important;
-}
-
-.type-fighting {
-    background: linear-gradient(135deg, #C03028, #9D2721);
-}
-
-.type-poison {
-    background: linear-gradient(135deg, #A040A0, #803380);
-}
-
-.type-ground {
-    background: linear-gradient(135deg, #E0C068, #D4A82F);
-    color: #333 !important;
-}
-
-.type-flying {
-    background: linear-gradient(135deg, #A890F0, #9180C4);
-}
-
-.type-psychic {
-    background: linear-gradient(135deg, #F85888, #F61C5D);
-}
-
-.type-bug {
-    background: linear-gradient(135deg, #A8B820, #8D9A1B);
-}
-
-.type-rock {
-    background: linear-gradient(135deg, #B8A038, #A48B2A);
-}
-
-.type-ghost {
-    background: linear-gradient(135deg, #705898, #554374);
-}
-
-.type-dragon {
-    background: linear-gradient(135deg, #7038F8, #4C08EF);
-}
-
-.type-dark {
-    background: linear-gradient(135deg, #705848, #513F34);
-}
-
-.type-steel {
-    background: linear-gradient(135deg, #B8B8D0, #9797BA);
-    color: #1e293b !important;
-}
-
-.type-fairy {
-    background: linear-gradient(135deg, #EE99AC, #EC6D9A);
-    color: #1e293b !important;
-}
+.type-normal   { background: linear-gradient(135deg, #A8A878, #8A8A59); }
+.type-fire     { background: linear-gradient(135deg, #F08030, #DD6610); }
+.type-water    { background: linear-gradient(135deg, #6890F0, #386CEB); }
+.type-electric { background: linear-gradient(135deg, #F8D030, #F0C108); color: #333 !important; }
+.type-grass    { background: linear-gradient(135deg, #78C850, #5CA935); }
+.type-ice      { background: linear-gradient(135deg, #98D8D8, #69C6C6); color: #1e3a3a !important; }
+.type-fighting { background: linear-gradient(135deg, #C03028, #9D2721); }
+.type-poison   { background: linear-gradient(135deg, #A040A0, #803380); }
+.type-ground   { background: linear-gradient(135deg, #E0C068, #D4A82F); color: #333 !important; }
+.type-flying   { background: linear-gradient(135deg, #A890F0, #9180C4); }
+.type-psychic  { background: linear-gradient(135deg, #F85888, #F61C5D); }
+.type-bug      { background: linear-gradient(135deg, #A8B820, #8D9A1B); }
+.type-rock     { background: linear-gradient(135deg, #B8A038, #A48B2A); }
+.type-ghost    { background: linear-gradient(135deg, #705898, #554374); }
+.type-dragon   { background: linear-gradient(135deg, #7038F8, #4C08EF); }
+.type-dark     { background: linear-gradient(135deg, #705848, #513F34); }
+.type-steel    { background: linear-gradient(135deg, #B8B8D0, #9797BA); color: #1e293b !important; }
+.type-fairy    { background: linear-gradient(135deg, #EE99AC, #EC6D9A); color: #1e293b !important; }
 
 /* ── Autocomplete ── */
 .ac-dropdown {
@@ -202,14 +227,14 @@ button {
     top: 100%;
     left: 0;
     right: 0;
-    background: #fff;
-    border: 2px solid #a78bfa;
+    background: var(--bg-surface);
+    border: 2px solid var(--action);
     border-top: none;
     border-radius: 0 0 12px 12px;
     max-height: 280px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 10px 30px rgba(124, 58, 237, .2);
+    box-shadow: 0 10px 30px rgba(0, 122, 255, .15);
 }
 
 .ac-item {
@@ -218,12 +243,13 @@ button {
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-subtle);
     transition: background .1s;
+    color: var(--text-primary);
 }
 
 .ac-item:hover {
-    background: #f5f3ff;
+    background: var(--action-subtle);
 }
 
 .ac-item img {
@@ -232,10 +258,43 @@ button {
     image-rendering: pixelated;
 }
 
+/* ── Nav dropdown (Data ▾ desktop dropdown; mobile panel reuses .ac-dropdown itself) ── */
+.nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background: var(--bg-surface);
+    border: 2px solid var(--action);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 122, 255, .15);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.nav-dropdown-item {
+    display: block;
+    padding: 9px 14px;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background .1s, color .1s;
+}
+
+.nav-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-item:hover {
+    background: var(--action-subtle);
+    color: var(--action);
+}
+
 /* ── Stat bars ── */
 .stat-bar-track {
     height: 8px;
-    background: #e2e8f0;
+    background: var(--bg-raised);
     border-radius: 99px;
     overflow: hidden;
 }
@@ -274,6 +333,11 @@ button {
     width: max-content;
 }
 
+.dark [data-tip]::after {
+    background: #3a3a3c;
+    color: #ffffff;
+}
+
 [data-tip]:hover::after {
     opacity: 1;
 }
@@ -291,13 +355,19 @@ button {
 .move-card-physical {
     background: #fff7ed;
 }
+.dark .move-card-physical {
+    background: rgba(253, 186, 116, 0.08);
+}
 
 .move-card-special {
     background: #eef2ff;
 }
+.dark .move-card-special {
+    background: rgba(0, 122, 255, 0.08);
+}
 
 .move-card-status {
-    background: #f8fafc;
+    background: var(--bg-elevated);
 }
 
 /* ── STAB badge ── */
@@ -317,64 +387,39 @@ button {
     border-radius: 99px;
     font-size: .73rem;
     font-weight: 700;
-    border: 2px solid #e2e8f0;
-    background: #f8fafc;
-    color: #64748b;
+    border: 2px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all .15s;
 }
 
 .fchip:hover:not(.fchip-active) {
-    border-color: #a78bfa;
-    background: #f5f3ff;
-    color: #6d28d9;
+    border-color: var(--action);
+    background: var(--action-subtle);
+    color: var(--action);
 }
 
 .fchip-active {
-    border-color: #7c3aed;
-    background: #7c3aed;
+    border-color: var(--action);
+    background: var(--action);
     color: #fff;
-}
-
-/* ── History chips ── */
-.hchip {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px 3px 4px;
-    border-radius: 99px;
-    background: #f5f3ff;
-    border: 1.5px solid #ddd6fe;
-    font-size: .72rem;
-    font-weight: 600;
-    color: #6d28d9;
-    cursor: pointer;
-    transition: all .15s;
-}
-
-.hchip:hover {
-    background: #ede9fe;
-    border-color: #a78bfa;
-}
-
-.hchip img {
-    width: 22px;
-    height: 22px;
-    image-rendering: pixelated;
 }
 
 /* ── Nature pill ── */
 .nature-card {
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--border);
     border-radius: 12px;
     padding: 10px 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     transition: all .15s;
     cursor: default;
 }
 
 .nature-card.recommended {
-    border-color: #7c3aed;
-    background: #f5f3ff;
+    border-color: var(--action);
+    background: var(--action-subtle);
 }
 
 .stat-plus {
@@ -393,15 +438,15 @@ button {
     align-items: flex-start;
     gap: 12px;
     padding: 14px;
-    background: #fff;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-surface);
+    border: 2px solid var(--border);
     border-radius: 14px;
     transition: all .15s;
 }
 
 .item-card:hover {
-    border-color: #a78bfa;
-    box-shadow: 0 4px 14px rgba(124, 58, 237, .1);
+    border-color: var(--action);
+    box-shadow: 0 4px 14px rgba(0, 122, 255, .12);
 }
 
 .item-icon {
@@ -445,14 +490,15 @@ button {
 
 /* ── Evo arrow ── */
 .evo-arrow {
-    color: #a78bfa;
+    color: var(--action);
     font-size: 1.5rem;
 }
 
-/* ── Modal box height (bottom sheet on mobile, centered box on desktop) ── */
+/* ── Modal box ── */
 #modal-box {
     height: 95dvh;
     max-height: 95dvh;
+    background: var(--bg-surface);
 }
 
 @media (min-width: 640px) {
@@ -464,19 +510,20 @@ button {
 
 /* ── Tab styles ── */
 .tab-active {
-    border-bottom: 2.5px solid #7c3aed;
-    color: #7c3aed;
+    border-bottom: 2.5px solid var(--action);
+    color: var(--action);
 }
 
 .tab-inactive {
-    color: #94a3b8;
+    color: var(--text-tertiary);
 }
 
 .tab-inactive:hover {
-    color: #7c3aed;
-    background: #f5f3ff;
+    color: var(--action);
+    background: var(--action-subtle);
 }
 
+/* ── Mobile type chart ── */
 @media (max-width: 768px) {
     .type-cell {
         min-width: 36px;

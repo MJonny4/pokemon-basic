@@ -61,11 +61,11 @@ function miniStats(p: Pokemon): string {
             const val = p.stats.find((s) => s.stat.name === key)?.base_stat ?? 0
             const pct = Math.min(100, Math.round((val / 255) * 100))
             return `<div class="flex items-center gap-1">
-        <span class="text-[9px] font-semibold text-slate-400 w-4 shrink-0">${label}</span>
-        <div class="w-10 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        <span class="text-[9px] font-semibold text-text-tertiary w-4 shrink-0">${label}</span>
+        <div class="w-10 h-1.5 bg-bg-raised rounded-full overflow-hidden">
           <div class="h-full rounded-full" style="width:${pct}%;background:${color}"></div>
         </div>
-        <span class="text-[10px] font-bold text-slate-600">${val}</span>
+        <span class="text-[10px] font-bold text-text-secondary">${val}</span>
       </div>`
         })
         .join('')
@@ -83,9 +83,9 @@ function peerRow(p: Pokemon, rank: number, isCurrent: boolean, isSelected: boole
 
     let rowClass =
         'flex items-center gap-3 p-2.5 rounded-xl border transition '
-    if (isCurrent) rowClass += 'border-violet-400 bg-violet-50'
-    else if (isSelected) rowClass += 'border-emerald-400 bg-emerald-50 cursor-pointer hover:bg-emerald-100'
-    else rowClass += 'border-slate-200 bg-white hover:border-violet-300 hover:bg-slate-50 cursor-pointer'
+    if (isCurrent) rowClass += 'border-violet-400 bg-violet-500/15'
+    else if (isSelected) rowClass += 'border-emerald-400 bg-emerald-500/15 cursor-pointer hover:bg-emerald-500/25'
+    else rowClass += 'border-border-subtle bg-bg-surface hover:border-violet-300 hover:bg-bg-elevated cursor-pointer'
 
     const badge = isCurrent
         ? '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-violet-200 text-violet-700 font-black uppercase tracking-wide">YOU</span>'
@@ -98,20 +98,20 @@ function peerRow(p: Pokemon, rank: number, isCurrent: boolean, isSelected: boole
     const searchClick = `event.stopPropagation();window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${p.name}'}}))`
 
     return `<div class="${rowClass}" ${onclick}>
-    <span class="text-[10px] font-black text-slate-300 w-5 shrink-0 text-right">${rank}</span>
+    <span class="text-[10px] font-black text-text-tertiary w-5 shrink-0 text-right">${rank}</span>
     <img src="${sprite}" class="w-10 h-10 object-contain shrink-0 cursor-pointer hover:scale-110 transition-transform" style="image-rendering:pixelated" alt="${p.name}" onclick="${searchClick}" title="Open in Pokédex">
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-1.5 flex-wrap mb-1">
-        <span class="font-black text-sm text-slate-800 capitalize cursor-pointer hover:text-violet-600 transition-colors" onclick="${searchClick}">${p.name.replace(/-/g, ' ')}</span>
+        <span class="font-black text-sm text-text-primary capitalize cursor-pointer hover:text-violet-600 transition-colors" onclick="${searchClick}">${p.name.replace(/-/g, ' ')}</span>
         ${badge}
         ${types.map((t) => typeBadge(t, 'sm')).join('')}
       </div>
       <div class="flex items-center gap-2">
         <span class="text-[10px] font-black text-violet-600">BST ${bst}</span>
-        <div class="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        <div class="flex-1 h-1.5 bg-bg-raised rounded-full overflow-hidden">
           <div class="h-full rounded-full" style="width:${sortPct}%;background:${tc}"></div>
         </div>
-        <span class="text-[10px] font-bold text-slate-500">${sortLabel} ${sortVal}</span>
+        <span class="text-[10px] font-bold text-text-secondary">${sortLabel} ${sortVal}</span>
       </div>
     </div>
     <div class="shrink-0 hidden sm:grid grid-cols-2 gap-x-3 gap-y-0.5">${miniStats(p)}</div>
@@ -135,7 +135,7 @@ function renderList(): void {
     if (moreEl) {
         if (remaining > 0) {
             const next = Math.min(20, remaining)
-            moreEl.innerHTML = `<button onclick="window._compareLoadMore()" class="w-full mt-3 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-violet-300 hover:text-violet-500 text-xs font-bold transition">Load ${next} more · ${remaining} remaining</button>`
+            moreEl.innerHTML = `<button onclick="window._compareLoadMore()" class="w-full mt-3 py-2.5 rounded-xl border-2 border-dashed border-border-subtle text-text-tertiary hover:border-violet-300 hover:text-violet-500 text-xs font-bold transition">Load ${next} more · ${remaining} remaining</button>`
         } else {
             moreEl.innerHTML = ''
         }
@@ -163,17 +163,17 @@ function renderComparison(): void {
 
         return `<div class="flex items-center gap-2">
       <div class="flex-1 flex items-center justify-end gap-1.5">
-        <span class="text-xs font-bold ${aVal > bVal ? 'text-emerald-600' : aVal < bVal ? 'text-red-400' : 'text-slate-500'}">${aVal}</span>
-        <div class="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+        <span class="text-xs font-bold ${aVal > bVal ? 'text-emerald-600' : aVal < bVal ? 'text-red-400' : 'text-text-secondary'}">${aVal}</span>
+        <div class="w-20 h-2 bg-bg-elevated rounded-full overflow-hidden">
           <div class="h-full rounded-full" style="width:${aPct}%;background:${color};margin-left:auto;float:right"></div>
         </div>
       </div>
-      <span class="text-[9px] font-black text-slate-400 w-8 text-center shrink-0">${label}</span>
+      <span class="text-[9px] font-black text-text-tertiary w-8 text-center shrink-0">${label}</span>
       <div class="flex-1 flex items-center gap-1.5">
-        <div class="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="w-20 h-2 bg-bg-elevated rounded-full overflow-hidden">
           <div class="h-full rounded-full" style="width:${bPct}%;background:${color}"></div>
         </div>
-        <span class="text-xs font-bold ${bVal > aVal ? 'text-emerald-600' : bVal < aVal ? 'text-red-400' : 'text-slate-500'}">${bVal}</span>
+        <span class="text-xs font-bold ${bVal > aVal ? 'text-emerald-600' : bVal < aVal ? 'text-red-400' : 'text-text-secondary'}">${bVal}</span>
       </div>
     </div>`
     }).join('')
@@ -186,10 +186,10 @@ function renderComparison(): void {
     const cmpSprite = _compare.sprites.front_default ?? ''
 
     el.innerHTML = `
-  <div class="bg-white rounded-2xl border-2 border-emerald-200 p-5 mt-4">
+  <div class="bg-bg-surface rounded-2xl border-2 border-emerald-400/50 p-5 mt-4">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-black text-slate-800 text-sm">⚖️ Side-by-Side Comparison</h3>
-      <button onclick="window._compareDismiss()" class="text-xs text-slate-400 hover:text-slate-600 transition">✕ Close</button>
+      <h3 class="font-black text-text-primary text-sm">⚖️ Side-by-Side Comparison</h3>
+      <button onclick="window._compareDismiss()" class="text-xs text-text-tertiary hover:text-text-secondary transition">✕ Close</button>
     </div>
     <!-- Pokemon headers -->
     <div class="flex items-center mb-4">
@@ -197,7 +197,7 @@ function renderComparison(): void {
         <img src="${curSprite}" class="w-12 h-12 object-contain cursor-pointer hover:scale-110 transition-transform" style="image-rendering:pixelated" alt="${_current.name}"
              onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_current.name}'}}))" title="Open in Pokédex">
         <div>
-          <p class="font-black text-sm capitalize text-slate-800 cursor-pointer hover:text-violet-600 transition-colors"
+          <p class="font-black text-sm capitalize text-text-primary cursor-pointer hover:text-violet-600 transition-colors"
              onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_current.name}'}}))">
             ${_current.name.replace(/-/g, ' ')}
           </p>
@@ -205,10 +205,10 @@ function renderComparison(): void {
           <p class="text-[10px] text-violet-600 font-black mt-0.5">BST ${curBST}</p>
         </div>
       </div>
-      <span class="text-xl font-black text-slate-200 mx-2">vs</span>
+      <span class="text-xl font-black text-text-tertiary mx-2">vs</span>
       <div class="flex-1 flex items-center justify-end gap-2">
         <div class="text-right">
-          <p class="font-black text-sm capitalize text-slate-800 cursor-pointer hover:text-violet-600 transition-colors"
+          <p class="font-black text-sm capitalize text-text-primary cursor-pointer hover:text-violet-600 transition-colors"
              onclick="window.dispatchEvent(new CustomEvent('pokemon-search',{detail:{name:'${_compare.name}'}}))">
             ${_compare.name.replace(/-/g, ' ')}
           </p>
@@ -244,21 +244,21 @@ function renderFull(): void {
 
     el.innerHTML = `
   <!-- Sort & filter bar -->
-  <div class="flex flex-wrap items-center gap-2 mb-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Sort by</span>
+  <div class="flex flex-wrap items-center gap-2 mb-3 p-3 bg-bg-elevated rounded-xl border border-border-subtle">
+    <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1">Sort by</span>
     ${sortBtns}
-    ${hasTypeFilter ? `<div class="ml-auto flex items-center gap-2"><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filter</span>${filterBtn}</div>` : ''}
+    ${hasTypeFilter ? `<div class="ml-auto flex items-center gap-2"><span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest">Filter</span>${filterBtn}</div>` : ''}
   </div>
 
   <!-- Count info -->
-  <p class="text-xs text-slate-400 mb-3 font-medium">
-    Showing <strong id="compareCount" class="text-slate-600"></strong> ${_exactMatch && hasTypeFilter ? typeLabel : 'matching'} Pokémon
-    <span class="text-slate-300 ml-1">· sorted by ${SORT_OPTIONS.find((o) => o.key === _sort)?.label}</span>
+  <p class="text-xs text-text-tertiary mb-3 font-medium">
+    Showing <strong id="compareCount" class="text-text-secondary"></strong> ${_exactMatch && hasTypeFilter ? typeLabel : 'matching'} Pokémon
+    <span class="text-text-tertiary ml-1">· sorted by ${SORT_OPTIONS.find((o) => o.key === _sort)?.label}</span>
     ${!_exactMatch && hasTypeFilter ? `<button onclick="window._compareToggleFilter()" class="ml-2 text-violet-500 hover:text-violet-700 font-bold underline">Show ${typeLabel} only</button>` : ''}
   </p>
 
   <!-- Tip -->
-  <p class="text-[10px] text-slate-300 italic mb-3">Click any Pokémon to compare side-by-side ↓</p>
+  <p class="text-[10px] text-text-tertiary italic mb-3">Click any Pokémon to compare side-by-side ↓</p>
 
   <!-- List -->
   <div id="compareList" class="space-y-1.5"></div>
@@ -292,7 +292,7 @@ export async function buildCompare(pokemon: Pokemon): Promise<void> {
     el.innerHTML = `
   <div class="text-center py-12">
     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto mb-3"></div>
-    <p class="text-slate-400 text-sm">Loading ${_types.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join('/')} Pokémon…</p>
+    <p class="text-text-tertiary text-sm">Loading ${_types.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join('/')} Pokémon…</p>
   </div>`
 
     try {

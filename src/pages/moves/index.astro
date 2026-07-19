@@ -1,0 +1,141 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import SiteHeader from '../../components/SiteHeader.astro'
+import movesData from '../../lib/data/moves-data.json'
+import movesMeta from '../../lib/data/moves-meta.json'
+import type { MoveListEntry } from '../../ui/move-card'
+
+const base = import.meta.env.BASE_URL
+
+interface RawMove { power: number | null; accuracy: number | null; pp: number; type: string; damage_class: string; effect: string }
+const MOVES = movesData as unknown as Record<string, RawMove>
+const META = movesMeta as unknown as Record<string, { gen: number }>
+
+// moves-meta.json keys are the canonical page move list (shadow moves excluded there)
+const payload: MoveListEntry[] = Object.keys(META)
+    .filter((slug) => MOVES[slug])
+    .sort()
+    .map((slug) => ({
+        slug,
+        type: MOVES[slug].type,
+        cls: MOVES[slug].damage_class as MoveListEntry['cls'],
+        power: MOVES[slug].power,
+        acc: MOVES[slug].accuracy,
+        pp: MOVES[slug].pp,
+        gen: META[slug].gen,
+    }))
+---
+
+<Layout
+    title="PokeBasic — Moves"
+    description={`All ${payload.length} Pokémon moves with power, accuracy, PP, and type. Filter by type, category, and generation.`}
+>
+    <SiteHeader subtitle="Move Dex" activeRoute="/moves" />
+    <div x-data="movesIndex" data-moves={JSON.stringify(payload)} x-cloak>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+
+            <!-- ══════════ PAGE TITLE ══════════ -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-black text-text-primary mb-1">⚡ Moves</h1>
+                <p class="text-sm text-text-tertiary font-medium">
+                    Every mainline move with power, accuracy, and PP. Filter by type, category, or the generation it debuted in — click a move for its full history.
+                </p>
+            </div>
+
+            <!-- ══════════ TYPE FILTER ══════════ -->
+            <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 mb-5">
+                <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Filter by Type</p>
+                <div class="flex flex-wrap gap-2">
+                    <button @click="selectType('all')"
+                        :class="selectedType === 'all' ? 'ring-2 ring-action ring-offset-1 opacity-100' : 'opacity-60 hover:opacity-90'"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs text-white transition"
+                        style="background: linear-gradient(135deg, #007AFF, #0055d4)">
+                        ✦ All
+                    </button>
+                    <template x-for="type in typeList" :key="type">
+                        <button @click="selectType(type)"
+                            :class="selectedType === type ? 'ring-2 ring-offset-1 opacity-100' : 'opacity-60 hover:opacity-90'"
+                            :style="`background: linear-gradient(135deg, ${typeColor(type)}, ${typeColor(type)}cc); --tw-ring-color: ${typeColor(type)}`"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs text-white transition">
+                            <img :src="typeIconUrl(type)" class="w-3 h-3" style="filter:brightness(0) invert(1)">
+                            <span x-text="capitalize(type)"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- ══════════ CATEGORY + GENERATION · SORT + SEARCH ══════════ -->
+            <div class="grid gap-5 lg:grid-cols-[1fr_minmax(16rem,22rem)] mb-5">
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Category</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="selectCls('all')" :class="selectedCls === 'all' ? 'fchip-active' : ''" class="fchip">All</button>
+                        <template x-for="c in clsList" :key="c">
+                            <button @click="selectCls(c)" :class="selectedCls === c ? 'fchip-active' : ''" class="fchip" x-text="capitalize(c)"></button>
+                        </template>
+                    </div>
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mt-4 mb-3">Generation</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="resetGens()" :class="allGensActive() ? 'fchip-active' : ''" class="fchip">All</button>
+                        <template x-for="(label, i) in genLabels" :key="i">
+                            <button @click="toggleGen(gens[i])" :class="isGenActive(gens[i]) ? 'fchip-active' : ''" class="fchip" x-text="'Gen ' + label"></button>
+                        </template>
+                    </div>
+                </div>
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Sort by</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <template x-for="opt in sortOptions" :key="opt.key">
+                            <button @click="setSort(opt.key)" :class="sortKey === opt.key ? 'fchip-active' : ''" class="fchip" x-text="opt.label"></button>
+                        </template>
+                    </div>
+                    <div class="relative">
+                        <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                        <input type="text" x-model="searchQuery" @input="page = 0" placeholder="Search moves…"
+                            class="w-full pl-8 pr-3 py-2 text-xs border-2 border-border rounded-lg focus:outline-none focus:border-action font-semibold bg-bg-elevated text-text-primary placeholder:text-text-tertiary">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════ NO RESULTS ══════════ -->
+            <div x-show="sorted.length === 0"
+                class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-8 text-center">
+                <p class="text-text-tertiary font-semibold">No moves match the current filters</p>
+            </div>
+
+            <!-- ══════════ RESULTS ══════════ -->
+            <div x-show="sorted.length > 0">
+                <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <p class="text-sm text-text-secondary font-semibold">
+                        <strong x-text="sorted.length" class="text-text-primary"></strong>
+                        moves ·
+                        <span x-text="'Page ' + (page + 1) + ' of ' + totalPages"></span>
+                    </p>
+                    <div class="flex items-center gap-2" x-show="totalPages > 1">
+                        <button @click="prevPage()" :disabled="page === 0"
+                            class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                        <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                        <button @click="nextPage()" :disabled="page >= totalPages - 1"
+                            class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <template x-for="m in pageItems" :key="m.slug">
+                        <div x-html="moveCardHtml(m)"></div>
+                    </template>
+                </div>
+
+                <div class="flex items-center justify-center gap-2 mt-5" x-show="totalPages > 1">
+                    <button @click="prevPage()" :disabled="page === 0"
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                    <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                    <button @click="nextPage()" :disabled="page >= totalPages - 1"
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</Layout>

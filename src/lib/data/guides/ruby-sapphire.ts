@@ -76,7 +76,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
             ],
             items: [
                 { name: 'Great Ball', location: 'Petalburg Woods item pickup', icon: '🔵' },
-                { name: 'Quick Claw', location: 'Rustboro School side NPC', icon: '🤏' },
+                { name: 'Quick Claw', location: 'Rustboro City — woman in a house near the Trainer\'s School', icon: '🤏' },
             ],
             wildPokemon: [
                 { name: 'shroomish', id: 285, minLevel: 5, maxLevel: 7, method: 'grass', rarity: 'uncommon' },
@@ -163,8 +163,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 tmReward: 'TM08 (Bulk Up)',
                 team: [
                     { name: 'Machop', id: 66, level: 17 },
-                    { name: 'Meditite', id: 307, level: 18 },
-                    { name: 'Makuhita', id: 296, level: 19 },
+                    { name: 'Makuhita', id: 296, level: 18 },
                 ],
                 strategy: 'Taillow/Wingull make this gym much safer. Makuhita can use Bulk Up and hit hard, so focus it quickly with super-effective attacks. Keep healing ready because one critical hit can swing this fight.',
                 weaknesses: ['Flying', 'Psychic'],
@@ -191,8 +190,8 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
             ],
             wildPokemon: [
                 { name: 'electrike', id: 309, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'uncommon' },
-                { name: 'plusle', id: 311, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'uncommon' },
-                { name: 'minun', id: 312, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'uncommon' },
+                { name: 'plusle', id: 311, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'uncommon' }, // Ruby only
+                { name: 'minun', id: 312, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'uncommon' }, // Sapphire only
                 { name: 'oddish', id: 43, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'common' },
             ],
             tips: [
@@ -218,9 +217,9 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 badge: 'Dynamo Badge',
                 tmReward: 'TM34 (Shock Wave)',
                 team: [
-                    { name: 'Voltorb', id: 100, level: 22 },
+                    { name: 'Voltorb', id: 100, level: 20 },
                     { name: 'Electrike', id: 309, level: 20 },
-                    { name: 'Magneton', id: 82, level: 23 },
+                    { name: 'Magneton', id: 82, level: 22 },
                     { name: 'Manectric', id: 310, level: 24 },
                 ],
                 strategy: 'Ground moves remove most of Wattson\'s pressure by threatening quick KOs. Magneton has good defenses and Manectric is fast, so prioritize targets and heal proactively. Geodude/Graveler or Marshtomp are excellent in this matchup.',
@@ -380,7 +379,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 badge: 'Feather Badge',
                 tmReward: 'TM40 (Aerial Ace)',
                 team: [
-                    { name: 'Swablu', id: 333, level: 31 },
+                    { name: 'Swellow', id: 277, level: 31 },
                     { name: 'Pelipper', id: 279, level: 30 },
                     { name: 'Skarmory', id: 227, level: 32 },
                     { name: 'Altaria', id: 334, level: 33 },

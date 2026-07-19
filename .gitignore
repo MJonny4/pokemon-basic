@@ -6,7 +6,6 @@ dist/
 
 # visual studio code settings
 .vscode/
-.cursor/
 
 # dependencies
 node_modules/
@@ -26,3 +25,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# custom scripts
+scripts/fetch-missing-item-sprites.py

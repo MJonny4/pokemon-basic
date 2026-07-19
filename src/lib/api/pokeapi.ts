@@ -53,6 +53,12 @@ export interface Species {
     evolution_chain: { url: string }
     is_baby: boolean
     generation: { name: string }
+    // Present in the API payload; used by the /pokedex/[name] Information tab
+    capture_rate?: number
+    base_happiness?: number
+    gender_rate?: number
+    growth_rate?: { name: string }
+    egg_groups?: Array<{ name: string }>
 }
 
 export interface MoveDetail {
@@ -78,8 +84,14 @@ export interface EvolutionDetail {
     item: { name: string } | null
     held_item: { name: string } | null
     known_move: { name: string } | null
+    known_move_type: { name: string } | null
     min_happiness: number | null
+    min_affection: number | null
     time_of_day: string
+    location: { name: string } | null
+    near_special_rock?: boolean
+    is_default?: boolean
+    version_group: { name: string }
 }
 
 export interface EvolutionChain {
@@ -142,6 +154,67 @@ export async function fetchSpecies(name: string): Promise<Species> {
     cache.species.set(key, data)
     idbSet(idbKey, data, TTL.SPECIES)
     return data
+}
+
+/** Pokémon that can learn a move — from /move/{name}'s learned_by_pokemon list. */
+export interface MoveInfo {
+    learners: Array<{ name: string; id: number }>
+    /** Long technical effect text ('' when PokeAPI has none) */
+    longEffect: string
+}
+
+export async function fetchMoveInfo(move: string): Promise<MoveInfo> {
+    const key = move.toLowerCase()
+    const idbKey = `move-info/${key}`
+    const cached = await idbGet<MoveInfo>(idbKey)
+    if (cached) return cached
+    const r = await fetch(`${BASE}/move/${key}`)
+    if (!r.ok) throw new Error(`Move not found: ${move}`)
+    const data = await r.json()
+    const learners = ((data.learned_by_pokemon ?? []) as Array<{ name: string; url: string }>)
+        .map((p) => ({
+            name: p.name,
+            id: parseInt(p.url.split('/').filter(Boolean).pop() ?? '0'),
+        }))
+        .filter((p) => p.id > 0)
+        .sort((a, b) => a.id - b.id)
+    const longEffect = (
+        (data.effect_entries as Array<{ language: { name: string }; effect: string }> | undefined)
+            ?.find((e) => e.language?.name === 'en')?.effect ?? ''
+    )
+        .replace(/\$effect_chance/g, String(data.effect_chance ?? ''))
+        .replace(/\r/g, '')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+    const result: MoveInfo = { learners, longEffect }
+    idbSet(idbKey, result, TTL.MOVE)
+    return result
+}
+
+export interface ItemInfo {
+    /** Wild Pokémon that can hold this item, national-dex order */
+    holders: Array<{ name: string; id: number }>
+}
+
+export async function fetchItemInfo(item: string): Promise<ItemInfo> {
+    const key = item.toLowerCase()
+    const idbKey = `item-info/${key}`
+    const cached = await idbGet<ItemInfo>(idbKey)
+    if (cached) return cached
+    const r = await fetch(`${BASE}/item/${key}`)
+    if (!r.ok) throw new Error(`Item not found: ${item}`)
+    const data = await r.json()
+    const holders = ((data.held_by_pokemon ?? []) as Array<{ pokemon: { name: string; url: string } }>)
+        .map((h) => ({
+            name: h.pokemon.name,
+            id: parseInt(h.pokemon.url.split('/').filter(Boolean).pop() ?? '0'),
+        }))
+        .filter((p) => p.id > 0)
+        .sort((a, b) => a.id - b.id)
+    const result: ItemInfo = { holders }
+    idbSet(idbKey, result, TTL.MOVE)
+    return result
 }
 
 export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: string; id: number }>> {
