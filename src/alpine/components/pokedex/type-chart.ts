@@ -1,11 +1,15 @@
-import { TYPES, EFFECTIVENESS } from '../../../lib/data/constants'
+import { typeListForGen, effectivenessAt } from '../../../lib/data/type-history'
 import { getTypeIcon } from '../../../ui/badges'
 
-export function buildTypeChart(): void {
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+/** Render the full matchup table for `gen`'s chart (0 = modern / Gen VI+). */
+export function buildTypeChart(gen = 0): void {
     const table = document.getElementById('typeChart')
     if (!table) return
+    const types = typeListForGen(gen).map(cap)
     let html = '<thead><tr><th class="p-1 min-w-4"></th>'
-    TYPES.forEach((t) => {
+    types.forEach((t) => {
         html += `<th class="p-1" data-col-type="${t.toLowerCase()}">
       <div class="type-header type-${t.toLowerCase()}">
         <img src="${getTypeIcon(t)}" alt="${t}" class="type-icon">
@@ -13,13 +17,14 @@ export function buildTypeChart(): void {
       </div></th>`
     })
     html += '</tr></thead><tbody>'
-    TYPES.forEach((atk) => {
+    types.forEach((atk) => {
         html += `<tr data-row-type="${atk.toLowerCase()}"><td class="p-1.5">
       <div class="type-row-label type-${atk.toLowerCase()}">
         <img src="${getTypeIcon(atk)}" alt="${atk}" class="type-icon">
         <span>${atk}</span>
       </div></td>`
-        EFFECTIVENESS[atk].forEach((eff) => {
+        types.forEach((def) => {
+            const eff = effectivenessAt(atk, def, gen)
             let cls = 'normal-damage',
                 disp = '1×'
             if (eff === 2) {

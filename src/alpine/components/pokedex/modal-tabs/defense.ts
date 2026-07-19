@@ -22,29 +22,29 @@ export function buildDefense(pokemon: Pokemon): void {
             )
             .join('')
         if (!parts.trim()) return ''
-        return `<div class="${bg} ${bdr} border-2 rounded-2xl p-5"><h4 class="font-black text-sm mb-3">${title}</h4>${parts}</div>`
+        return `<div class="${bg} ${bdr} border-2 rounded-2xl p-5"><h4 class="font-black text-text-primary text-sm mb-3">${title}</h4>${parts}</div>`
     }
 
     el.innerHTML = `<div class="space-y-4">
-    ${sect('bg-red-50', 'border-red-200', '⚠️ Weaknesses', [
+    ${sect('bg-red-500/10', 'border-red-500/30', '⚠️ Weaknesses', [
         [quad, '4×', 'Quad (dual weakness)'],
         [dbl, '2×', 'Super Effective'],
     ])}
-    ${sect('bg-emerald-50', 'border-emerald-200', '🛡️ Resistances', [
+    ${sect('bg-emerald-500/10', 'border-emerald-500/30', '🛡️ Resistances', [
         [quarter, '¼×', 'Double Resistance'],
         [half, '½×', 'Not Very Effective'],
     ])}
     ${
         immune.length
-            ? `<div class="bg-purple-50 border-purple-200 border-2 rounded-2xl p-5">
-      <h4 class="font-black text-sm mb-3">🚫 Immunities</h4>
+            ? `<div class="bg-purple-500/10 border-purple-500/30 border-2 rounded-2xl p-5">
+      <h4 class="font-black text-text-primary text-sm mb-3">🚫 Immunities</h4>
       <div class="flex flex-wrap gap-2">${immune.map((t) => typePillLg(t, '0×')).join('')}</div>
     </div>`
             : ''
     }
     ${
         !quad.length && !dbl.length && !half.length && !quarter.length && !immune.length
-            ? `<div class="text-center py-16 text-slate-400 font-semibold">No special type interactions.</div>`
+            ? `<div class="text-center py-16 text-text-tertiary font-semibold">No special type interactions.</div>`
             : ''
     }
   </div>`

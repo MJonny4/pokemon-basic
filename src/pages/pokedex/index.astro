@@ -1,0 +1,61 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import SiteHeader from '../../components/SiteHeader.astro'
+import { POKEDEX_GAMES } from '../../lib/data/pokedex-games'
+import { pokemonSprite } from '../../ui/pokemon-card'
+
+const base = import.meta.env.BASE_URL
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
+
+// A recognizable face per card: the first newly introduced starter (or icons for all/shiny)
+const MASCOTS: Record<string, number> = {
+    'all': 25, 'red-blue': 1, 'gold-silver': 152, 'ruby-sapphire': 252,
+    'diamond-pearl': 387, 'black-white': 495, 'x-y': 650, 'sun-moon': 722,
+    'sword-shield': 810, 'scarlet-violet': 906, 'shiny': 25,
+}
+---
+
+<Layout
+    title="PokeBasic — Pokédex"
+    description="Browse the Pokédex by game — every mainline pair shows its newly introduced Pokémon, or view all 1025 at once, including the full Shiny Pokédex."
+    canonicalPath="/pokedex"
+>
+    <SiteHeader subtitle="Pokédex" activeRoute="/pokedex" />
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <div class="mb-6">
+            <h1 class="text-2xl font-black text-text-primary mb-1">📕 Pokédex</h1>
+            <p class="text-sm text-text-tertiary font-medium">
+                Pick a game to browse the Pokémon it introduced, or view the complete dex. Each game pair shows only its new Pokémon.
+            </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {POKEDEX_GAMES.map((g) => (
+                <a href={`${base}/pokedex/${g.slug}`}
+                    class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 flex items-center gap-4 hover:border-action hover:shadow-md transition group"
+                    style={`border-left: 4px solid ${g.accent}`}>
+                    <img src={pokemonSprite(MASCOTS[g.slug], g.shiny)} alt="" loading="lazy"
+                        class="w-16 h-16 shrink-0 group-hover:scale-110 transition-transform" style="image-rendering:pixelated">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-black text-base text-text-primary">{g.title}</span>
+                            {g.gen > 0 && (
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded-full text-white" style={`background:${g.accent}`}>
+                                    Gen {ROMAN[g.gen]}
+                                </span>
+                            )}
+                        </div>
+                        <div class="text-xs font-semibold text-text-tertiary mt-0.5">
+                            {g.range[1] - g.range[0] + 1} Pokémon
+                            {g.gen > 0 && ` · #${g.range[0]}–${g.range[1]}`}
+                            {g.shiny && ' · shiny sprites'}
+                        </div>
+                    </div>
+                </a>
+            ))}
+        </div>
+
+    </main>
+</Layout>

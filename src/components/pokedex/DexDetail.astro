@@ -1,0 +1,184 @@
+---
+import { typeBadge } from '../../ui/badges'
+import { officialArtwork, pokemonSprite, dexNo, formatHeight, formatWeight, displayName, type PokedexEntry } from '../../ui/pokemon-card'
+
+interface Props { entry: PokedexEntry; prev?: PokedexEntry | null; next?: PokedexEntry | null }
+const { entry, prev = null, next = null } = Astro.props
+const base = import.meta.env.BASE_URL
+
+const statBlocks = [
+    { label: 'Height', value: formatHeight(entry.h) },
+    { label: 'Weight', value: formatWeight(entry.w) },
+    { label: 'BST', value: entry.bst },
+]
+---
+
+<div x-data="pokedexDetail" data-name={entry.name} data-id={String(entry.id)} data-types={entry.types.join(',')}
+    data-prev={prev?.name ?? ''} data-next={next?.name ?? ''}>
+    <main class="max-w-5xl mx-auto px-4 py-6">
+
+        <!-- Back link + national-dex prev/next (also bound to ←/→ keys) -->
+        <div class="flex items-center justify-between gap-2 mb-4">
+            <a href={`${base}/pokedex`} class="inline-flex items-center gap-1 text-xs font-bold text-text-tertiary hover:text-action transition">
+                ← Pokédex
+            </a>
+            <div class="flex items-center gap-2">
+                {prev && (
+                    <a href={`${base}/pokedex/${prev.name}`} title={`${dexNo(prev.id)} ${displayName(prev.name)}`}
+                        class="inline-flex items-center gap-1.5 pl-2 pr-3 py-1 rounded-full bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action hover:text-action transition">
+                        ‹ <img src={pokemonSprite(prev.id)} alt={prev.name} loading="lazy" class="w-6 h-6" style="image-rendering:pixelated" onerror="this.style.display='none'">
+                        <span class="hidden sm:inline">{displayName(prev.name)}</span>
+                    </a>
+                )}
+                {next && (
+                    <a href={`${base}/pokedex/${next.name}`} title={`${dexNo(next.id)} ${displayName(next.name)}`}
+                        class="inline-flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action hover:text-action transition">
+                        <span class="hidden sm:inline">{displayName(next.name)}</span>
+                        <img src={pokemonSprite(next.id)} alt={next.name} loading="lazy" class="w-6 h-6" style="image-rendering:pixelated" onerror="this.style.display='none'"> ›
+                    </a>
+                )}
+            </div>
+        </div>
+
+        <!-- ══════════ HERO (static, from manifest) ══════════ -->
+        <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-6 mb-5">
+            <div class="flex items-center gap-5 flex-wrap">
+                <img id="dexHeroArt" src={officialArtwork(entry.id)} alt={entry.name}
+                    class="w-36 h-36 sm:w-44 sm:h-44 shrink-0" loading="eager"
+                    onerror={`this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${entry.id}.png';this.style.imageRendering='pixelated'`}>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-black text-text-tertiary font-mono mb-1">{dexNo(entry.id)}</div>
+                    <h1 class="text-3xl font-black text-text-primary mb-2">{displayName(entry.name)}</h1>
+                    <!-- Badges rewind with the info-tab gen selector; server render is the modern fallback -->
+                    <div class="flex items-center gap-1.5 mb-3" x-html="heroTypesHtml">
+                        <Fragment set:html={entry.types.map((t) => typeBadge(t, 'md')).join('')} />
+                    </div>
+                    <p class="text-sm text-text-secondary font-medium italic" x-text="genus" x-cloak></p>
+                </div>
+                <div class="grid grid-cols-3 gap-3 w-full sm:w-auto">
+                    {statBlocks.map((s) => (
+                        <div class="bg-bg-elevated rounded-xl border border-border-subtle px-4 py-3 text-center">
+                            <div class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mb-1">{s.label}</div>
+                            <div class="text-base font-black text-text-primary">{s.value}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ TAB BAR ══════════ -->
+        <div class="flex items-center gap-1 border-b border-border-subtle mb-5">
+            <button @click="setTab('info')" :class="tab === 'info' ? 'tab-active' : 'tab-inactive'" class="px-4 py-2 text-sm font-bold transition">Information</button>
+            <button @click="setTab('moves')" :class="tab === 'moves' ? 'tab-active' : 'tab-inactive'" class="px-4 py-2 text-sm font-bold transition">Moves</button>
+            <button @click="openCompare()" class="tab-inactive px-4 py-2 text-sm font-bold transition">Compare ↗</button>
+        </div>
+
+        <!-- ══════════ LOADING / ERROR ══════════ -->
+        <div x-show="loading" class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-10 text-center">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-action mx-auto mb-3"></div>
+            <p class="text-sm text-text-tertiary font-semibold">Loading Pokémon data…</p>
+        </div>
+        <div x-show="failed" x-cloak class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-10 text-center">
+            <div class="text-4xl mb-3">😵</div>
+            <p class="text-sm text-text-tertiary font-semibold">Couldn't load data — check your connection and refresh.</p>
+        </div>
+
+        <!-- ══════════ INFORMATION TAB ══════════ -->
+        <div x-show="!loading && !failed && tab === 'info'" x-cloak>
+
+        <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-4 mb-5 space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1">Generation</span>
+                <template x-for="g in allGens" :key="g">
+                    <button @click="setInfoGen(g)" :disabled="g < debutGen"
+                        :class="genChipClass(g, infoGen === g)"
+                        :title="g < debutGen ? 'Did not exist in this generation' : ''"
+                        class="fchip py-0.5! px-2.5! text-[10px]!" x-text="genLabels[g]"></button>
+                </template>
+            </div>
+            <p class="text-[11px] text-text-tertiary font-medium">
+                Typing and type matchups reflect the selected generation — including the Gen II Steel retcons, the Gen VI Fairy retcons, and each era's type chart.
+            </p>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-2">
+
+            <div class="space-y-5">
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Base Stats</p>
+                    <div class="space-y-2" x-html="statBarsHtml"></div>
+                </div>
+
+                <!-- Abilities were introduced in Gen III -->
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5" x-show="infoGen >= 3">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Abilities</p>
+                    <div class="space-y-3">
+                        <template x-for="a in abilities" :key="a.name">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black text-text-primary" x-text="a.name"></span>
+                                    <span x-show="a.hidden" class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-500 uppercase tracking-wide">Hidden</span>
+                                </div>
+                                <p class="text-xs text-text-secondary font-medium" x-text="a.effect"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Species</p>
+                    <p class="text-sm text-text-secondary font-medium mb-4" x-text="dexEntry"></p>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <template x-for="row in speciesRows" :key="row.label">
+                            <div class="flex items-center justify-between gap-2 text-xs border-b border-border-subtle pb-1.5">
+                                <span class="font-bold text-text-tertiary" x-text="row.label"></span>
+                                <span class="font-black text-text-primary text-right" x-text="row.value"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 h-fit">
+                <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Type Defenses</p>
+                <div class="space-y-3" x-html="defenseChartHtml"></div>
+            </div>
+
+            <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 lg:col-span-2" x-show="evoChainHtml" x-cloak>
+                <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">Evolution Chain</p>
+                <div x-html="evoChainHtml"></div>
+            </div>
+
+        </div>
+        </div>
+
+        <!-- ══════════ MOVES TAB ══════════ -->
+        <div x-show="!loading && !failed && tab === 'moves'" x-cloak>
+
+            <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-4 mb-4 space-y-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1">Generation</span>
+                    <template x-for="g in allGens" :key="g">
+                        <button @click="setMoveGen(g)" :disabled="g < debutGen"
+                            :class="genChipClass(g, moveGen === g)"
+                            :title="g < debutGen ? 'Did not exist in this generation' : ''"
+                            class="fchip py-0.5! px-2.5! text-[10px]!" x-text="genLabels[g]"></button>
+                    </template>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1">Show</span>
+                    <template x-for="c in catFilters" :key="c">
+                        <button @click="setMoveCat(c)" :class="moveCat === c ? 'fchip-active' : ''" class="fchip py-0.5! px-2.5! text-[10px]!" x-text="capitalize(c)"></button>
+                    </template>
+                </div>
+                <p class="text-[11px] text-text-tertiary font-medium">
+                    Values shown are gen-correct — power, accuracy, type, and Physical/Special category reflect the selected generation.
+                </p>
+            </div>
+
+            <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-2" x-html="learnsetTableHtml"></div>
+
+        </div>
+
+    </main>
+</div>

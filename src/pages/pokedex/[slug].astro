@@ -1,0 +1,59 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import SiteHeader from '../../components/SiteHeader.astro'
+import DexListing from '../../components/pokedex/DexListing.astro'
+import DexDetail from '../../components/pokedex/DexDetail.astro'
+import manifestJson from '../../lib/data/pokedex-manifest.json'
+import { POKEDEX_GAMES, type PokedexGame } from '../../lib/data/pokedex-games'
+import { typesInGen } from '../../lib/data/type-history'
+import { displayName, dexNo, type PokedexEntry } from '../../ui/pokemon-card'
+
+export interface Props {
+    kind: 'game' | 'pokemon'
+    game?: PokedexGame
+    entries?: PokedexEntry[]
+    entry?: PokedexEntry
+    /** National-dex neighbors for prev/next navigation (no gen filter) */
+    prev?: PokedexEntry | null
+    next?: PokedexEntry | null
+}
+
+// One dynamic segment serves both page kinds: /pokedex/red-blue (game listing)
+// and /pokedex/pikachu (Pokémon detail). No name collisions exist between the
+// two sets. getStaticPaths builds from raw imports only (Astro scoping gotcha).
+export function getStaticPaths() {
+    const manifest = manifestJson as unknown as PokedexEntry[]
+    const gamePaths = POKEDEX_GAMES.map((game) => ({
+        params: { slug: game.slug },
+        props: {
+            kind: 'game' as const,
+            game,
+            entries: manifest
+                .filter((p) => p.id >= game.range[0] && p.id <= game.range[1])
+                .map((p) => ({ ...p, types: typesInGen(p.id, p.types, game.gen) })),
+        },
+    }))
+    const pokemonPaths = manifest.map((entry, i) => ({
+        params: { slug: entry.name },
+        props: { kind: 'pokemon' as const, entry, prev: manifest[i - 1] ?? null, next: manifest[i + 1] ?? null },
+    }))
+    return [...gamePaths, ...pokemonPaths]
+}
+
+const { kind, game, entries, entry, prev, next } = Astro.props
+const { slug } = Astro.params
+
+const title = kind === 'game'
+    ? `PokeBasic — ${game!.title} Pokédex`
+    : `${displayName(entry!.name)} ${dexNo(entry!.id)} — Pokédex | PokeBasic`
+const description = kind === 'game'
+    ? `Browse the ${game!.title} Pokédex — ${entries!.length} Pokémon with types, stats, and sizes.`
+    : `${displayName(entry!.name)} is a ${entry!.types.join('/')}-type Pokémon. BST ${entry!.bst}. Stats, abilities, type defenses, and gen-accurate learnsets.`
+---
+
+<Layout title={title} description={description} canonicalPath={`/pokedex/${slug}`}>
+    <SiteHeader subtitle="Pokédex" activeRoute="/pokedex" />
+    {kind === 'game'
+        ? <DexListing game={game!} entries={entries!} />
+        : <DexDetail entry={entry!} prev={prev} next={next} />}
+</Layout>

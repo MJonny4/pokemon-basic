@@ -12,11 +12,14 @@ import { typeBadge } from '../ui/badges'
 
 declare global {
     interface Window {
+        renderMoves: typeof renderMoves
         rerenderMoves: (filter: string, search: string) => void
     }
 }
 
 export function setupPokedexLoader(): void {
+    window.renderMoves = renderMoves
+
     window.rerenderMoves = (filter: string, search: string) => {
         const store = Alpine.store('pokemon') as any
         if (store.pokemon && store.moves) {
@@ -86,8 +89,6 @@ export function setupPokedexLoader(): void {
             buildTrainer(pokemon, role, species)
             buildCompare(pokemon)
 
-            window.dispatchEvent(new CustomEvent('history-add', { detail: { name: pokemon.name, id: pokemon.id } }))
-
             if (resolvedSpecies?.evolution_chain?.url) {
                 fetchEvolutionChain(resolvedSpecies.evolution_chain.url)
                     .then(async (chain) => {
@@ -111,15 +112,6 @@ export function setupPokedexLoader(): void {
                     <h3 class="text-xl font-bold text-red-500 mb-2">Pokémon Not Found</h3>
                     <p class="text-slate-400 text-sm">Check spelling or try a different name.</p>
                 </div>`
-        }
-    })
-
-    window.addEventListener('history-add', (e: Event) => {
-        const { name, id } = (e as CustomEvent).detail
-        const searchBarEl = document.querySelector('[x-data="searchBar"]')
-        if (searchBarEl) {
-            const comp = (Alpine as any).$data(searchBarEl)
-            comp?.addToHistory?.(name, id)
         }
     })
 

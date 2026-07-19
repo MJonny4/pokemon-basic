@@ -1,0 +1,102 @@
+---
+import type { PokedexGame } from '../../lib/data/pokedex-games'
+import type { PokedexEntry } from '../../ui/pokemon-card'
+
+interface Props { game: PokedexGame; entries: PokedexEntry[] }
+const { game, entries } = Astro.props
+const base = import.meta.env.BASE_URL
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
+---
+
+<div x-data="pokedexIndex" data-pokemon={JSON.stringify(entries)} data-shiny={String(game.shiny)} data-gen={String(game.gen)} x-cloak>
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- ══════════ HEADER ══════════ -->
+        <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+            <div>
+                <a href={`${base}/pokedex`} class="inline-flex items-center gap-1 text-xs font-bold text-text-tertiary hover:text-action transition mb-1">← Pokédex</a>
+                <h1 class="text-2xl font-black text-text-primary">
+                    {game.title}
+                    {game.gen > 0 && <span class="text-text-tertiary font-bold text-lg"> · Gen {ROMAN[game.gen]}</span>}
+                    <span class="text-text-tertiary font-bold text-lg"> · {entries.length} Pokémon</span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- ══════════ TYPE FILTER ══════════ -->
+        <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 mb-5">
+            <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Filter by Type</p>
+            <div class="flex flex-wrap gap-2">
+                <button @click="selectType('all')"
+                    :class="selectedType === 'all' ? 'ring-2 ring-action ring-offset-1 opacity-100' : 'opacity-60 hover:opacity-90'"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs text-white transition"
+                    style="background: linear-gradient(135deg, #007AFF, #0055d4)">
+                    ✦ All
+                </button>
+                <template x-for="type in typeList" :key="type">
+                    <button @click="selectType(type)"
+                        :class="selectedType === type ? 'ring-2 ring-offset-1 opacity-100' : 'opacity-60 hover:opacity-90'"
+                        :style="`background: linear-gradient(135deg, ${typeColor(type)}, ${typeColor(type)}cc); --tw-ring-color: ${typeColor(type)}`"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs text-white transition">
+                        <img :src="typeIconUrl(type)" class="w-3 h-3" style="filter:brightness(0) invert(1)">
+                        <span x-text="capitalize(type)"></span>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- ══════════ SORT + SEARCH ══════════ -->
+        <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-4 mb-4 flex flex-wrap items-center gap-3">
+            <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest">Sort by</span>
+            <template x-for="opt in sortOptions" :key="opt.key">
+                <button @click="setSort(opt.key)" :class="sortKey === opt.key ? 'fchip-active' : ''" class="fchip">
+                    <span x-text="opt.label"></span><span x-show="sortKey === opt.key" x-text="sortDesc ? ' ↓' : ' ↑'"></span>
+                </button>
+            </template>
+            <div class="ml-auto relative">
+                <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                <input type="text" x-model="searchQuery" @input="page = 0" placeholder="Filter by name…"
+                    class="pl-8 pr-3 py-1.5 text-xs border-2 border-border rounded-lg focus:outline-none focus:border-action font-semibold bg-bg-elevated text-text-primary placeholder:text-text-tertiary w-44">
+            </div>
+        </div>
+
+        <!-- ══════════ NO RESULTS ══════════ -->
+        <div x-show="sorted.length === 0"
+            class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-8 text-center">
+            <p class="text-text-tertiary font-semibold">No Pokémon match the current filters</p>
+        </div>
+
+        <!-- ══════════ RESULTS ══════════ -->
+        <div x-show="sorted.length > 0">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <p class="text-sm text-text-secondary font-semibold">
+                    <strong x-text="sorted.length" class="text-text-primary"></strong>
+                    Pokémon ·
+                    <span x-text="'Page ' + (page + 1) + ' of ' + totalPages"></span>
+                </p>
+                <div class="flex items-center gap-2" x-show="totalPages > 1">
+                    <button @click="prevPage()" :disabled="page === 0"
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                    <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                    <button @click="nextPage()" :disabled="page >= totalPages - 1"
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <template x-for="p in pageItems" :key="p.id">
+                    <div x-html="pokemonCardHtml(p)"></div>
+                </template>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 mt-5" x-show="totalPages > 1">
+                <button @click="prevPage()" :disabled="page === 0"
+                    class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                <button @click="nextPage()" :disabled="page >= totalPages - 1"
+                    class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
+            </div>
+        </div>
+
+    </main>
+</div>

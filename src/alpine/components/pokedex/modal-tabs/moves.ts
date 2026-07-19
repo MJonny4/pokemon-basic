@@ -38,7 +38,7 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
     const catColor: Record<string, string> = {
         physical: 'text-orange-500',
         special: 'text-indigo-500',
-        status: 'text-slate-400',
+        status: 'text-text-tertiary',
     }
 
     const card = (m: MoveDetail): string => {
@@ -58,10 +58,10 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
         const effPow = isSTAB && m.power ? Math.round(m.power * 1.5) : null
         const cat = m.damage_class.name
 
-        return `<div class="move-card ${catBg[cat]} rounded-xl p-3.5 border border-slate-200 hover:border-violet-300" style="border-left-color:${mc}">
+        return `<div class="move-card ${catBg[cat]} rounded-xl p-3.5 border border-border-subtle hover:border-violet-300" style="border-left-color:${mc}">
       <div class="flex items-start justify-between gap-2 mb-2">
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="font-black text-sm text-slate-800 capitalize">${m.name.replace(/-/g, ' ')}</span>
+          <span class="font-black text-sm text-text-primary capitalize">${m.name.replace(/-/g, ' ')}</span>
           ${m.learn_method === 'machine'
             ? '<span class="text-[10px] font-semibold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded">TM</span>'
             : m.learn_method === 'hm'
@@ -70,7 +70,7 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
             ? '<span class="text-[10px] font-semibold text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded">🥚 Egg</span>'
             : m.learn_method === 'tutor'
             ? '<span class="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">📚 Tutor</span>'
-            : `<span class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Lv. ${m.level_learned_at}</span>`
+            : `<span class="text-[10px] font-semibold text-text-tertiary bg-bg-elevated px-1.5 py-0.5 rounded">Lv. ${m.level_learned_at}</span>`
           }
           ${isSTAB ? '<span class="stab-badge">STAB</span>' : ''}
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-bold" style="background:${mc}">
@@ -78,7 +78,7 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
           </span>
           <span class="${catColor[cat]} text-xs font-semibold">${catIcon[cat]} ${cat}</span>
         </div>
-        <div class="flex gap-2.5 text-xs font-bold text-slate-500 shrink-0 flex-wrap justify-end">
+        <div class="flex gap-2.5 text-xs font-bold text-text-secondary shrink-0 flex-wrap justify-end">
           ${m.power ? `<span class="text-violet-700" title="${isSTAB ? `STAB: ${effPow} effective power` : 'Power'}">💪 ${m.power}${isSTAB ? `<span class="text-emerald-500 text-[10px] ml-0.5">→${effPow}</span>` : ''}</span>` : ''}
           <span title="Accuracy">🎯 ${m.accuracy ?? '—'}</span>
           <span title="PP">PP ${m.pp ?? '—'}</span>
@@ -89,15 +89,15 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
               ? (() => {
                   const effect = m.effect_entries?.find((e) => e.language.name === 'en')?.short_effect ?? ''
                   return effect
-                      ? `<p class="text-[11px] text-slate-500 leading-relaxed pt-2 border-t border-slate-200/70 italic">${effect}</p>`
+                      ? `<p class="text-[11px] text-text-secondary leading-relaxed pt-2 border-t border-border-subtle italic">${effect}</p>`
                       : ''
               })()
               : se.length || nve.length || imm.length
               ? `
-      <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-200/70">
+      <div class="flex flex-wrap gap-1.5 pt-2 border-t border-border-subtle">
         ${se.length ? `<span class="text-emerald-600 font-black text-[10px] self-center mr-0.5">✓ hits hard:</span>${se.map((t) => typeBadge(t, 'sm')).join('')}` : ''}
         ${nve.length ? `<span class="text-red-500 font-black text-[10px] self-center ml-2 mr-0.5">↓ resisted:</span>${nve.map((t) => typeBadge(t, 'sm')).join('')}` : ''}
-        ${imm.length ? `<span class="text-slate-400 font-black text-[10px] self-center ml-2 mr-0.5">✗ no effect:</span>${imm.map((t) => typeBadge(t, 'sm')).join('')}` : ''}
+        ${imm.length ? `<span class="text-text-tertiary font-black text-[10px] self-center ml-2 mr-0.5">✗ no effect:</span>${imm.map((t) => typeBadge(t, 'sm')).join('')}` : ''}
       </div>`
               : ''
       }
@@ -107,17 +107,17 @@ export function renderMoves(moves: MoveDetail[], pokemonTypes: string[], filter:
     grid.innerHTML = `
     ${
         damage.length
-            ? `<h3 class="font-black text-slate-700 text-sm mb-3">⚔️ Damaging <span class="text-slate-400 font-normal">(${damage.length})</span></h3>
+            ? `<h3 class="font-black text-text-primary text-sm mb-3">⚔️ Damaging <span class="text-text-tertiary font-normal">(${damage.length})</span></h3>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-5">${damage.map(card).join('')}</div>`
             : ''
     }
     ${
         status.length
-            ? `<h3 class="font-black text-slate-700 text-sm mb-3">🔄 Status <span class="text-slate-400 font-normal">(${status.length})</span></h3>
+            ? `<h3 class="font-black text-text-primary text-sm mb-3">🔄 Status <span class="text-text-tertiary font-normal">(${status.length})</span></h3>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5">${status.map(card).join('')}</div>`
             : ''
     }
-    ${!damage.length && !status.length ? `<div class="text-center py-16 text-slate-400 font-semibold">No moves match your filter.</div>` : ''}`
+    ${!damage.length && !status.length ? `<div class="text-center py-16 text-text-tertiary font-semibold">No moves match your filter.</div>` : ''}`
 }
 
 function updateCoverage(moves: MoveDetail[]): void {
