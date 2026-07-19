@@ -46,6 +46,8 @@ function expectedDamage(
     field: FieldState,
 ): number {
     if (!move.power || move.damage_class?.name === 'status') return 0
+    // Levitate makes the defender immune to Ground — the engine will nullify it
+    if (move.type?.name === 'ground' && (def.slot as any).ability === 'levitate') return 0
     const category = move.damage_class?.name as 'physical' | 'special'
     const atkStatKey: 'attack' | 'special-attack' = category === 'physical' ? 'attack' : 'special-attack'
     const defStatKey: 'defense' | 'special-defense' = category === 'physical' ? 'defense' : 'special-defense'
@@ -141,7 +143,8 @@ export function selectCpuAction(
         const moveDetail = cpuMoves.find(m => m.name === moveName)
         if (!moveDetail) continue
 
-        const dmg = expectedDamage(cpu, player, moveDetail, field)
+        // Weight by accuracy so a 70%-accurate nuke doesn't always beat a reliable move
+        const dmg = expectedDamage(cpu, player, moveDetail, field) * ((moveDetail.accuracy ?? 100) / 100)
         const isStab = cpu.types.includes(moveDetail.type?.name ?? '')
         moveScores.push({ idx: i, score: dmg, isStab })
     }

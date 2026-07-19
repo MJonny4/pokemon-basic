@@ -39,6 +39,10 @@ export interface BattlePokemon {
     fainted: boolean
 }
 
+// Reserved: no move currently sets weather or screens in the sim — they stay
+// at their defaults, but damage-calc consumes them if set (weather/screen
+// moves are the natural next feature; the set-editor damage calc already
+// exposes them through its own FieldState).
 export interface BattleField {
     weather: 'sun' | 'rain' | 'sand' | 'snow' | null
     weatherTurns: number
@@ -68,6 +72,30 @@ export interface BattleState {
     // Available moves for each side (loaded once at start)
     playerMoves: MoveDetail[][]    // [slotIndex][moveIndex]
     cpuMoves: MoveDetail[][]
+}
+
+// ── Team validation (shared by the Battle Mode button and the sim itself) ────
+
+/**
+ * Returns a list of problems preventing battle, empty when ready. Partial
+ * teams (1-5 mons) are allowed — the sim supports them. Items are optional.
+ */
+export function validateTeamForBattle(slots: (TeamSlot | null)[]): string[] {
+    const errors: string[] = []
+    const filled = slots.filter((s): s is TeamSlot => s !== null)
+    if (filled.length === 0) {
+        errors.push('Add at least one Pokémon to battle.')
+        return errors
+    }
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')
+    for (const s of filled) {
+        const missing: string[] = []
+        if (!s.moves.some(Boolean)) missing.push('at least one move')
+        if (!s.nature) missing.push('a nature')
+        if (!s.ability) missing.push('an ability')
+        if (missing.length) errors.push(`${cap(s.pokemonName)} needs ${missing.join(', ')}.`)
+    }
+    return errors
 }
 
 // ── Factory ───────────────────────────────────────────────────────────────────
@@ -195,11 +223,24 @@ function applyMoveAction(
         return { attacker: atk, defender: def }
     }
 
+    // Accuracy roll — null accuracy (self-targeted/field moves) never misses.
+    // Placed here so a miss skips damage, Life Orb recoil, AND status effects.
+    if (moveDetail.accuracy !== null && Math.random() * 100 >= moveDetail.accuracy) {
+        events.push(`${atk.name}'s attack missed!`)
+        return { attacker: atk, defender: def }
+    }
+
     // Damage move
     if (moveDetail.power && moveDetail.damage_class?.name !== 'status') {
         const info = toMoveInfo(moveDetail)
         const atkSlot = atk.slot
         const defSlot = def.slot
+
+        // Levitate — immune to Ground moves
+        if (info.type === 'ground' && (defSlot as any).ability === 'levitate') {
+            events.push(`It doesn't affect ${def.name}… (Levitate)`)
+            return { attacker: atk, defender: def }
+        }
 
         const atkStatKey: 'attack' | 'special-attack' = info.category === 'physical' ? 'attack' : 'special-attack'
         const defStatKey: 'defense' | 'special-defense' = info.category === 'physical' ? 'defense' : 'special-defense'
@@ -261,16 +302,23 @@ function applyMoveAction(
         } else {
             if (isCrit) events.push('Critical hit!')
             // Pick a random roll from 16
-            const dmg = result.rolls[Math.floor(Math.random() * 16)]
+            let dmg = result.rolls[Math.floor(Math.random() * 16)]
+
+            // Sturdy — survive a would-be OHKO from full HP with 1 HP
+            let sturdy = false
+            if (dmg >= def.currentHp && def.currentHp === def.maxHp && (defSlot as any).ability === 'sturdy') {
+                dmg = def.currentHp - 1
+                sturdy = true
+            }
             const pct = Math.round(dmg / result.defenderMaxHp * 1000) / 10
 
             let eff = ''
-            if (result.effectiveness >= 4) eff = 'It\'s super effective! '
-            else if (result.effectiveness === 2) eff = 'It\'s super effective! '
+            if (result.effectiveness >= 2) eff = 'It\'s super effective! '
             else if (result.effectiveness <= 0.5) eff = 'It\'s not very effective… '
 
             events.push(`${eff}${def.name} took ${dmg} damage (${pct}%)`)
             def = { ...def, currentHp: Math.max(0, def.currentHp - dmg) }
+            if (sturdy) events.push(`${def.name} hung on with Sturdy!`)
 
             // Life Orb recoil
             if (atkSlot.item === 'Life Orb') {
@@ -339,6 +387,23 @@ function applyMoveAction(
     }
 
     return { attacker: atk, defender: def }
+}
+
+/**
+ * On-entry ability effects (currently just Intimidate). Called every time a
+ * Pokémon enters the field: initial send-out, voluntary switch, forced switch
+ * after a faint (both sides). Returns the (possibly modified) opposing mon.
+ */
+export function applyOnEntry(
+    entering: BattlePokemon,
+    opposing: BattlePokemon,
+    events: string[],
+): BattlePokemon {
+    if ((entering.slot as any).ability !== 'intimidate' || opposing.fainted) return opposing
+    const cur = opposing.statStages.attack ?? 0
+    if (cur <= -6) return opposing
+    events.push(`${entering.name}'s Intimidate lowered ${opposing.name}'s attack!`)
+    return { ...opposing, statStages: { ...opposing.statStages, attack: cur - 1 } }
 }
 
 function statusImmunity(pkmn: BattlePokemon, status: StatusCondition): boolean {
@@ -470,10 +535,12 @@ export function resolveTurn(
             events.push(`${playerPkmn.name} was withdrawn!`)
             playerPkmn = s.playerTeam[toIndex]
             events.push(`Go, ${playerPkmn.name}!`)
+            cpuPkmn = applyOnEntry(playerPkmn, cpuPkmn, events)
         } else {
             events.push(`${cpuPkmn.name} was withdrawn!`)
             cpuPkmn = s.cpuTeam[toIndex]
             events.push(`CPU sent out ${cpuPkmn.name}!`)
+            playerPkmn = applyOnEntry(cpuPkmn, playerPkmn, events)
         }
     }
 
@@ -550,6 +617,7 @@ export function resolveTurn(
         if (nextCpu >= 0) {
             newCpuActive = nextCpu
             events.push(`CPU sent out ${newCpuTeam[nextCpu].name}!`)
+            newPlayerTeam[newPlayerActive] = applyOnEntry(newCpuTeam[nextCpu], newPlayerTeam[newPlayerActive], events)
         }
     }
 

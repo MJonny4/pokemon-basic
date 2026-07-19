@@ -6,8 +6,8 @@ export function statBar(statName: string, value: number): string {
     const label = STAT_LABELS[statName] ?? statName
     const grade = value >= 100 ? '🔥' : value >= 75 ? '✅' : value >= 50 ? '⚠️' : '❌'
     return `<div class="flex items-center gap-2.5">
-    <span class="text-xs font-bold text-slate-400 w-14 text-right shrink-0">${label}</span>
-    <span class="text-sm font-black w-8 text-right shrink-0 text-slate-700">${value}</span>
+    <span class="text-xs font-bold text-text-tertiary w-14 text-right shrink-0">${label}</span>
+    <span class="text-sm font-black w-8 text-right shrink-0 text-text-primary">${value}</span>
     <div class="stat-bar-track flex-1">
       <div class="stat-bar-fill" style="background:${col}" data-pct="${pct}"></div>
     </div>

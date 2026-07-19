@@ -2,18 +2,31 @@ import Alpine from 'alpinejs'
 import { recommendNatures } from '../../../lib/logic/natures'
 import { recommendItems } from '../../../lib/logic/items'
 import { NATURES } from '../../../lib/data/natures'
-import { ITEMS } from '../../../lib/data/items'
 import { fetchPokemon, fetchMoves, fetchPokemonList, type MoveDetail } from '../../../lib/api/pokeapi'
 import { calcStat } from '../../../lib/logic/stat-calc'
 import { calcDamageRange } from '../../../lib/logic/damage-calc'
 import type { AttackerState, DefenderState, FieldState, DamageResult } from '../../../lib/logic/damage-calc'
-import itemsFullRaw from '../../../lib/data/items-full.json'
-import { TYPE_COLORS } from '../../../lib/data/type-colors'
+import itemsCatalogJson from '../../../lib/data/items-catalog.json'
+import { itemSpriteImg, categoryLabel } from '../../../ui/item-card'
+import { TYPE_COLORS } from '../../../lib/data/constants'
 
-interface FullItem { name: string; slug: string; desc: string }
-const ITEMS_FULL: FullItem[] = itemsFullRaw as FullItem[]
-// Keyed lookup for the custom picker selected card
-const ITEMS_FULL_MAP: Record<string, FullItem> = Object.fromEntries(ITEMS_FULL.map((i) => [i.name, i]))
+interface CatalogItem { name: string; slug: string; category: string; pocket: string; effect: string }
+
+// Battle-holdable subset of the full catalog. The engine keys item effects on
+// display names (slot.item stores names like "Life Orb"), which all exist
+// verbatim in the catalog — so the picker keeps emitting entry.name.
+const BATTLE_CATEGORIES = new Set([
+    'held-items', 'choice', 'bad-held-items', 'type-enhancement', 'plates',
+    'species-specific', 'memories', 'jewels', 'type-protection',
+    'medicine', 'in-a-pinch', 'picky-healing', 'other', // the four all-berry categories
+    'mega-stones', 'z-crystals',
+])
+const BATTLE_ITEMS: CatalogItem[] = (itemsCatalogJson as unknown as CatalogItem[])
+    .filter((i) => BATTLE_CATEGORIES.has(i.category))
+const BATTLE_ITEMS_MAP: Record<string, CatalogItem> = Object.fromEntries(BATTLE_ITEMS.map((i) => [i.name, i]))
+
+// Catalog names use curly apostrophes (King’s Rock) — normalize both sides for search
+const normApos = (s: string) => s.toLowerCase().replace(/[’']/g, '')
 
 const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
 
@@ -108,19 +121,19 @@ export function registerSetEditor(): void {
         },
 
         get recommendedItems() {
-            if (!this.slot) return ITEMS.slice(0, 5)
+            if (!this.slot) return [] // panel is hidden without an active slot
             const s = this.slot as any
             return recommendItems(s.role ?? 'physical_sweeper', s.types, false)
         },
 
-        // Returns items from items-full.json matching the search query,
+        // Returns battle-holdable catalog items matching the search query,
         // excluding those already in the recommended list (no duplicates in dropdown).
-        get filteredAllItems(): FullItem[] {
-            const q = (this.itemQuery as string).toLowerCase().trim()
+        get filteredAllItems(): CatalogItem[] {
+            const q = normApos((this.itemQuery as string).trim())
             if (q.length < 2) return []
             const recNames = new Set((this.recommendedItems as any[]).map((i: any) => i.name))
-            return ITEMS_FULL
-                .filter((i) => i.name.toLowerCase().includes(q) && !recNames.has(i.name))
+            return BATTLE_ITEMS
+                .filter((i) => normApos(i.name).includes(q) && !recNames.has(i.name))
                 .slice(0, 20)
         },
 
@@ -131,11 +144,27 @@ export function registerSetEditor(): void {
             return !(this.recommendedItems as any[]).find((i: any) => i.name === item)
         },
 
-        // The items-full entry for the currently selected custom item (for the card display).
-        get customItemData(): FullItem | null {
+        // The catalog entry for the currently selected custom item (for the card display).
+        get customItemData(): CatalogItem | null {
             const item = (this.slot as any)?.item as string | null
             if (!item) return null
-            return ITEMS_FULL_MAP[item] ?? null
+            return BATTLE_ITEMS_MAP[item] ?? null
+        },
+
+        /** Effect text for a catalog item, falling back to its category when PokeAPI has none. */
+        itemDesc(i: CatalogItem): string {
+            return i.effect || categoryLabel(i.category)
+        },
+
+        /** Item icon with the site-wide 3-tier sprite fallback (PokeAPI → local → pokesprite → 🎒). */
+        itemIconHtml(i: CatalogItem): string {
+            return itemSpriteImg(i, 'w-6 h-6 object-contain', import.meta.env.BASE_URL)
+        },
+
+        /** Same, resolved by item display name (recommended cards store names only). */
+        itemIconHtmlByName(name: string): string {
+            const entry = BATTLE_ITEMS_MAP[name]
+            return entry ? this.itemIconHtml(entry) : '🎒'
         },
 
         get filteredMoves(): MoveDetail[] {
@@ -395,7 +424,7 @@ export function registerSetEditor(): void {
         },
 
         typeColor(type: string): string {
-            return TYPE_COLORS[type] ?? '#9CA3AF'
+            return TYPE_COLORS[type.toLowerCase()] ?? '#9CA3AF'
         },
 
         // ── move selector ─────────────────────────────────────────
@@ -439,7 +468,7 @@ export function registerSetEditor(): void {
         },
 
         moveColor(type: string): string {
-            return TYPE_COLORS[type] ?? '#9CA3AF'
+            return TYPE_COLORS[type.toLowerCase()] ?? '#9CA3AF'
         },
 
         moveCategoryIcon(cat: string): string {
