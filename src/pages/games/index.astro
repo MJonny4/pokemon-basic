@@ -1,0 +1,16 @@
+---
+const base = import.meta.env.BASE_URL
+const dest = `${base}/games/red-blue`
+---
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content={`0; url=${dest}`} />
+    <link rel="canonical" href={dest} />
+    <title>PokeBasic — Games</title>
+</head>
+<body>
+    Redirecting… <a href={dest}>Click here if not redirected</a>
+</body>
+</html>

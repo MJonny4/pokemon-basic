@@ -72,7 +72,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Violet City',
             kind: 'town',
             steps: [
-                'Head north from New Bark through Route 31 and 32 to reach Violet City.',
+                'Head west from New Bark on Route 29 to Cherrygrove City, then north on Route 30 and 31 to reach Violet City.',
                 'Visit the Sprout Tower north of the city and defeat the sages to prepare for the first gym.',
                 'Challenge the Violet City Gym.',
             ],
@@ -93,7 +93,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             steps: [
                 'Falkner uses Flying types — Electric and Rock moves are super-effective.',
                 'His Pidgeotto is faster than most early-game Pokémon and can spam Mud-Slap accuracy drops.',
-                'Geodude from nearby routes is a reliable answer if you need extra safety.',
+                'Geodude from Route 46 (south of Violet City) is a reliable answer if you need extra safety.',
             ],
             items: [
                 { name: 'TM31 (Mud-Slap)', location: 'Received from Falkner after defeating him', icon: '📀' },
@@ -108,7 +108,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Pidgey', id: 16, level: 7 },
                     { name: 'Pidgeotto', id: 17, level: 9 },
                 ],
-                strategy: 'Electric or Rock moves are ideal. Geodude from Union Cave is great here. Totodile\'s Water Gun also works since Falkner\'s team is frail. Chikorita players may struggle — grind to Lv12 before challenging.',
+                strategy: 'Electric or Rock moves are ideal. Geodude can be found on Route 46 (south of Violet City, reachable before the gym) and is great here. Totodile\'s Water Gun also works since Falkner\'s team is frail. Chikorita players may struggle — grind to Lv12 before challenging.',
                 weaknesses: ['Electric', 'Rock', 'Ice'],
             },
         },
@@ -129,7 +129,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             wildPokemon: [
                 { name: 'geodude', id: 74, minLevel: 8, maxLevel: 12, method: 'cave', rarity: 'common' },
                 { name: 'onix', id: 95, minLevel: 8, maxLevel: 12, method: 'cave', rarity: 'uncommon' },
-                { name: 'slowpoke', id: 79, minLevel: 8, maxLevel: 12, method: 'cave', rarity: 'uncommon' },
+                { name: 'slowpoke', id: 79, minLevel: 8, maxLevel: 12, method: 'cave', rarity: 'uncommon' }, // walks the cave floor; Surf not needed
                 { name: 'wooper', id: 194, minLevel: 8, maxLevel: 10, method: 'surf', rarity: 'common' },
             ],
             tips: ['Wooper evolves into Quagsire — excellent Water/Ground type for the whole game.'],
@@ -398,19 +398,19 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Goldenrod Radio Tower Takeover',
             kind: 'dungeon',
             steps: [
-                'After getting the 7th badge, Team Rocket takes over the Goldenrod Radio Tower.',
+                'After getting the 7th badge, Team Rocket takes over the Goldenrod Radio Tower. Note: the step description in your quest log references a "Clear Bell" — this is only in Crystal. In Gold you receive the Rainbow Wing; in Silver you receive the Silver Wing.',
                 'Head to Goldenrod — fight through the Radio Tower and Underground.',
                 'Get the Basement Key from a Rocket in the Underground to access the Radio Tower basement.',
                 'Find the Director on the 5th floor of the Radio Tower and defeat the Rocket Executive.',
                 'The Director gives you the Clear Bell (Gold) / Rainbow Wing (Silver) to summon Lugia/Ho-Oh.',
             ],
             items: [
-                { name: 'Clear Bell / Rainbow Wing', location: 'Radio Tower 5F — Director gives it after rescue', icon: '🔔' },
+                { name: 'Rainbow Wing (Gold) / Silver Wing (Silver)', location: 'Radio Tower 5F — Director gives it after rescue', icon: '🔔' },
                 { name: 'Basement Key', location: 'Goldenrod Underground — Rocket Grunt disguised as normal person', icon: '🔑' },
             ],
             wildPokemon: [],
             tips: [
-                'In Gold: Clear Bell summons Lugia at Whirl Islands. In Silver: Rainbow Wing summons Ho-Oh at Tin Tower.',
+                'In Gold: Rainbow Wing summons Ho-Oh at the Tin Tower (Lv40). In Silver: Silver Wing summons Lugia at the Whirl Islands (Lv40).',
                 'Both legendaries are at Lv40 — prepare your team and bring plenty of Ultra Balls.',
             ],
         },
@@ -422,11 +422,11 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Reach Blackthorn via Ice Path from Mahogany Town — solve the ice puzzles.',
                 'In Ice Path, pick up HM07 (Waterfall).',
                 'Challenge the final Johto gym.',
-                'After the gym, the Dragon Elder will give you HM08 (Rock Smash) and your rival is defeated again.',
+                'After the gym, the Dragon Elder will give you HM06 (Rock Smash) — note it is HM06 in Gen 2, not HM08. Your rival is defeated again here as well.',
             ],
             items: [
                 { name: 'HM07 (Waterfall)', location: 'Ice Path — item ball inside the cave', icon: '💦' },
-                { name: 'HM08 (Rock Smash)', location: 'Dragon\'s Den — Dragon Elder after getting 8 badges', icon: '💥' },
+                { name: 'HM06 (Rock Smash)', location: 'Dragon\'s Den — Dragon Elder after getting 8 badges', icon: '💥' },
                 { name: 'Dratini', location: 'Dragon\'s Den — old man gives one if you answer his quiz correctly', icon: '🐲' },
             ],
             wildPokemon: [
@@ -648,7 +648,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Mt. Silver — Red',
             kind: 'champion',
             steps: [
-                'Enter Mt. Silver from the west of Pallet Town after all 16 badges.',
+                'Enter Mt. Silver via Route 28 on the western edge of Kanto after all 16 badges — it is not directly west of Pallet Town; reach it through the eastern Kanto routes.',
                 'Navigate to the summit using cave traversal and Surf where needed.',
                 'Red stands at the peak — he says nothing. This is the ultimate challenge.',
                 'Red\'s team is the highest level of any trainer in Gen 1/2 — be ready.',

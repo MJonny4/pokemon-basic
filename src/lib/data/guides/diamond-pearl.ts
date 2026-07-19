@@ -141,7 +141,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
                 tmReward: 'TM86 (Grass Knot)',
                 team: [
                     { name: 'Cherubi', id: 420, level: 19 },
-                    { name: 'Turtwig', id: 387, level: 19 },
+                    { name: 'Turtwig', id: 387, level: 22 },
                     { name: 'Roserade', id: 407, level: 22 },
                 ],
                 strategy: 'Fast offensive pressure with Fire/Flying users keeps this gym safe. Roserade is the only true threat; focus it quickly and heal before it snowballs with status/chip damage.',
@@ -330,7 +330,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
             ],
             items: [
                 { name: 'Icicle Plate route pickup', location: 'Snowpoint route side path', icon: '🧊' },
-                { name: 'HM08 (Rock Climb)', location: 'Route 217 cabin NPC', icon: '🧗' },
+                { name: 'HM08 (Rock Climb)', location: 'Route 217 — found on the ground near a snowbound house', icon: '🧗' },
             ],
             wildPokemon: [
                 { name: 'sneasel', id: 215, minLevel: 32, maxLevel: 36, method: 'grass', rarity: 'uncommon' },
@@ -589,7 +589,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
                     { name: 'Milotic', id: 350, level: 63 },
                     { name: 'Garchomp', id: 445, level: 66 },
                 ],
-                strategy: 'Cynthia punishes one-dimensional teams. Bring balanced offense with Ice/Fairy-equivalent Dragon answers (Ice in Gen 4), plus solid checks for Milotic and Lucario. Save your strongest Ice answer for Garchomp and avoid entering that matchup weakened.',
+                strategy: 'Cynthia punishes one-dimensional teams. Spiritomb (Ghost/Dark) has NO weaknesses in Gen 4 — there is no Fairy type yet — so hit it with your strongest neutral moves. Bring balanced offense with Ice answers for Garchomp, plus solid checks for Milotic and Lucario. Save your strongest Ice move for Garchomp and avoid entering that matchup weakened.',
                 weaknesses: ['Ice', 'Dragon', 'Ground', 'Fighting', 'Electric', 'Grass'],
                 starterHints: {
                     turtwig: 'Torterra helps in selected matchups, but keep it away from strong Ice pressure.',
