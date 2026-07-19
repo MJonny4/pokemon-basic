@@ -1,0 +1,181 @@
+---
+import Layout from '../layouts/Layout.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+---
+
+<Layout
+    title="PokeBasic — Type Effectiveness Chart"
+    description="Full Pokémon type effectiveness chart for every era — Gen I (15 types), Gen II–V (Dark & Steel), and Gen VI+ (Fairy) — every attacking vs. defending matchup at a glance."
+>
+    <SiteHeader subtitle="Type Chart" activeRoute="/types" />
+
+    <!-- ══════════ TYPE CHART ══════════ -->
+    <main class="w-full px-3 sm:px-[5%] py-5">
+        <div class="bg-bg-surface rounded-2xl shadow-sm border border-border-subtle p-5 overflow-x-auto">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h2 class="text-sm font-black text-text-primary">Type Effectiveness Chart</h2>
+                    <p class="text-xs text-text-tertiary mt-0.5 font-medium">Row = Attacking · Column = Defending</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-text-tertiary"><div class="leg-sw super-effective"></div>2× Super</div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-text-tertiary"><div class="leg-sw not-very-effective"></div>½× Resist</div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-text-tertiary"><div class="leg-sw no-effect"></div>0× Immune</div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-text-tertiary"><div class="leg-sw normal-damage"></div>1× Normal</div>
+                </div>
+            </div>
+
+            <!-- The chart only ever changed twice — three eras cover all nine gens -->
+            <div class="flex items-center gap-2 flex-wrap mb-2" id="eraChips">
+                <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1">Era</span>
+                <button data-gen="1" class="fchip py-0.5! px-2.5! text-[10px]!">Gen I <span class="hidden sm:inline">(RB / Y)</span></button>
+                <button data-gen="2" class="fchip py-0.5! px-2.5! text-[10px]!">Gen II–V <span class="hidden sm:inline">(GS – B2W2)</span></button>
+                <button data-gen="0" class="fchip fchip-active py-0.5! px-2.5! text-[10px]!">Gen VI+ <span class="hidden sm:inline">(XY – SV)</span></button>
+            </div>
+            <p class="text-[11px] text-text-tertiary font-medium mb-4" id="eraNote"></p>
+
+            <table class="w-full border-collapse" id="typeChart"></table>
+        </div>
+
+        <!-- ══════════ MATCHUP QUIZ ══════════ -->
+        <div x-data="typeQuiz" x-cloak class="bg-bg-surface rounded-2xl shadow-sm border border-border-subtle p-5 mt-5 max-w-3xl mx-auto">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+                <div>
+                    <h2 class="text-sm font-black text-text-primary">⚔️ Matchup Quiz</h2>
+                    <p class="text-xs text-text-tertiary mt-0.5 font-medium">How well do you know the chart? Single and dual-type defenders — 15 seconds per question.</p>
+                </div>
+                <button x-show="phase === 'playing'" @click="quit()"
+                    class="text-xs font-bold text-text-tertiary hover:text-red-500 transition">✕ Quit run</button>
+            </div>
+
+            <!-- ── SETUP ── -->
+            <div x-show="phase === 'setup'">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1 w-16">Era</span>
+                    <template x-for="e in eras" :key="e">
+                        <button @click="era = e" :class="era === e ? 'fchip-active' : ''" class="fchip py-0.5! px-2.5! text-[10px]!" x-text="eraLabel(e)"></button>
+                    </template>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mr-1 w-16">Questions</span>
+                    <template x-for="n in lengths" :key="n">
+                        <button @click="length = n" :class="length === n ? 'fchip-active' : ''" class="fchip py-0.5! px-2.5! text-[10px]!" x-text="n"></button>
+                    </template>
+                </div>
+                <button @click="startRun()"
+                    class="w-full py-2.5 rounded-xl bg-action text-white font-black text-sm hover:opacity-90 transition">
+                    Start — <span x-text="length"></span> questions · <span x-text="eraLabel(era)"></span>
+                </button>
+            </div>
+
+            <!-- ── PLAYING ── -->
+            <div x-show="phase === 'playing'">
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-3 text-xs font-bold text-text-secondary">
+                    <span>Question <strong class="text-text-primary" x-text="qIndex + 1"></strong> / <span x-text="questions.length"></span></span>
+                    <span class="flex items-center gap-3">
+                        <span>Score <strong class="text-text-primary" x-text="score"></strong></span>
+                        <span x-show="streak > 1" class="text-orange-500">🔥 <span x-text="streak"></span></span>
+                    </span>
+                </div>
+
+                <!-- Countdown -->
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="stat-bar-track flex-1">
+                        <div class="stat-bar-fill" :style="`width:${(timeLeft / maxTime) * 100}%; background:${timeLeft <= 5 ? '#ef4444' : '#22c55e'}`"></div>
+                    </div>
+                    <span class="text-xs font-black w-8 text-right" :class="timeLeft <= 5 ? 'text-red-500' : 'text-text-tertiary'" x-text="timeLeft + 's'"></span>
+                </div>
+
+                <p class="text-xs font-bold text-text-tertiary text-center mb-2">How effective is…</p>
+                <div class="flex items-center justify-center gap-1.5 mb-5" x-html="matchupHtml"></div>
+
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
+                    <template x-for="m in mults" :key="m">
+                        <button @click="pick(m)" :disabled="revealed"
+                            :class="answerClass(m)"
+                            class="py-2.5 rounded-xl border-2 font-black text-sm transition text-center"
+                            x-text="multLabel(m)"></button>
+                    </template>
+                </div>
+
+                <div x-show="revealed" class="flex items-center justify-between flex-wrap gap-2">
+                    <p class="text-sm font-bold">
+                        <span x-show="correct" class="text-emerald-500">✅ Correct!</span>
+                        <span x-show="!correct && !timedOut" class="text-red-500">❌ Not quite — it's <span x-text="multLabel(current.answer)"></span></span>
+                        <span x-show="timedOut" class="text-red-500">⏱ Time's up — it's <span x-text="multLabel(current.answer)"></span></span>
+                    </p>
+                    <button @click="next()" class="px-5 py-2 rounded-xl bg-action text-white font-black text-sm hover:opacity-90 transition"
+                        x-text="qIndex + 1 >= questions.length ? 'Finish' : 'Next →'"></button>
+                </div>
+            </div>
+
+            <!-- ── DONE ── -->
+            <div x-show="phase === 'done'">
+                <div class="text-center mb-4">
+                    <p class="text-4xl font-black text-text-primary mb-1"><span x-text="score"></span><span class="text-text-tertiary text-2xl"> / <span x-text="questions.length"></span></span></p>
+                    <p class="text-sm font-bold text-text-secondary">
+                        <span x-text="Math.round((score / questions.length) * 100) + '%'"></span> ·
+                        best streak 🔥 <span x-text="bestStreak"></span> ·
+                        <span x-text="eraLabel(era)"></span>
+                    </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <button @click="startRun()" class="px-5 py-2 rounded-xl bg-action text-white font-black text-sm hover:opacity-90 transition">Play again</button>
+                    <button @click="phase = 'setup'" class="px-5 py-2 rounded-xl border-2 border-border font-black text-sm text-text-secondary hover:border-action hover:text-action transition">Change settings</button>
+                </div>
+            </div>
+
+            <!-- ── RECORDS (visible outside a run) ── -->
+            <div x-show="phase !== 'playing' && records.length > 0" class="mt-5 pt-4 border-t border-border-subtle">
+                <p class="text-[10px] font-black text-text-tertiary uppercase tracking-widest mb-2">
+                    Your records — <span x-text="eraLabel(era)"></span> <span class="normal-case font-semibold">(this browser only)</span>
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="text-left text-text-tertiary font-black uppercase tracking-wide text-[10px]">
+                                <th class="py-1 pr-2">#</th><th class="py-1 pr-2">Score</th><th class="py-1 pr-2">%</th>
+                                <th class="py-1 pr-2">Streak</th><th class="py-1 pr-2">Era</th><th class="py-1">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(r, i) in records" :key="r.date + i">
+                                <tr class="border-t border-border-subtle font-semibold text-text-secondary"
+                                    :class="phase === 'done' && i === lastRank ? 'bg-action/10 text-text-primary' : ''">
+                                    <td class="py-1.5 pr-2 font-black" x-text="i + 1"></td>
+                                    <td class="py-1.5 pr-2" x-text="r.score + ' / ' + r.total"></td>
+                                    <td class="py-1.5 pr-2 font-black text-text-primary" x-text="pct(r)"></td>
+                                    <td class="py-1.5 pr-2">🔥 <span x-text="r.streak"></span></td>
+                                    <td class="py-1.5 pr-2"><span class="fchip py-0! px-2! text-[10px]! pointer-events-none" x-text="eraLabel(r.era)"></span></td>
+                                    <td class="py-1.5" x-text="fmtDate(r.date)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    import { buildTypeChart } from '../alpine/components/pokedex/type-chart'
+
+    const ERA_NOTES: Record<number, string> = {
+        1: '15 types — no Dark, Steel, or Fairy. Gen I quirks included: Bug and Poison are super-effective against each other, Ice hits Fire neutrally, and Ghost deals 0× to Psychic (a famous game bug).',
+        2: '17 types — Dark and Steel debut, the Gen I quirks are fixed, and Steel resists Ghost and Dark.',
+        0: '18 types — Fairy debuts and Steel loses its Ghost and Dark resistances. Current chart since X / Y.',
+    }
+
+    const chips = document.querySelectorAll<HTMLButtonElement>('#eraChips button')
+    const note = document.getElementById('eraNote')
+
+    function show(gen: number): void {
+        buildTypeChart(gen)
+        if (note) note.textContent = ERA_NOTES[gen] ?? ''
+        chips.forEach((c) => c.classList.toggle('fchip-active', Number(c.dataset.gen) === gen))
+    }
+
+    chips.forEach((b) => b.addEventListener('click', () => show(Number(b.dataset.gen))))
+    show(0)
+</script>
