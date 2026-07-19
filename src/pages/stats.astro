@@ -12,18 +12,18 @@ const base = import.meta.env.BASE_URL
 
         <!-- ══════════ PAGE TITLE ══════════ -->
         <div class="mb-6">
-            <h1 class="text-2xl font-black text-slate-800 mb-1">📊 Stats Explorer</h1>
-            <p class="text-sm text-slate-400 font-medium">Rank Pokémon by BST, HP, Attack, and more. Filter by type and generation. "All" loads all 1025 Pokémon progressively.</p>
+            <h1 class="text-2xl font-black text-text-primary mb-1">📊 Stats Explorer</h1>
+            <p class="text-sm text-text-tertiary font-medium">Rank Pokémon by BST, HP, Attack, and more. Filter by type and generation. "All" loads all 1025 Pokémon progressively.</p>
         </div>
 
         <!-- ══════════ TYPE SELECTOR ══════════ -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5">
-            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Filter by Type</p>
+        <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 mb-5">
+            <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Filter by Type</p>
             <div class="flex flex-wrap gap-2">
                 <button @click="selectType('all')"
-                    :class="selectedType === 'all' ? 'ring-2 ring-violet-500 ring-offset-1 opacity-100' : 'opacity-60 hover:opacity-90'"
+                    :class="selectedType === 'all' ? 'ring-2 ring-action ring-offset-1 opacity-100' : 'opacity-60 hover:opacity-90'"
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs text-white transition"
-                    style="background: linear-gradient(135deg, #7c3aed, #4c08ef)">
+                    style="background: linear-gradient(135deg, #007AFF, #0055d4)">
                     ✦ All
                 </button>
                 <template x-for="type in typeList" :key="type">
@@ -39,89 +39,89 @@ const base = import.meta.env.BASE_URL
         </div>
 
         <!-- ══════════ GEN FILTER ══════════ -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5">
-            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Filter by Generation</p>
+        <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 mb-5">
+            <p class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3">Filter by Generation</p>
             <div class="flex flex-wrap gap-2">
                 <button @click="resetGens()"
-                    :class="allGensActive() ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
-                    class="px-3 py-1.5 rounded-full text-xs font-black border transition-all duration-150 hover:scale-105 active:scale-95">All</button>
+                    :class="allGensActive() ? 'fchip-active' : ''"
+                    class="fchip">All</button>
                 <template x-for="(label, i) in genLabels" :key="i">
                     <button @click="toggleGen(gens[i])"
-                        :class="isGenActive(gens[i]) ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
-                        class="px-3 py-1.5 rounded-full text-xs font-black border transition-all duration-150 hover:scale-105 active:scale-95"
+                        :class="isGenActive(gens[i]) ? 'fchip-active' : ''"
+                        class="fchip"
                         x-text="'Gen ' + label"></button>
                 </template>
             </div>
         </div>
 
         <!-- ══════════ CONTROLS ══════════ -->
-        <div x-show="loaded.length > 0 || loading" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4 flex flex-wrap items-center gap-3">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sort by</span>
+        <div x-show="loaded.length > 0 || loading" class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-4 mb-4 flex flex-wrap items-center gap-3">
+            <span class="text-[10px] font-black text-text-tertiary uppercase tracking-widest">Sort by</span>
             <template x-for="opt in sortOptions" :key="opt.key">
                 <button @click="setSort(opt.key)" :class="sortKey === opt.key ? 'fchip-active' : ''" class="fchip" x-text="opt.label"></button>
             </template>
             <div class="ml-auto relative">
                 <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                 <input type="text" x-model="searchQuery" @input="page = 0" placeholder="Filter by name…"
-                    class="pl-8 pr-3 py-1.5 text-xs border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 font-semibold bg-slate-50 w-44">
+                    class="pl-8 pr-3 py-1.5 text-xs border-2 border-border rounded-lg focus:outline-none focus:border-action font-semibold bg-bg-elevated text-text-primary placeholder:text-text-tertiary w-44">
             </div>
         </div>
 
         <!-- ══════════ LOADING STATE ══════════ -->
-        <div x-show="loading" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-4 text-center">
-            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto mb-4"></div>
-            <p class="text-slate-500 font-semibold text-sm mb-3" x-text="loadingText"></p>
+        <div x-show="loading" class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-8 mb-4 text-center">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-action mx-auto mb-4"></div>
+            <p class="text-text-secondary font-semibold text-sm mb-3" x-text="loadingText"></p>
             <div x-show="loadingProgress > 0" class="max-w-xs mx-auto">
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs text-slate-400">Progress</span>
-                    <span class="text-xs font-bold text-violet-600" x-text="loadingProgress + '%'"></span>
+                    <span class="text-xs text-text-tertiary">Progress</span>
+                    <span class="text-xs font-bold text-action" x-text="loadingProgress + '%'"></span>
                 </div>
-                <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-violet-500 rounded-full transition-all duration-300" :style="`width:${loadingProgress}%`"></div>
+                <div class="h-2 bg-bg-raised rounded-full overflow-hidden">
+                    <div class="h-full bg-action rounded-full transition-all duration-300" :style="`width:${loadingProgress}%`"></div>
                 </div>
             </div>
         </div>
 
         <!-- ══════════ EMPTY STATE ══════════ -->
         <div x-show="!loading && loaded.length === 0 && selectedType === ''"
-            class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
+            class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-12 text-center">
             <div class="text-5xl mb-4">📊</div>
-            <h2 class="text-lg font-black text-slate-700 mb-2">Select a type to begin</h2>
-            <p class="text-sm text-slate-400 max-w-sm mx-auto">Pick any type above to rank Pokémon by any base stat. Choose <strong>"All"</strong> to compare across all 1025 Pokémon.</p>
+            <h2 class="text-lg font-black text-text-primary mb-2">Select a type to begin</h2>
+            <p class="text-sm text-text-tertiary max-w-sm mx-auto">Pick any type above to rank Pokémon by any base stat. Choose <strong>"All"</strong> to compare across all 1025 Pokémon.</p>
         </div>
 
         <!-- ══════════ NO RESULTS ══════════ -->
         <div x-show="!loading && loaded.length > 0 && sortedFiltered.length === 0"
-            class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
-            <p class="text-slate-400 font-semibold">No Pokémon match "<span x-text="searchQuery"></span>"</p>
+            class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-8 text-center">
+            <p class="text-text-tertiary font-semibold">No Pokémon match "<span x-text="searchQuery"></span>"</p>
         </div>
 
         <!-- ══════════ RESULTS ══════════ -->
         <div x-show="!loading && sortedFiltered.length > 0">
             <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-                <p class="text-sm text-slate-500 font-semibold">
-                    <strong x-text="sortedFiltered.length" class="text-slate-700"></strong>
+                <p class="text-sm text-text-secondary font-semibold">
+                    <strong x-text="sortedFiltered.length" class="text-text-primary"></strong>
                     Pokémon ·
                     <span x-text="'Page ' + (page + 1) + ' of ' + totalPages"></span>
                 </p>
                 <div class="flex items-center gap-2" x-show="totalPages > 1">
                     <button @click="prevPage()" :disabled="page === 0"
-                        class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-600 hover:border-violet-400 disabled:opacity-30 transition">← Prev</button>
-                    <span class="text-xs text-slate-400 font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                    <span class="text-xs text-text-tertiary font-semibold" x-text="(page + 1) + ' / ' + totalPages"></span>
                     <button @click="nextPage()" :disabled="page >= totalPages - 1"
-                        class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-600 hover:border-violet-400 disabled:opacity-30 transition">Next →</button>
+                        class="px-3 py-1.5 rounded-lg bg-bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
                 </div>
             </div>
 
             <div class="space-y-1.5">
                 <template x-for="(p, idx) in pageItems" :key="p.id">
-                    <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 hover:border-violet-300 hover:shadow-sm transition group">
-                        <span class="text-sm font-black text-slate-300 w-7 text-right shrink-0" x-text="startRank + idx"></span>
+                    <div class="bg-bg-surface rounded-xl border border-border-subtle p-3 flex items-center gap-3 hover:border-action hover:shadow-sm transition group">
+                        <span class="text-sm font-black text-text-tertiary w-7 text-right shrink-0" x-text="startRank + idx"></span>
                         <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`"
                             :alt="p.name" loading="lazy" class="w-12 h-12 object-contain shrink-0" style="image-rendering:pixelated">
                         <div class="w-48 min-w-0 shrink-0">
                             <button @click="window.openPokemonQuickView(p.name)"
-                                class="font-black text-sm text-slate-800 capitalize hover:text-violet-600 transition text-left cursor-pointer"
+                                class="font-black text-sm text-text-primary capitalize hover:text-action transition text-left cursor-pointer"
                                 x-text="capitalize(p.name)"></button>
                             <div class="flex gap-1 flex-wrap mt-0.5">
                                 <template x-for="t in getPokemonTypes(p)" :key="t">
@@ -131,13 +131,13 @@ const base = import.meta.env.BASE_URL
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wide w-6 shrink-0" x-text="STAT_LABELS[sortKey] ?? sortKey.toUpperCase()"></span>
-                                <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <span class="text-[10px] font-black text-text-tertiary uppercase tracking-wide w-6 shrink-0" x-text="STAT_LABELS[sortKey] ?? sortKey.toUpperCase()"></span>
+                                <div class="flex-1 h-2.5 bg-bg-raised rounded-full overflow-hidden">
                                     <div class="h-full rounded-full transition-all duration-500"
-                                        :style="`width:${Math.min(100, Math.round(getStatVal(p, sortKey) / (sortKey === 'bst' ? 720 : 255) * 100))}%;background:${STAT_COLORS[sortKey] ?? '#8b5cf6'}`"></div>
+                                        :style="`width:${Math.min(100, Math.round(getStatVal(p, sortKey) / (sortKey === 'bst' ? 720 : 255) * 100))}%;background:${STAT_COLORS[sortKey] ?? '#007AFF'}`"></div>
                                 </div>
                                 <span class="text-sm font-black w-8 shrink-0"
-                                    :class="getStatVal(p, sortKey) >= 120 ? 'text-violet-600' : getStatVal(p, sortKey) >= 90 ? 'text-blue-500' : 'text-slate-700'"
+                                    :class="getStatVal(p, sortKey) >= 120 ? 'text-action' : getStatVal(p, sortKey) >= 90 ? 'text-blue-400' : 'text-text-primary'"
                                     x-text="getStatVal(p, sortKey)"></span>
                                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden sm:inline"
                                     :style="`background:${speedTier(getStatVal(p, 'speed')).color}22;color:${speedTier(getStatVal(p, 'speed')).color}`"
@@ -146,13 +146,13 @@ const base = import.meta.env.BASE_URL
                             </div>
                             <div class="flex gap-3 flex-wrap">
                                 <template x-for="sk in ['hp','attack','special-attack','defense','special-defense','speed'].filter(k => k !== sortKey)" :key="sk">
-                                    <span class="text-[10px] text-slate-400 font-semibold">
+                                    <span class="text-[10px] text-text-tertiary font-semibold">
                                         <span class="font-black" :style="`color:${STAT_COLORS[sk]}`" x-text="STAT_LABELS[sk]"></span>
                                         <span x-text="' ' + getStatVal(p, sk)"></span>
                                     </span>
                                 </template>
-                                <span class="text-[10px] text-slate-400 font-semibold" x-show="sortKey !== 'bst'">
-                                    <span class="font-black text-violet-500">BST</span>
+                                <span class="text-[10px] text-text-tertiary font-semibold" x-show="sortKey !== 'bst'">
+                                    <span class="font-black text-action">BST</span>
                                     <span x-text="' ' + getStatVal(p, 'bst')"></span>
                                 </span>
                             </div>
@@ -163,10 +163,10 @@ const base = import.meta.env.BASE_URL
 
             <div class="flex items-center justify-center gap-3 mt-5" x-show="totalPages > 1">
                 <button @click="prevPage()" :disabled="page === 0"
-                    class="px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-bold text-slate-600 hover:border-violet-400 disabled:opacity-30 transition">← Prev</button>
-                <span class="text-sm text-slate-500 font-semibold" x-text="'Page ' + (page + 1) + ' of ' + totalPages"></span>
+                    class="px-4 py-2 rounded-lg bg-bg-surface border border-border-subtle text-sm font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">← Prev</button>
+                <span class="text-sm text-text-secondary font-semibold" x-text="'Page ' + (page + 1) + ' of ' + totalPages"></span>
                 <button @click="nextPage()" :disabled="page >= totalPages - 1"
-                    class="px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-bold text-slate-600 hover:border-violet-400 disabled:opacity-30 transition">Next →</button>
+                    class="px-4 py-2 rounded-lg bg-bg-surface border border-border-subtle text-sm font-bold text-text-secondary hover:border-action disabled:opacity-30 transition">Next →</button>
             </div>
         </div>
 
@@ -178,10 +178,10 @@ const base = import.meta.env.BASE_URL
             class="fixed inset-0 z-50 flex items-center justify-center p-4"
             @keydown.escape.window="closeModal()">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal()"></div>
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto z-10">
+            <div class="relative bg-bg-surface rounded-2xl shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto z-10">
                 <div x-show="loading" class="p-12 text-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto mb-3"></div>
-                    <p class="text-slate-400 text-sm font-semibold">Loading…</p>
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-action mx-auto mb-3"></div>
+                    <p class="text-text-tertiary text-sm font-semibold">Loading…</p>
                 </div>
                 <div x-show="!loading && pokemon">
                     <div class="rounded-t-2xl p-5 relative" :style="{ background: bannerColor }">
@@ -206,22 +206,22 @@ const base = import.meta.env.BASE_URL
                             <span class="text-xs font-black px-2.5 py-1 rounded-full"
                                 :style="{ background: speedTier(speed).color + '22', color: speedTier(speed).color }"
                                 x-text="speedTier(speed).label"></span>
-                            <span class="text-xs text-slate-400 font-semibold">BST <strong class="text-slate-700" x-text="bst"></strong></span>
+                            <span class="text-xs text-text-tertiary font-semibold">BST <strong class="text-text-primary" x-text="bst"></strong></span>
                         </div>
                         <div class="space-y-2 mb-4">
                             <template x-for="stat in stats" :key="stat.label">
                                 <div class="flex items-center gap-2">
                                     <span class="text-[10px] font-black w-8 shrink-0" :style="{ color: stat.color }" x-text="stat.label"></span>
-                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="flex-1 h-2 bg-bg-raised rounded-full overflow-hidden">
                                         <div class="h-full rounded-full transition-all duration-500" :style="{ width: stat.pct + '%', background: stat.color }"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700 w-7 text-right shrink-0" x-text="stat.value"></span>
+                                    <span class="text-xs font-bold text-text-primary w-7 text-right shrink-0" x-text="stat.value"></span>
                                 </div>
                             </template>
                         </div>
-                        <p x-show="flavorText" class="text-xs text-slate-400 italic leading-relaxed mb-4" x-text="flavorText"></p>
+                        <p x-show="flavorText" class="text-xs text-text-tertiary italic leading-relaxed mb-4" x-text="flavorText"></p>
                         <button @click="goToPokedex(pokemon?.name ?? '')"
-                            class="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-xl transition">
+                            class="w-full py-2.5 bg-action hover:bg-action-hover text-white font-bold text-sm rounded-xl transition">
                             Open full Pokédex →
                         </button>
                     </div>

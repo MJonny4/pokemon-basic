@@ -1,69 +1,167 @@
 ---
-type Route = '/' | '/stats' | '/team' | '/guide'
+import DarkModeToggle from './DarkModeToggle.astro'
+
+type Route = '/' | '/types' | '/stats' | '/moves' | '/items' | '/pokedex' | '/team' | '/games'
 
 interface Props {
     subtitle: string
     activeRoute: Route
     maxWidth?: 'screen-2xl' | '7xl'
-    headerData?: string
 }
 
-const { subtitle, activeRoute, maxWidth = '7xl', headerData } = Astro.props
+const { subtitle, activeRoute, maxWidth = '7xl' } = Astro.props
 const base = import.meta.env.BASE_URL
 
-const links: { route: Route; href: string; label: string }[] = [
-    { route: '/',       href: base,             label: '← Pokédex' },
-    { route: '/stats',  href: `${base}/stats`,  label: '📊 Stats' },
-    { route: '/team',   href: `${base}/team`,   label: '🧪 Team Lab' },
-    { route: '/guide',  href: `${base}/guide`,  label: '📖 Guide' },
+interface NavLink { route: Route; href: string; label: string }
+
+// "Data ▾" dropdown — reference/lookup tools
+const dataLinks: NavLink[] = [
+    { route: '/pokedex', href: `${base}/pokedex`, label: 'Pokédex' },
+    { route: '/types', href: `${base}/types`, label: 'Type Chart' },
+    { route: '/stats', href: `${base}/stats`, label: 'Stats' },
+    { route: '/moves', href: `${base}/moves`, label: 'Moves' },
+    { route: '/items', href: `${base}/items`, label: 'Items' },
 ]
-const navLinks = links.filter((l) => l.route !== activeRoute)
+
+// Flat top-level links, outside the dropdown
+const flatLinks: NavLink[] = [
+    { route: '/team',  href: `${base}/team`,           label: 'Team Lab' },
+    { route: '/games', href: `${base}/games/red-blue`, label: 'Games' },
+]
+
+// Existing convention preserved: hide a link while viewing its own page
+const visibleDataLinks = dataLinks.filter((l) => l.route !== activeRoute)
+const visibleFlatLinks = flatLinks.filter((l) => l.route !== activeRoute)
+const mobileLinks = [...dataLinks, ...flatLinks].filter((l) => l.route !== activeRoute)
+
+const containerClass = `mx-auto px-5 ${maxWidth === 'screen-2xl' ? 'max-w-screen-2xl' : 'max-w-7xl'}`
 ---
 
-<header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
-    <div
-        class:list={[
-            'mx-auto px-5 py-3 flex items-center gap-4 flex-wrap',
-            maxWidth === 'screen-2xl' ? 'max-w-screen-2xl' : 'max-w-7xl',
-        ]}
-        x-data={headerData}
-    >
-        <!-- Brand Logo -->
-        <div class="flex items-center gap-2.5 shrink-0">
-            <div class="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-purple-900 flex items-center justify-center shadow-md">
-                <span class="text-white font-black text-lg">P</span>
+<!-- x-data="searchBar" powers the live Pokémon search + autocomplete below -->
+<header x-data="searchBar" class="bg-bg-surface border-b border-border-subtle shadow-sm sticky top-0 z-40">
+
+    <!-- ── Main bar: Brand | Search | Nav ── -->
+    <!-- grid-cols-[1fr_auto_1fr]: equal wings → search column is always visually centered -->
+    <div class:list={[containerClass, 'py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-x-4']}>
+
+        <!-- Brand (left-aligned within its 1fr column) — clickable, always links home -->
+        <a href={base} aria-label="PokeBasic — Home" class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-linear-to-br from-[#FF3B30] to-[#c0231a] flex items-center justify-center shadow-md shrink-0">
+                <span class="text-white font-black text-lg leading-none">P</span>
             </div>
-            <div class="leading-tight">
-                <div class="font-black text-slate-800 text-base">PokeBasic</div>
-                <div class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">{subtitle}</div>
+            <div class="leading-tight hidden sm:block">
+                <div class="font-black text-text-primary text-base">PokeBasic</div>
+                <div class="text-[10px] text-text-tertiary font-bold tracking-wider uppercase">{subtitle}</div>
+            </div>
+        </a>
+
+        <!-- Search bar (auto-width center column → truly centered) -->
+        <div class="w-72 sm:w-96 lg:w-110">
+            <div class="relative" @click.outside="acOpen = false">
+                <div class="relative flex items-center">
+                    <!-- Search icon -->
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input
+                        type="text"
+                        x-ref="searchInput"
+                        x-model="query"
+                        @input="handleInput()"
+                        @keydown.enter="selectFirst()"
+                        @keydown.escape="acOpen = false; query = ''"
+                        @focus="query.length >= 2 && handleInput()"
+                        placeholder="Search Pokémon, moves, items, types… (press /)"
+                        class="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border bg-bg-elevated text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-action focus:bg-bg-surface font-medium transition-colors"
+                        autocomplete="off"
+                    >
+                    <!-- Clear button -->
+                    <button
+                        x-show="query.length > 0"
+                        @click="query = ''; acOpen = false"
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary transition"
+                        tabindex="-1"
+                        title="Clear"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-3.5 h-3.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Autocomplete dropdown — omnibox: Pokémon, moves, items, types -->
+                <div class="ac-dropdown" x-show="acOpen" x-cloak>
+                    <template x-for="r in acResults" :key="r.key">
+                        <div class="ac-item" @click="select(r)">
+                            <span x-html="r.iconHtml"></span>
+                            <span class="min-w-0">
+                                <span class="block font-semibold text-sm text-text-primary truncate" x-text="r.label"></span>
+                                <span x-show="r.sub" class="block text-text-tertiary text-xs font-mono" x-text="r.sub"></span>
+                            </span>
+                            <span class="ml-auto shrink-0 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-bg-elevated text-text-tertiary" x-text="kindLabel(r.kind)"></span>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
 
-        <!--
-            "middle" slot: search bar (index) or spacer (other pages).
-            Default fallback is a flex-1 spacer so nav links push to the right.
-        -->
-        <slot name="middle">
-            <div class="flex-1"></div>
-        </slot>
+        <!-- Nav links + dark toggle (right-aligned within its 1fr column) -->
+        <nav class="flex items-center gap-1.5 justify-end" x-data="navMenu" @keydown.escape.window="closeAll()">
 
-        <!-- Nav Links -->
-        <nav class="flex items-center gap-2 shrink-0">
-            {navLinks.map((link) => (
+            <!-- "Data ▾" dropdown (sm and up) -->
+            <div class="relative hidden sm:block" @click.outside="dataOpen = false">
+                <button
+                    type="button"
+                    @click="toggleData()"
+                    :aria-expanded="dataOpen"
+                    aria-haspopup="true"
+                    :class="dataOpen ? 'bg-action-subtle text-action' : 'bg-bg-elevated text-text-secondary'"
+                    class="px-3 py-1.5 rounded-lg hover:bg-action-subtle hover:text-action font-semibold text-sm transition-all duration-150 flex items-center gap-1"
+                >
+                    Data
+                    <svg class="w-3 h-3 transition-transform duration-150" :class="dataOpen ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div class="nav-dropdown w-40" x-show="dataOpen" x-cloak>
+                    {visibleDataLinks.map((link) => (
+                        <a href={link.href} class="nav-dropdown-item" @click="dataOpen = false">{link.label}</a>
+                    ))}
+                </div>
+            </div>
+
+            <!-- Flat links: Team Lab, Guide (sm and up) -->
+            {visibleFlatLinks.map((link) => (
                 <a
                     href={link.href}
-                    class="px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 font-bold text-sm transition shadow-sm"
+                    class="px-3 py-1.5 bg-bg-elevated text-text-secondary rounded-lg hover:bg-action-subtle hover:text-action font-semibold text-sm transition-all duration-150 hidden sm:block"
                 >
                     {link.label}
                 </a>
             ))}
-        </nav>
 
-        <!--
-            Default slot: extra full-width rows rendered as direct flex children.
-            Used by index for the gen-filter row and history row (both w-full,
-            so they wrap onto their own rows in the outer flex-wrap container).
-        -->
-        <slot />
+            <DarkModeToggle />
+
+            <!-- Hamburger + mobile dropdown panel (below sm only) -->
+            <div class="sm:hidden" @click.outside="mobileOpen = false">
+                <button
+                    type="button"
+                    @click="toggleMobile()"
+                    :aria-expanded="mobileOpen"
+                    aria-label="Toggle navigation menu"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center border border-border bg-bg-surface text-text-secondary hover:border-action hover:text-action hover:bg-action-subtle transition-all duration-150 shrink-0"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path x-show="!mobileOpen" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileOpen" x-cloak d="M6 6l12 12M6 18L18 6"/>
+                    </svg>
+                </button>
+                <div class="ac-dropdown" x-show="mobileOpen" x-cloak>
+                    {mobileLinks.map((link) => (
+                        <a href={link.href} class="nav-dropdown-item" @click="mobileOpen = false">{link.label}</a>
+                    ))}
+                </div>
+            </div>
+        </nav>
     </div>
 </header>

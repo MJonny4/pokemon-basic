@@ -1,102 +1,127 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import SiteHeader from '../components/SiteHeader.astro'
-import PokedexModal from '../components/PokedexModal.astro'
+import { fetchNews, formatNewsDate, type NewsSource } from '../lib/news'
+import { SITE_UPDATES, formatUpdateDate } from '../lib/data/site-updates'
+
 const base = import.meta.env.BASE_URL
+const news = await fetchNews()
+
+const sourceBadge: Record<NewsSource, string> = {
+    'Bulbanews': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    'PokémonDB': 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
+}
+
+const shortcuts = [
+    { href: `${base}/types`, icon: '⚔️', title: 'Type Chart', desc: 'Every matchup, all 18 types' },
+    { href: `${base}/stats`, icon: '📊', title: 'Stats', desc: 'Base stat rankings & explorer' },
+    { href: `${base}/team`, icon: '🧪', title: 'Team Lab', desc: 'Build & analyze your team' },
+    { href: `${base}/games/red-blue`, icon: '🎮', title: 'Game Guides', desc: 'Walkthroughs, Gen I–IV' },
+]
 ---
 
 <Layout>
-    <!-- ══════════ HEADER ══════════ -->
-    <!--
-        headerData puts x-data="searchBar" on the inner flex container so the
-        search input, gen filter, and history bar can all read searchBar state.
-        "middle" slot = the search input row (flex-1, sits between brand and nav).
-        Default slot = gen filter + history rows (w-full direct flex children,
-        so they wrap onto their own rows beneath the first line).
-    -->
-    <SiteHeader subtitle="Ultra Moon · Gen I–IX" activeRoute="/" maxWidth="screen-2xl" headerData="searchBar">
+    <SiteHeader subtitle="Ultra Moon · Gen I–IX" activeRoute="/" maxWidth="screen-2xl" />
 
-        <!-- Search input — named "middle" slot -->
-        <div slot="middle" class="flex-1 min-w-52 max-w-lg relative flex gap-2">
-            <div class="relative flex-1">
-                <img src={`${base}/search.svg`} alt="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
-                <input type="text" x-model="query" @input="handleInput()"
-                    @keypress="if($event.key==='Enter') select(query.trim().toLowerCase())"
-                    placeholder="Search Pokémon…"
-                    class="w-full pl-9 pr-8 py-2 text-sm border-2 border-slate-200 rounded-lg focus:outline-none focus:border-violet-400 bg-slate-50 font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400"
-                    autocomplete="off">
-                <button x-show="query.length > 0" @click="query=''; acOpen=false"
-                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"
-                    tabindex="-1" title="Clear">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                <!-- Autocomplete dropdown -->
-                <div class="ac-dropdown" x-show="acOpen" x-cloak>
-                    <template x-for="p in acResults" :key="p.name">
-                        <div class="ac-item" @click="select(p.name)">
-                            <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`" :alt="p.name">
-                            <span class="capitalize font-semibold text-sm text-slate-700" x-text="p.name"></span>
-                            <span class="text-slate-400 text-xs ml-auto" x-text="'#'+String(p.id).padStart(3,'0')"></span>
+    <main class="max-w-screen-2xl mx-auto px-4 py-5 grid gap-5 lg:grid-cols-[1fr_22rem] items-start">
+
+        <!-- ══════════ QUICK ACCESS (right column on lg, top on mobile) ══════════ -->
+        <aside class="lg:col-start-2 lg:row-start-1">
+            <h2 class="text-sm font-black text-text-primary uppercase tracking-wide mb-3 px-1">Shortcuts</h2>
+            <div class="grid grid-cols-2 gap-4">
+                {shortcuts.map((s) => (
+                    <a href={s.href} class="bg-bg-surface rounded-2xl shadow-sm border border-border-subtle p-4 hover:border-action transition group">
+                        <div class="text-2xl mb-2">{s.icon}</div>
+                        <h3 class="text-sm font-black text-text-primary group-hover:text-action transition">{s.title}</h3>
+                        <p class="text-[11px] text-text-tertiary mt-0.5 font-medium leading-snug">{s.desc}</p>
+                    </a>
+                ))}
+            </div>
+        </aside>
+
+        <!-- ══════════ NEWS + SITE UPDATES (left column) ══════════ -->
+        <section class="lg:col-start-1 lg:row-start-1 space-y-5">
+
+            <!-- Franchise news -->
+            <div>
+                <div class="flex items-baseline justify-between mb-3 px-1">
+                    <h2 class="text-sm font-black text-text-primary uppercase tracking-wide">Franchise News</h2>
+                    <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Updated daily at build</span>
+                </div>
+
+                {news.length > 0 ? (
+                    <div x-data={`{ shown: 5, total: ${news.length} }`}>
+                        <div class="grid gap-3">
+                            {news.map((item, i) => (
+                                <a
+                                    href={item.link}
+                                    target="_blank"
+                                    rel="noopener"
+                                    x-show={`${i} < shown`}
+                                    style={i >= 5 ? 'display:none' : undefined}
+                                    class="flex gap-4 bg-bg-surface rounded-2xl shadow-sm border border-border-subtle p-4 hover:border-action transition group"
+                                >
+                                    <div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-bg-raised shrink-0 grid place-items-center text-3xl overflow-hidden">
+                                        <span aria-hidden="true">📰</span>
+                                        {item.image && (
+                                            <img
+                                                src={item.image}
+                                                alt=""
+                                                loading="lazy"
+                                                referrerpolicy="no-referrer"
+                                                onerror="this.remove()"
+                                                class="absolute inset-0 w-full h-full object-cover"
+                                            />
+                                        )}
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-start gap-2 mb-1.5">
+                                            <span class:list={['text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-md', sourceBadge[item.source]]}>{item.source}</span>
+                                            <span class="ml-auto shrink-0 text-[10px] font-bold text-text-tertiary">{formatNewsDate(item.date)}</span>
+                                        </div>
+                                        <h3 class="text-[13px] font-bold text-text-primary leading-snug group-hover:text-action transition line-clamp-2">{item.title}</h3>
+                                        {item.excerpt && (
+                                            <p class="text-xs text-text-tertiary mt-1 font-medium leading-relaxed line-clamp-2">{item.excerpt}</p>
+                                        )}
+                                    </div>
+                                </a>
+                            ))}
                         </div>
-                    </template>
+                        {news.length > 5 && (
+                            <button
+                                type="button"
+                                x-show="shown < total"
+                                x-on:click="shown += 5"
+                                class="w-full mt-3 py-2.5 rounded-2xl bg-bg-surface border border-border-subtle shadow-sm text-xs font-black uppercase tracking-wide text-text-secondary hover:border-action hover:text-action transition"
+                            >
+                                Load more news
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div class="bg-bg-surface rounded-2xl shadow-sm border border-border-subtle p-6 text-center">
+                        <p class="text-sm font-bold text-text-secondary">News feeds were unreachable at build time.</p>
+                        <p class="text-xs text-text-tertiary mt-1 font-medium">Fresh headlines will appear on the next daily rebuild.</p>
+                    </div>
+                )}
+            </div>
+
+            <!-- Site updates -->
+            <div>
+                <h2 class="text-sm font-black text-text-primary uppercase tracking-wide mb-3 px-1">Site Updates</h2>
+                <div class="bg-bg-surface rounded-2xl shadow-sm border border-border-subtle divide-y divide-border-subtle">
+                    {SITE_UPDATES.map((u) => (
+                        <div class="flex items-baseline gap-3 px-4 py-3">
+                            <span class="text-[10px] font-bold text-text-tertiary font-mono shrink-0 w-24">{formatUpdateDate(u.date)}</span>
+                            <div>
+                                <h3 class="text-[13px] font-bold text-text-primary leading-snug">{u.title}</h3>
+                                {u.note && <p class="text-xs text-text-tertiary mt-0.5 font-medium">{u.note}</p>}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
-            <button @click="select(query.trim().toLowerCase())"
-                class="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-bold text-sm transition shadow-sm shrink-0">Search</button>
-        </div>
 
-        <!-- Gen filter — default slot, w-full wraps to its own row in the outer flex -->
-        <div class="w-full flex items-center gap-1.5 flex-wrap pb-1">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Gen</span>
-            <button @click="resetGens()"
-                :class="allGensActive() ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-black border transition-all duration-150 hover:scale-105 active:scale-95">All</button>
-            <template x-for="(label, i) in genLabels" :key="i">
-                <button @click="toggleGen(gens[i])"
-                    :class="isGenActive(gens[i]) ? 'bg-violet-600 text-white border-violet-600 hover:bg-violet-700 hover:border-violet-700 shadow-sm shadow-violet-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-violet-50 hover:border-violet-400 hover:text-violet-700'"
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-black border transition-all duration-150 hover:scale-105 active:scale-95"
-                    x-text="label"></button>
-            </template>
-        </div>
-
-        <!-- History bar — default slot, w-full wraps to its own row -->
-        <div class="w-full flex items-center gap-2 flex-wrap pb-1" x-show="history.length > 0">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Recent</span>
-            <template x-for="h in history" :key="h.name">
-                <button class="hchip" @click="select(h.name)">
-                    <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${h.id}.png`" :alt="h.name">
-                    <span x-text="capitalize(h.name)"></span>
-                </button>
-            </template>
-            <button @click="clearHistory()"
-                class="text-[10px] font-black text-slate-400 hover:text-red-400 uppercase tracking-wide ml-auto transition">✕ Clear</button>
-        </div>
-
-    </SiteHeader>
-
-    <!-- ══════════ TYPE CHART ══════════ -->
-    <main class="max-w-screen-2xl mx-auto px-4 py-5">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 overflow-x-auto">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <div>
-                    <h2 class="text-sm font-black text-slate-800">Type Effectiveness Chart</h2>
-                    <p class="text-xs text-slate-400 mt-0.5 font-medium">Row = Attacking · Column = Defending</p>
-                </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500"><div class="leg-sw super-effective"></div>2× Super</div>
-                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500"><div class="leg-sw not-very-effective"></div>½× Resist</div>
-                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500"><div class="leg-sw no-effect"></div>0× Immune</div>
-                    <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500"><div class="leg-sw normal-damage"></div>1× Normal</div>
-                </div>
-            </div>
-            <table class="mx-auto border-collapse" id="typeChart"></table>
-        </div>
+        </section>
     </main>
-
-    <PokedexModal />
 </Layout>
-
-<script>
-import { buildTypeChart } from '../alpine/components/pokedex/type-chart'
-buildTypeChart()
-</script>

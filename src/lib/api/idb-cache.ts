@@ -10,6 +10,7 @@ export const TTL = {
     TYPE_LIST:    3 * 24 * 60 * 60 * 1000,
     POKEMON_LIST: 7 * 24 * 60 * 60 * 1000,
     ABILITY:      7 * 24 * 60 * 60 * 1000,
+    MOVE:         7 * 24 * 60 * 60 * 1000,
 }
 
 interface CacheEntry {
