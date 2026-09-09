@@ -3,6 +3,8 @@ import Layout from '../../layouts/Layout.astro'
 import SiteHeader from '../../components/SiteHeader.astro'
 import movesData from '../../lib/data/moves-data.json'
 import movesMeta from '../../lib/data/moves-meta.json'
+import moveMachines from '../../lib/data/move-machines.json'
+import { machineSearchEntries, type MoveMachineAssignment } from '../../lib/logic/machines'
 import type { MoveListEntry } from '../../ui/move-card'
 
 const base = import.meta.env.BASE_URL
@@ -10,6 +12,7 @@ const base = import.meta.env.BASE_URL
 interface RawMove { power: number | null; accuracy: number | null; pp: number; type: string; damage_class: string; effect: string }
 const MOVES = movesData as unknown as Record<string, RawMove>
 const META = movesMeta as unknown as Record<string, { gen: number }>
+const MACHINES = moveMachines as unknown as Record<string, MoveMachineAssignment[]>
 
 // moves-meta.json keys are the canonical page move list (shadow moves excluded there)
 const payload: MoveListEntry[] = Object.keys(META)
@@ -23,6 +26,8 @@ const payload: MoveListEntry[] = Object.keys(META)
         acc: MOVES[slug].accuracy,
         pp: MOVES[slug].pp,
         gen: META[slug].gen,
+        // Used only by the search/filter logic; move cards never display it.
+        machines: machineSearchEntries(MACHINES[slug] ?? []),
     }))
 ---
 
