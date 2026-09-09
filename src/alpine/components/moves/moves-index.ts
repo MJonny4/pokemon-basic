@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs'
 import { TYPE_COLORS } from '../../../lib/data/constants'
+import { matchesMachineQuery, parseMachineQuery } from '../../../lib/logic/machines'
 import { getTypeIcon } from '../../../ui/badges'
 import { moveCard, type MoveListEntry } from '../../../ui/move-card'
 
@@ -74,13 +75,20 @@ export function registerMovesIndex(): void {
 
         get filtered(): MoveListEntry[] {
             const q = this.searchQuery.trim().toLowerCase().replace(/\s+/g, '-')
+            const machineQuery = parseMachineQuery(this.searchQuery)
             const gens = this.selectedGens as number[]
             const allGens = gens.length === ALL_GENS.length
             return (this.all as MoveListEntry[]).filter((m) => {
                 if (this.selectedType !== 'all' && m.type !== this.selectedType) return false
                 if (this.selectedCls !== 'all' && m.cls !== this.selectedCls) return false
-                if (!allGens && !gens.includes(m.gen)) return false
-                if (q && !m.slug.includes(q)) return false
+                if (machineQuery) {
+                    // During a machine lookup, generation means the generation
+                    // containing that TM/HM/TR assignment, not move debut.
+                    if (!matchesMachineQuery(m.machines ?? [], machineQuery, allGens ? undefined : gens)) return false
+                } else {
+                    if (!allGens && !gens.includes(m.gen)) return false
+                    if (q && !m.slug.includes(q)) return false
+                }
                 return true
             })
         },

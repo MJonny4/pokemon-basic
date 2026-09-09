@@ -3,27 +3,34 @@ import Layout from '../../layouts/Layout.astro'
 import SiteHeader from '../../components/SiteHeader.astro'
 import movesDataJson from '../../lib/data/moves-data.json'
 import movesMetaJson from '../../lib/data/moves-meta.json'
+import moveMachinesJson from '../../lib/data/move-machines.json'
+import type { MoveMachineAssignment } from '../../lib/logic/machines'
 import { typeBadge } from '../../ui/badges'
 import { categoryBadge } from '../../ui/category-badge'
 import { titleize, moveCardStyle, genChip } from '../../ui/move-card'
 import { moveGenTable, type MoveGenTableInput, type MovePastChange } from '../../ui/move-gen-table'
+import { moveMachineHistory } from '../../ui/move-machine-history'
 
 interface RawMove { power: number | null; accuracy: number | null; pp: number; type: string; damage_class: string; effect: string }
 interface MoveMeta { gen: number; effect_chance?: number; past?: MovePastChange[] }
-export interface Props { slug: string; move: RawMove; meta: MoveMeta }
+export interface Props { slug: string; move: RawMove; meta: MoveMeta; machines: MoveMachineAssignment[] }
 
 // getStaticPaths runs in an isolated scope at build time — it can only see
 // imports, so it builds its own merged list here (same gotcha as games/[game].astro)
 export function getStaticPaths() {
     const moves = movesDataJson as unknown as Record<string, RawMove>
     const metas = movesMetaJson as unknown as Record<string, MoveMeta>
+    const machines = moveMachinesJson as unknown as Record<string, MoveMachineAssignment[]>
     return Object.keys(metas)
         .filter((slug) => moves[slug])
-        .map((slug) => ({ params: { move: slug }, props: { slug, move: moves[slug], meta: metas[slug] } }))
+        .map((slug) => ({
+            params: { move: slug },
+            props: { slug, move: moves[slug], meta: metas[slug], machines: machines[slug] ?? [] },
+        }))
 }
 
 const base = import.meta.env.BASE_URL
-const { slug, move, meta } = Astro.props
+const { slug, move, meta, machines } = Astro.props
 
 const name = titleize(slug)
 const effect = move.effect.replace(/\$effect_chance/g, String(meta.effect_chance ?? ''))
@@ -36,6 +43,7 @@ const genTable = moveGenTable({
     pp: move.pp,
     past: meta.past,
 })
+const machineHistory = moveMachineHistory(machines)
 
 const statBlocks = [
     { label: 'Power', value: move.power ?? '—' },
@@ -108,6 +116,18 @@ const description = `${name} — ${move.type}-type ${move.damage_class} move. ${
                         <Fragment set:html={genTable} />
                     </div>
                 )}
+
+                <!-- MACHINE HISTORY -->
+                <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="w-8 h-8 rounded-full bg-action-subtle flex items-center justify-center shrink-0 text-action text-sm">💿</div>
+                        <div>
+                            <h2 class="font-black text-text-primary text-sm">TM / HM / TR History</h2>
+                            <p class="text-xs text-text-tertiary mt-0.5">Machine numbers and usage can change between games.</p>
+                        </div>
+                    </div>
+                    <Fragment set:html={machineHistory} />
+                </div>
 
             </div>
 

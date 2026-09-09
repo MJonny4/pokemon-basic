@@ -1,6 +1,7 @@
 import { typeBadge } from './badges'
 import { categoryBadge } from './category-badge'
 import { TYPE_COLORS } from '../lib/data/constants'
+import type { MoveMachineSearchEntry } from '../lib/logic/machines'
 
 /** Compact move shape used by the /moves listing payload and card renderer. */
 export interface MoveListEntry {
@@ -11,6 +12,8 @@ export interface MoveListEntry {
     acc: number | null
     pp: number
     gen: number
+    /** Search-only metadata; intentionally not rendered on listing cards. */
+    machines: MoveMachineSearchEntry[]
 }
 
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
