@@ -1,40 +1,21 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import SiteHeader from '../../components/SiteHeader.astro'
-import { RED_BLUE_GUIDE } from '../../lib/data/guides/red-blue'
-import { GOLD_SILVER_GUIDE } from '../../lib/data/guides/gold-silver'
-import { RUBY_SAPPHIRE_GUIDE } from '../../lib/data/guides/ruby-sapphire'
-import { DIAMOND_PEARL_GUIDE } from '../../lib/data/guides/diamond-pearl'
-import type { GameGuide, GuideCompleteness } from '../../lib/data/guides/types'
+import { GUIDE_REGISTRY, type GuideRegistration } from '../../lib/data/guides/registry'
+import GuideLocationDetails from '../../components/guides/GuideLocationDetails.astro'
+import GuideFishingDetails from '../../components/guides/GuideFishingDetails.astro'
 
-// getStaticPaths() runs in its own isolated scope at build time — it can only see
-// imports, not other frontmatter consts — so it builds its own GAMES array here.
 export function getStaticPaths() {
-    const games: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE, DIAMOND_PEARL_GUIDE]
-    return games.map((g) => ({
-        params: { game: g.id },
-        props: { game: g },
+    return GUIDE_REGISTRY.map((entry) => ({
+        params: { game: entry.game.id },
+        props: { entry },
     }))
 }
 
-interface Props { game: GameGuide }
-const { game } = Astro.props as Props
+interface Props { entry: GuideRegistration }
+const { entry } = Astro.props
+const { game } = entry
 const base = import.meta.env.BASE_URL
-
-// Same list, for the in-page game-switcher row below (separate scope from getStaticPaths above)
-const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE, DIAMOND_PEARL_GUIDE]
-
-// Moved out of guide.ts — static per-page content now, not client Alpine state
-function completenessLabel(level?: GuideCompleteness): string {
-    if (level === 'verified') return 'Verified'
-    if (level === 'full') return 'Full'
-    return 'Early Access'
-}
-function completenessClass(level?: GuideCompleteness): string {
-    if (level === 'verified') return 'bg-emerald-100 text-emerald-700 border-emerald-200'
-    if (level === 'full') return 'bg-violet-100 text-violet-700 border-violet-200'
-    return 'bg-amber-100 text-amber-700 border-amber-200'
-}
 ---
 
 <Layout
@@ -53,36 +34,42 @@ function completenessClass(level?: GuideCompleteness): string {
                 <p class="text-sm text-text-tertiary font-medium">Step-by-step walkthrough. Mark stops as you complete them — progress saves automatically.</p>
             </div>
             <div class="flex gap-2 sm:ml-auto flex-wrap">
-                {GAMES.map((g) => (
+                {GUIDE_REGISTRY.map(({ game: g, coverage }) => (
                     <div class="flex items-center gap-1.5">
                         <a href={`${base}/games/${g.id}`} class:list={['fchip', g.id === game.id && 'fchip-active']}>
                             {g.title}
                         </a>
-                        <span class:list={['text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full border', completenessClass(g.completeness)]}>
-                            {completenessLabel(g.completeness)}
+                        <span class="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full border bg-amber-100 text-amber-700 border-amber-200">
+                            {coverage === 'partial' ? 'Partial guide' : 'Story outline'}
                         </span>
                     </div>
                 ))}
             </div>
         </div>
 
+        <section aria-label="About this guide" class="bg-bg-surface rounded-2xl border border-border-subtle p-4 mb-5 text-sm text-text-secondary">
+            <p><strong>Guide in progress.</strong> Some details are still being checked, and not every item, encounter or optional activity is listed.</p>
+            {game.id === 'red-blue' && <p class="mt-2 text-xs">For the original English Game Boy Red/Blue, not Yellow or remakes.</p>}
+        </section>
+
         <!-- Progress bar -->
         <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-4 mb-5">
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-black text-text-tertiary uppercase tracking-widest">Progress</span>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold text-text-secondary" x-text="`${completedStops.length} / ${game.stops.length} stops completed`"></span>
-                    <button
-                        @click="resetProgress()"
-                        class="text-[10px] font-bold text-text-tertiary hover:text-brand transition uppercase tracking-wide">
-                        ✕ Reset
-                    </button>
-                </div>
+                <span class="text-xs font-bold text-text-secondary" x-text="`${completedStops.length} / ${game.stops.length} stops completed`"></span>
             </div>
-            <div class="stat-bar-track">
+            <div class="stat-bar-track" role="progressbar" aria-label="Guide stops completed" aria-valuemin="0" :aria-valuenow="completedStops.length" :aria-valuemax="game.stops.length">
                 <div class="stat-bar-fill bg-action transition-all duration-300" :style="`width:${progressPct}%`"></div>
             </div>
+            <div class="flex flex-wrap justify-end items-center gap-2 mt-3">
+                <button type="button" @click="downloadBackup()" title="JSON backup for this guide, including recovery snapshots and current unsaved edits. Restore/import is not available yet." class="min-h-9 px-3 py-2 rounded-lg bg-action-subtle text-xs font-bold text-action hover:underline focus-visible:outline-2 focus-visible:outline-action">Download save backup</button>
+                <button type="button" @click="resetProgress()" class="min-h-9 px-3 py-2 rounded-lg text-xs font-bold text-text-secondary hover:text-brand hover:bg-bg-elevated transition focus-visible:outline-2 focus-visible:outline-action">✕ Reset</button>
+            </div>
         </div>
+
+        <section x-show="storageMessages.length > 0" x-cloak role="status" aria-live="polite" aria-label="Guide save status" class="mb-5 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-100 space-y-2">
+            <template x-for="message in storageMessages" :key="message"><p x-text="message"></p></template>
+        </section>
 
         <!-- Mobile stop selector -->
         <div class="lg:hidden w-full mb-4">
@@ -227,8 +214,15 @@ function completenessClass(level?: GuideCompleteness): string {
                             </div>
                         </template>
 
+                        <!-- Keep inactive rich content inert; Alpine mounts only the selected stop. -->
+                        {entry.locations.map((location) => (
+                            <template x-if={`activeStopId === ${JSON.stringify(location.stopId)}`}>
+                                <GuideLocationDetails location={location} />
+                            </template>
+                        ))}
+
                         <!-- Gym battle -->
-                        <template x-if="currentStop.gym">
+                        <template x-if="!currentStop.locationPilot && currentStop.gym">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
                                 <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🏟️ Gym Battle</h3>
 
@@ -298,7 +292,7 @@ function completenessClass(level?: GuideCompleteness): string {
                         </template>
 
                         <!-- Items -->
-                        <template x-if="currentStop.items && currentStop.items.length > 0">
+                        <template x-if="!currentStop.locationPilot && currentStop.items && currentStop.items.length > 0">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
                                 <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🎒 Items</h3>
                                 <div class="space-y-2">
@@ -316,14 +310,19 @@ function completenessClass(level?: GuideCompleteness): string {
                         </template>
 
                         <!-- Wild Pokémon -->
-                        <template x-if="currentStop.wildPokemon && currentStop.wildPokemon.length > 0">
+                        <template x-if="!currentStop.locationPilot && currentStop.wildPokemon && currentStop.wildPokemon.length > 0">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
-                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🌿 Wild Pokémon</h3>
+                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3" x-text="currentStop.encounterTitle || 'Pokémon to find along the way'"></h3>
+                                <template x-if="currentStop.encounterNote">
+                                    <p class="text-sm text-text-secondary mb-4 leading-relaxed" x-text="currentStop.encounterNote"></p>
+                                </template>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
                                     <template x-for="entry in currentStop.wildPokemon" :key="entry.name + entry.method">
-                                        <div
+                                        <button
+                                            type="button"
                                             @click="openPokedex(entry.name)"
-                                            class="flex flex-col items-center gap-1.5 bg-bg-elevated rounded-xl p-3 border border-border-subtle cursor-pointer hover:border-action hover:bg-action-subtle transition">
+                                            :aria-label="`View ${entry.name} in Pokédex`"
+                                            class="flex flex-col items-center gap-1.5 bg-bg-elevated rounded-xl p-3 border border-border-subtle cursor-pointer hover:border-action hover:bg-action-subtle transition focus-visible:outline-2 focus-visible:outline-action focus-visible:outline-offset-2">
                                             <img
                                                 :src="spriteUrl(entry.id)"
                                                 :alt="entry.name"
@@ -331,7 +330,13 @@ function completenessClass(level?: GuideCompleteness): string {
                                                 style="image-rendering:pixelated"
                                                 loading="lazy">
                                             <span class="text-[11px] font-black text-text-primary capitalize" x-text="entry.name"></span>
-                                            <span class="text-[10px] text-text-secondary font-semibold" x-text="`Lv. ${entry.minLevel}–${entry.maxLevel}`"></span>
+                                            <span class="text-[10px] text-text-secondary font-semibold" x-text="entry.levels ? `Lv. ${entry.levels.join(', ')}` : `Lv. ${entry.minLevel}–${entry.maxLevel}`"></span>
+                                            <template x-if="entry.location">
+                                                <span class="text-[10px] text-action font-bold text-center" x-text="entry.location"></span>
+                                            </template>
+                                            <template x-if="entry.versionNote">
+                                                <span class="text-[10px] text-text-secondary font-semibold text-center" x-text="entry.versionNote"></span>
+                                            </template>
                                             <span
                                                 class="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize"
                                                 :class="{
@@ -355,14 +360,20 @@ function completenessClass(level?: GuideCompleteness): string {
                                                 </span>
                                             </template>
                                             <span class="text-[9px] text-action font-semibold">View in Pokédex</span>
-                                        </div>
+                                        </button>
                                     </template>
                                 </div>
                             </div>
                         </template>
 
+                        {entry.fishing.map((section) => (
+                            <template x-if={`activeStopId === ${JSON.stringify(section.stopId)}`}>
+                                <GuideFishingDetails section={section} />
+                            </template>
+                        ))}
+
                         <!-- Tips -->
-                        <template x-if="currentStop.tips && currentStop.tips.length > 0">
+                        <template x-if="!currentStop.locationPilot && currentStop.tips && currentStop.tips.length > 0">
                             <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
                                 <h3 class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-3">💡 Tips</h3>
                                 <ul class="space-y-2">
