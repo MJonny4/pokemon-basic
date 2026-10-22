@@ -1,0 +1,30 @@
+---
+import { guidePokemonCardStyle, guidePokemonVisual } from '../../ui/guide-location'
+import GuideSprite from './GuideSprite.astro'
+import GuideTypeBadges from './GuideTypeBadges.astro'
+
+interface Props {
+    name: string
+    dexId: number
+    levelLabel: string
+    moves?: string[]
+}
+const { name, dexId, levelLabel, moves = [] } = Astro.props
+// This component currently belongs to the bounded Red/Blue location contract.
+const visual = guidePokemonVisual(dexId, 1)
+---
+
+<article class="min-w-0 rounded-xl border border-border-subtle overflow-hidden" style={guidePokemonCardStyle(visual.types[0])} data-guide-pokemon={dexId}>
+    <button type="button" @click={`openPokedex(${JSON.stringify(visual.apiName)})`} aria-label={`View ${name} in Pokédex`} class="w-full h-full flex flex-col items-center p-3 text-center transition hover:bg-bg-elevated focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-action">
+        <GuideSprite src={visual.spriteUrl} />
+        <span class="block text-sm font-black text-text-primary">{name}</span>
+        <span class="block text-xs font-bold text-text-secondary mt-0.5 mb-2">{levelLabel}</span>
+        <GuideTypeBadges types={visual.types} />
+        <slot />
+        {moves.length > 0 && <span class="mt-3 pt-3 border-t border-border-subtle w-full">
+            <span class="block text-[10px] font-black uppercase tracking-wider text-text-secondary mb-1.5">Moves</span>
+            <span class="flex flex-wrap justify-center gap-1">{moves.map((move) => <span class="rounded-md bg-bg-elevated border border-border-subtle px-1.5 py-1 text-[10px] font-semibold text-text-primary">{move}</span>)}</span>
+        </span>}
+        <span class="block text-[10px] text-action font-bold mt-3">View in Pokédex ↗</span>
+    </button>
+</article>

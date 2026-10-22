@@ -41,8 +41,8 @@ const containerClass = `mx-auto px-5 ${maxWidth === 'screen-2xl' ? 'max-w-screen
 <header x-data="searchBar" class="bg-bg-surface border-b border-border-subtle shadow-sm sticky top-0 z-40">
 
     <!-- ── Main bar: Brand | Search | Nav ── -->
-    <!-- grid-cols-[1fr_auto_1fr]: equal wings → search column is always visually centered -->
-    <div class:list={[containerClass, 'py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-x-4']}>
+    <!-- Let search shrink on narrow screens; equal wings center it on desktop. -->
+    <div class:list={[containerClass, 'py-3 grid grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 xl:gap-x-4']}>
 
         <!-- Brand (left-aligned within its 1fr column) — clickable, always links home -->
         <a href={base} aria-label="PokeBasic — Home" class="flex items-center gap-2.5">
@@ -55,8 +55,8 @@ const containerClass = `mx-auto px-5 ${maxWidth === 'screen-2xl' ? 'max-w-screen
             </div>
         </a>
 
-        <!-- Search bar (auto-width center column → truly centered) -->
-        <div class="w-72 sm:w-96 lg:w-110">
+        <!-- Search must not force the theme/menu controls outside the viewport. -->
+        <div class="w-full min-w-0 max-w-110 xl:w-110 justify-self-center">
             <div class="relative" @click.outside="acOpen = false">
                 <div class="relative flex items-center">
                     <!-- Search icon -->

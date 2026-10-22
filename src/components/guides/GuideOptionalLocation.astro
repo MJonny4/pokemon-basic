@@ -1,0 +1,25 @@
+---
+import type { GuideLocation } from '../../lib/data/guides/location-schema'
+import GuideLocationDetails from './GuideLocationDetails.astro'
+import GuideLocationWarnings from './GuideLocationWarnings.astro'
+
+interface Props { location: GuideLocation }
+const { location } = Astro.props
+---
+
+<details data-optional-location={location.id} x-data="{ expanded: false }" @toggle.self="expanded = $el.open" class="rounded-2xl border border-border-subtle bg-bg-surface p-4 sm:p-5 shadow-sm">
+    <summary class="cursor-pointer text-sm font-black text-text-primary focus-visible:outline-2 focus-visible:outline-action focus-visible:outline-offset-4">Optional detour · {location.title}</summary>
+    <p class="mt-2 text-xs leading-relaxed text-text-secondary">Explore when you want to collect more items and Pokémon. This reference does not add a separate stop or change your story progress.</p>
+    <template x-if="expanded">
+        <div class="mt-4 space-y-4">
+            <GuideLocationWarnings warnings={location.warnings} />
+            <section class="rounded-xl border border-border-subtle bg-bg-elevated p-4" aria-label={`${location.title} directions`}>
+                <h3 class="text-xs font-black uppercase tracking-widest text-text-secondary mb-3">Getting there &amp; what to do</h3>
+                <ol class="list-decimal pl-5 space-y-3 text-sm leading-relaxed text-text-primary">
+                    {location.directions.map((direction) => <li>{direction.text}</li>)}
+                </ol>
+            </section>
+            <GuideLocationDetails location={location} showWarnings={false} />
+        </div>
+    </template>
+</details>

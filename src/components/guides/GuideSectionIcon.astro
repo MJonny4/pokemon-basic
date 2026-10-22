@@ -1,0 +1,16 @@
+---
+import gymIcon from '../../assets/icons/gym.png'
+interface Props { name: 'items' | 'wild' | 'battle' | 'trainers' | 'tips' | 'gym' }
+const { name } = Astro.props
+const paths: Record<Exclude<Props['name'], 'gym'>, string[]> = {
+    items: ['M6 8h12v13H6z', 'M9 8V6a3 3 0 0 1 6 0v2', 'M6 14h12', 'M10 14v3h4v-3'],
+    wild: ['M4 20h16', 'M12 20V8', 'M12 15C5 15 4 11 4 6c6 0 8 3 8 7', 'M12 12c0-5 3-8 8-8 0 6-3 9-8 9'],
+    battle: ['M3 8h18v13H3z', 'M7 8V4h10v4', 'M8 12h8v9H8z', 'M7 4l5-2 5 2'],
+    trainers: ['M4 3l13 13', 'M3 3h4l14 14-4 4L3 7z', 'M16 3h5v5', 'M21 3l-7 7', 'M3 21l6-6'],
+    tips: ['M8 16c0-3-3-4-3-7a7 7 0 0 1 14 0c0 3-3 4-3 7', 'M8 16h8', 'M9 19h6', 'M10 22h4'],
+}
+---
+
+{name === 'gym' ? <img src={gymIcon.src} alt="" aria-hidden="true" width="16" height="16" class="inline-block align-text-bottom mr-1 shrink-0 object-contain" decoding="async" /> : <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="inline-block align-text-bottom mr-1 shrink-0">
+    {paths[name].map((path) => <path d={path} />)}
+</svg>}

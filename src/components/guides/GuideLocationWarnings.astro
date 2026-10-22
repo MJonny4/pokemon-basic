@@ -1,0 +1,12 @@
+---
+import type { GuideLocation } from '../../lib/data/guides/location-schema'
+interface Props { warnings: GuideLocation['warnings'] }
+const { warnings } = Astro.props
+---
+
+{warnings.length > 0 && <section aria-label="Before you continue" class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
+    <h3 class="font-black text-amber-800 dark:text-amber-200 mb-2">Before you continue</h3>
+    <ul class="list-disc pl-5 space-y-2 text-sm text-amber-900 dark:text-amber-100">
+        {warnings.map((warning) => <li>{warning.text}</li>)}
+    </ul>
+</section>}

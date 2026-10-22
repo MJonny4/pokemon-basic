@@ -15,7 +15,8 @@
         class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-20 p-8">
         <div class="text-5xl mb-5">⚔️</div>
         <h2 class="text-2xl font-black mb-2">Battle Mode</h2>
-        <p class="text-slate-400 text-sm mb-8">Choose your opponent's team</p>
+        <p class="text-slate-400 text-sm mb-3">Choose your opponent's team</p>
+        <p class="text-slate-400 text-xs text-center max-w-sm mb-8">Experimental battles with generated enemy sets. Some game mechanics are not simulated.</p>
         <div x-show="validationErrors.length > 0" class="mb-6 w-full max-w-sm bg-red-900/60 border border-red-500 rounded-xl p-4">
             <p class="text-red-300 font-black text-xs uppercase tracking-widest mb-2">Fix these before battling:</p>
             <template x-for="(err, i) in validationErrors" :key="i">

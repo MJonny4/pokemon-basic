@@ -1,0 +1,15 @@
+---
+import gymIcon from '../../assets/icons/gym.png'
+
+interface Props {
+    kind: string
+    text: string
+    large?: boolean
+}
+const { kind, text, large = false } = Astro.props
+---
+
+<span aria-hidden="true" class:list={['inline-flex shrink-0 items-center justify-center', large ? 'text-2xl' : '']}>
+    <img x-show={`${kind} === 'gym'`} x-cloak src={gymIcon.src} alt="" width="24" height="24" class:list={['object-contain', large ? 'w-7 h-7' : 'w-4 h-4']} decoding="async" />
+    <span x-show={`${kind} !== 'gym'`} x-text={text}></span>
+</span>
