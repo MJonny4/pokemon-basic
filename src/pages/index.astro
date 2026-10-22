@@ -5,7 +5,7 @@ import { fetchNews, formatNewsDate, type NewsSource } from '../lib/news'
 import { SITE_UPDATES, formatUpdateDate } from '../lib/data/site-updates'
 
 const base = import.meta.env.BASE_URL
-const news = await fetchNews()
+const { items: news, bulbanewsSavedAt } = await fetchNews()
 
 const sourceBadge: Record<NewsSource, string> = {
     'Bulbanews': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
@@ -46,8 +46,12 @@ const shortcuts = [
             <div>
                 <div class="flex items-baseline justify-between mb-3 px-1">
                     <h2 class="text-sm font-black text-text-primary uppercase tracking-wide">Franchise News</h2>
-                    <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Updated daily at build</span>
+                    <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Feeds checked daily at build</span>
                 </div>
+
+                {bulbanewsSavedAt && (
+                    <p class="text-xs text-text-tertiary mb-3 px-1">Bulbanews is showing headlines saved on {formatNewsDate(bulbanewsSavedAt)} while its live feed is unavailable.</p>
+                )}
 
                 {news.length > 0 ? (
                     <div x-data={`{ shown: 5, total: ${news.length} }`}>
