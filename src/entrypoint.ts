@@ -11,6 +11,7 @@ import { registerStatsRanking } from './alpine/components/stats/stats-ranking'
 
 import { registerTeamLab } from './alpine/components/team/team-lab'
 import { registerSetEditor } from './alpine/components/team/set-editor'
+import { registerTeamPortability } from './alpine/components/team/team-portability'
 import { registerBattleSim } from './alpine/components/team/battle-sim'
 
 import { registerGuide } from './alpine/components/guide/guide'
@@ -41,6 +42,7 @@ export default () => {
 
     if (uses('teamLab'))           registerTeamLab()
     if (uses('setEditor'))         registerSetEditor()
+    if (uses('teamPortability'))    registerTeamPortability()
     if (uses('battleSim'))         registerBattleSim()
 
     if (uses('guide'))             registerGuide()

@@ -16,7 +16,7 @@ import { join } from 'node:path'
 import movesData from '../src/lib/data/moves-data.json'
 
 const API = 'https://pokeapi.co/api/v2'
-const OUT_DIR = join(import.meta.dir, '../src/lib/data')
+const OUT_DIR = join(import.meta.dirname, '../src/lib/data')
 const CONCURRENCY = 5
 
 const GEN_NUM: Record<string, number> = {
