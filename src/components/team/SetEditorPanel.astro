@@ -1,6 +1,7 @@
 ---
 // Set editor panel — owns x-data="setEditor"
 // Shown when $store.team.activeSlot !== null
+const base = import.meta.env.BASE_URL
 ---
 
 <div x-data="setEditor" x-show="$store.team.activeSlot !== null" id="set-editor-panel"
@@ -274,13 +275,18 @@
 
     <!-- ══ DAMAGE CALCULATOR ══ -->
     <div class="px-5 pb-4 border-t border-border-subtle pt-4">
-        <button @click="calcOpen = !calcOpen"
+        <button @click="openDamageCalc()"
             class="flex items-center gap-2 w-full text-left group">
             <span class="text-xs font-black text-text-tertiary uppercase tracking-widest group-hover:text-action transition">⚡ Damage Calculator</span>
             <span class="text-text-tertiary group-hover:text-action transition text-xs" x-text="calcOpen ? '▴' : '▾'"></span>
         </button>
 
         <div x-show="calcOpen" x-cloak class="mt-3 space-y-3">
+
+            <p class="text-xs text-text-tertiary leading-relaxed">Gen 9 singles damage from @smogon/calc. Uses the saved attacker's level, nature, EVs, IVs, item and selected ability. Assumes full HP, a neutral defender nature, no defender item or active ability, 31 HP IV, 0 HP EV, no status, boosts, terrain or Tera effect. Move legality is not checked. The Battle Mode simulator uses separate experimental rules.</p>
+            <a href={`${base}/licenses/smogon-calc-mit.txt`} class="text-[10px] text-action hover:underline">Calculator credits and MIT license</a>
+            <p x-show="calcLoading" role="status" class="text-xs text-text-tertiary">Loading Gen 9 calculator…</p>
+            <p x-show="calcMessage" x-text="calcMessage" role="status" class="text-xs text-amber-600 dark:text-amber-400"></p>
 
             <div class="relative" @click.outside="calcDefenderAcOpen = false">
                 <div class="flex items-center gap-2 border-2 border-border rounded-xl px-3 py-2 focus-within:border-action transition bg-bg-surface">
@@ -382,6 +388,7 @@
                                         <span x-show="row.move?.damage_class?.name === 'status'"
                                             class="text-[9px] text-text-tertiary font-semibold">status</span>
                                     </div>
+                                    <span x-show="row.reason" x-text="row.reason" class="text-[9px] text-amber-600 dark:text-amber-400"></span>
                                 </td>
                                 <td class="px-2 py-2 text-center font-black"
                                     :class="!row.result ? 'text-text-tertiary' : row.result.effectiveness >= 2 ? 'text-green-500' : row.result.effectiveness <= 0.5 ? 'text-red-400' : row.result.effectiveness === 0 ? 'text-text-tertiary' : 'text-text-secondary'"

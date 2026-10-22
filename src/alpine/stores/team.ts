@@ -3,6 +3,7 @@ import type { Pokemon } from '../../lib/api/pokeapi'
 import { detectRole } from '../../lib/logic/role-detect'
 import { analyzeTeam } from '../../lib/logic/team-coverage'
 import type { TeamCoverage } from '../../lib/logic/team-coverage'
+import { validateTeamSlots } from '../../lib/logic/team-portability'
 
 export interface TeamSlot {
     pokemonName: string
@@ -30,7 +31,7 @@ const DEFAULT_EVS: Record<string, number> = {
     'special-attack': 0, 'special-defense': 0, speed: 0,
 }
 
-function makeSlot(pokemon: Pokemon): TeamSlot {
+export function makeSlot(pokemon: Pokemon): TeamSlot {
     const stats = Object.fromEntries(pokemon.stats.map((s) => [s.stat.name, s.base_stat]))
     const role = detectRole(stats)
     return {
@@ -55,6 +56,7 @@ interface TeamStore {
     activeSlot: number | null
     loading: boolean
     coverage: TeamCoverage | null
+    storageError: string
     addToSlot(slot: number, pokemon: Pokemon): void
     removeFromSlot(slot: number): void
     updateSlot(slot: number, updates: Partial<TeamSlot>): void
@@ -63,6 +65,7 @@ interface TeamStore {
     filledSlots(): TeamSlot[]
     saveToLocal(): void
     loadFromLocal(): void
+    replaceSlots(slots: (TeamSlot | null)[], allowRecovery?: boolean): void
 }
 
 export function registerTeamStore(): void {
@@ -71,8 +74,10 @@ export function registerTeamStore(): void {
         activeSlot: null,
         loading: false,
         coverage: null,
+        storageError: '',
 
         addToSlot(slot: number, pokemon: Pokemon): void {
+            if (this.storageError) return
             const newSlots = [...this.slots]
             newSlots[slot] = makeSlot(pokemon)
             this.slots = newSlots
@@ -81,6 +86,7 @@ export function registerTeamStore(): void {
         },
 
         removeFromSlot(slot: number): void {
+            if (this.storageError) return
             const newSlots = [...this.slots]
             newSlots[slot] = null
             this.slots = newSlots
@@ -89,6 +95,7 @@ export function registerTeamStore(): void {
         },
 
         updateSlot(slot: number, updates: Partial<TeamSlot>): void {
+            if (this.storageError) return
             const current = this.slots[slot]
             if (!current) return
             const newSlots = [...this.slots]
@@ -99,6 +106,7 @@ export function registerTeamStore(): void {
         },
 
         swapSlots(a: number, b: number): void {
+            if (this.storageError) return
             const newSlots = [...this.slots]
             ;[newSlots[a], newSlots[b]] = [newSlots[b], newSlots[a]]
             this.slots = newSlots
@@ -119,19 +127,30 @@ export function registerTeamStore(): void {
         saveToLocal(): void {
             try {
                 localStorage.setItem('team_lab', JSON.stringify(this.slots))
-            } catch {}
+                this.storageError = ''
+            } catch { this.storageError = 'Team changes could not be saved in this browser.' }
         },
 
         loadFromLocal(): void {
             try {
                 const raw = localStorage.getItem('team_lab')
                 if (!raw) return
-                const saved = JSON.parse(raw) as (TeamSlot | null)[]
-                if (Array.isArray(saved) && saved.length === 6) {
-                    this.slots = saved
-                    this.computeCoverage()
-                }
-            } catch {}
+                const saved: unknown = JSON.parse(raw)
+                validateTeamSlots(saved)
+                this.slots = saved
+                this.computeCoverage()
+                this.storageError = ''
+            } catch { this.storageError = 'Saved team data needs recovery. Download the raw copy before replacing it.' }
+        },
+
+        replaceSlots(slots: (TeamSlot | null)[], allowRecovery = false): void {
+            if (this.storageError && !allowRecovery) throw new Error(this.storageError)
+            validateTeamSlots(slots)
+            localStorage.setItem('team_lab', JSON.stringify(slots))
+            this.slots = slots
+            this.activeSlot = null
+            this.storageError = ''
+            this.computeCoverage()
         },
     }
 

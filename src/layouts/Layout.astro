@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css'
 import PokedexModal from '../components/PokedexModal.astro'
+import { pwaInfo } from 'virtual:pwa-info'
 
 interface Props {
     title?: string
@@ -44,11 +45,14 @@ const canonicalUrl = canonicalPath ? `${Astro.site ?? ''}${base}${canonicalPath}
     <meta name="twitter:image" content={`${base}/icon.png`} />
 
     <link rel="icon" type="image/x-icon" href={`${base}/favicon.ico`} />
+    {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+    <meta name="theme-color" content="#FF3B30" />
 
     <!-- Prevent dark mode flash before Alpine hydrates -->
     <script is:inline>
         (function () {
-            const saved = localStorage.getItem('pb_dark')
+            let saved = null
+            try { saved = localStorage.getItem('pb_dark') } catch { /* Fall back to the system theme. */ }
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
             if (saved === 'true' || (saved === null && prefersDark)) {
                 document.documentElement.classList.add('dark')
@@ -59,5 +63,16 @@ const canonicalUrl = canonicalPath ? `${Astro.site ?? ''}${base}${canonicalPath}
 <body class="bg-bg-base min-h-screen transition-colors duration-200">
     <slot />
     <PokedexModal />
+    <aside data-pwa-update hidden role="status" aria-live="polite" class="fixed bottom-4 right-4 z-[100] max-w-sm mx-4 p-4 rounded-xl border border-border bg-bg-surface text-text-primary shadow-lg">
+        <p class="text-sm font-semibold">An update is ready</p>
+        <p class="mt-1 text-xs text-text-secondary">Finish or save your changes first. Reloading updates all open PokeBasic tabs.</p>
+        <div class="mt-3 flex gap-3">
+            <button data-pwa-reload type="button" class="rounded-lg bg-action px-3 py-2 text-sm text-white disabled:opacity-50">Reload to update</button>
+            <button data-pwa-later type="button" class="rounded-lg border border-border px-3 py-2 text-sm">Later</button>
+        </div>
+    </aside>
+    <script>
+        import '../pwa'
+    </script>
 </body>
 </html>

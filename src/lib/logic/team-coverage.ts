@@ -1,6 +1,8 @@
 import type { TeamSlot } from '../../alpine/stores/team'
 import { EFFECTIVENESS, TYPES } from '../data/constants'
 import { calcDefenseProfile } from './defense'
+import { calcStat } from './stat-calc'
+import movesData from '../data/moves-data.json'
 
 // Abilities that grant a full type immunity (keyed by lowercase API ability name)
 const ABILITY_IMMUNITIES: Record<string, string> = {
@@ -19,7 +21,9 @@ const ABILITY_IMMUNITIES: Record<string, string> = {
 }
 
 export interface TeamCoverage {
-    offensiveCoverage: string[]              // lowercase types hit super-effectively via STAB
+    offensiveCoverage: string[]              // lowercase types hit super-effectively by selected damaging moves
+    damagingMoveCount: number
+    unresolvedMoves: string[]
     teamWeaknesses: Record<string, number>   // capitalized type → count of members 2x+ weak
     teamResistances: Record<string, number>  // capitalized type → count of members resisting
     commonWeaknesses: string[]               // capitalized types ≥2 members are weak to
@@ -27,12 +31,11 @@ export interface TeamCoverage {
     coverageScore: number                    // 0–100 (% of 18 types covered offensively)
     synergyScore: number                     // 0–100 composite score
     synergyBreakdown: string[]               // human-readable lines explaining the score
-    speedTiers: {
-        blazing: TeamSlot[]   // base speed ≥ 110 (assumes neutral nature)
-        fast: TeamSlot[]      // base speed 80–109
-        slow: TeamSlot[]      // base speed < 80
-    }
+    speedRows: { slotIndex: number; pokemonName: string; speed: number | null; level: number }[]
 }
+
+interface LocalMove { type: string; damage_class: string; power: number | null }
+const MOVES = movesData as Record<string, LocalMove>
 
 export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
     const filled = slots.filter(Boolean) as TeamSlot[]
@@ -40,6 +43,8 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
     if (filled.length === 0) {
         return {
             offensiveCoverage: [],
+            damagingMoveCount: 0,
+            unresolvedMoves: [],
             teamWeaknesses: {},
             teamResistances: {},
             commonWeaknesses: [],
@@ -47,7 +52,7 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
             coverageScore: 0,
             synergyScore: 0,
             synergyBreakdown: [],
-            speedTiers: { blazing: [], fast: [], slow: [] },
+            speedRows: [],
         }
     }
 
@@ -58,23 +63,17 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
 
     for (const slot of filled) {
         const profile = calcDefenseProfile(slot.types)
-        // quad-weak counts double (2 members' worth of weakness)
-        for (const t of profile.quad) teamWeaknesses[t] = (teamWeaknesses[t] ?? 0) + 2
-        for (const t of profile.double) teamWeaknesses[t] = (teamWeaknesses[t] ?? 0) + 1
-        for (const t of profile.half) teamResistances[t] = (teamResistances[t] ?? 0) + 1
-        for (const t of profile.quarter) teamResistances[t] = (teamResistances[t] ?? 0) + 2
-        for (const t of profile.immune) immunitiesSet.add(t)
-
-        // Ability-based immunity: add to immunities and remove the weakness entry for this slot
         const abilityKey = slot.ability?.toLowerCase() ?? null
         const abilityImmuneType = abilityKey ? ABILITY_IMMUNITIES[abilityKey] : null
-        if (abilityImmuneType) {
-            immunitiesSet.add(abilityImmuneType)
-            if (teamWeaknesses[abilityImmuneType]) {
-                teamWeaknesses[abilityImmuneType] = Math.max(0, teamWeaknesses[abilityImmuneType] - 1)
-                if (teamWeaknesses[abilityImmuneType] === 0) delete teamWeaknesses[abilityImmuneType]
-            }
+        // Each member counts once. One 4× weakness is not two shared weaknesses.
+        for (const t of [...profile.quad, ...profile.double]) {
+            if (t !== abilityImmuneType) teamWeaknesses[t] = (teamWeaknesses[t] ?? 0) + 1
         }
+        for (const t of [...profile.half, ...profile.quarter]) {
+            if (t !== abilityImmuneType) teamResistances[t] = (teamResistances[t] ?? 0) + 1
+        }
+        for (const t of profile.immune) immunitiesSet.add(t)
+        if (abilityImmuneType) immunitiesSet.add(abilityImmuneType)
     }
 
     const immunities = [...immunitiesSet]
@@ -85,11 +84,18 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         .sort((a, b) => b[1] - a[1])
         .map(([type]) => type)
 
-    // Offensive coverage — types the team can hit super-effectively via STAB (proxy)
+    // Offensive coverage from selected damaging moves in the local modern catalog.
     const offensiveCoverage = new Set<string>()
+    const unresolvedMoves = new Set<string>()
+    let damagingMoveCount = 0
     for (const slot of filled) {
-        for (const attackerType of slot.types) {
-            const attackerCap = attackerType.charAt(0).toUpperCase() + attackerType.slice(1)
+        for (const moveName of slot.moves) {
+            if (!moveName) continue
+            const move = MOVES[moveName]
+            if (!move) { unresolvedMoves.add(moveName); continue }
+            if (move.damage_class === 'status' || !move.power) continue
+            damagingMoveCount++
+            const attackerCap = move.type.charAt(0).toUpperCase() + move.type.slice(1)
             const row = EFFECTIVENESS[attackerCap]
             if (!row) continue
             TYPES.forEach((defType, defIdx) => {
@@ -100,12 +106,16 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
 
     const coverageScore = Math.round((offensiveCoverage.size / 18) * 100)
 
-    // Speed tiers — based on base speed stat (assumes neutral nature, no EV/IV adjustment)
-    const speedTiers = {
-        blazing: filled.filter((s) => (s.stats.speed ?? 0) >= 110),
-        fast: filled.filter((s) => (s.stats.speed ?? 0) >= 80 && (s.stats.speed ?? 0) < 110),
-        slow: filled.filter((s) => (s.stats.speed ?? 0) < 80),
-    }
+    const speedRows = slots.flatMap((slot, slotIndex) => {
+        if (!slot) return []
+        const base = slot.stats?.speed
+        const level = slot.level
+        const iv = slot.ivs?.speed
+        const ev = slot.evs?.speed
+        const valid = Number.isInteger(base) && base >= 1 && Number.isInteger(level) && level >= 1 && level <= 100 &&
+            Number.isInteger(iv) && iv >= 0 && iv <= 31 && Number.isInteger(ev) && ev >= 0 && ev <= 252
+        return [{ slotIndex, pokemonName: slot.pokemonName, speed: valid ? calcStat('speed', base, iv, ev, level, slot.nature) : null, level }]
+    }).sort((a, b) => (b.speed ?? -1) - (a.speed ?? -1))
 
     // ── Synergy score ──────────────────────────────────────────────────────────
     // Design targets (with typical bonuses):
@@ -129,14 +139,6 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         breakdown.push(`-${weaknessPenalty} Common weaknesses: ${sample}${more}`)
     }
 
-    // INFORMATIONAL: Speed tiers — no penalty.
-    // Having no slow Pokémon is fine in standard competitive play.
-    const speedSummary: string[] = []
-    if (speedTiers.blazing.length > 0) speedSummary.push(`${speedTiers.blazing.length} blazing`)
-    if (speedTiers.fast.length > 0) speedSummary.push(`${speedTiers.fast.length} fast`)
-    if (speedTiers.slow.length > 0) speedSummary.push(`${speedTiers.slow.length} slow`)
-    if (speedSummary.length > 0) breakdown.push(`Speed tiers: ${speedSummary.join(', ')}`)
-
     // BONUS: +4 per immune type (capped at +12).
     // Kept small so immunities help but can't paper over many weaknesses.
     const immunityBonus = Math.min(12, immunities.length * 4)
@@ -146,7 +148,7 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         breakdown.push(`+${immunityBonus} Immunities: ${sample}`)
     }
 
-    // BONUS: +3 if ≥13 types covered offensively via STAB, +2 if ≥10.
+    // BONUS: +3 if ≥13 types covered by selected attacks, +2 if ≥10.
     const covBonus = offensiveCoverage.size >= 13 ? 3 : offensiveCoverage.size >= 10 ? 2 : 0
     if (covBonus > 0) {
         synergyScore += covBonus
@@ -166,12 +168,14 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
 
     synergyScore = Math.max(0, Math.min(100, synergyScore))
 
-    if (synergyScore >= 95 && weaknessPenalty === 0) {
+    if (filled.length >= 3 && damagingMoveCount >= filled.length && synergyScore >= 95 && weaknessPenalty === 0) {
         breakdown.unshift('Excellent balance!')
     }
 
     return {
         offensiveCoverage: [...offensiveCoverage],
+        damagingMoveCount,
+        unresolvedMoves: [...unresolvedMoves],
         teamWeaknesses,
         teamResistances,
         commonWeaknesses,
@@ -179,6 +183,6 @@ export function analyzeTeam(slots: (TeamSlot | null)[]): TeamCoverage {
         coverageScore,
         synergyScore,
         synergyBreakdown: breakdown,
-        speedTiers,
+        speedRows,
     }
 }

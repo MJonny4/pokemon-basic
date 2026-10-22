@@ -1,0 +1,30 @@
+---
+import type { GuideLocation } from '../../lib/data/guides/location-schema'
+import GuidePokemonCard from './GuidePokemonCard.astro'
+import GuideSectionIcon from './GuideSectionIcon.astro'
+
+interface Props { battle: NonNullable<GuideLocation['starterBattles']>[number]; locationId: string; stopId: string; areaName?: string }
+const { battle, locationId, stopId, areaName } = Astro.props
+const base = import.meta.env.BASE_URL
+const starterNames = { 1: 'Bulbasaur', 4: 'Charmander', 7: 'Squirtle' }
+const selected = '(previewStarter ?? selectedStarter?.id ?? 1)'
+---
+
+<section aria-label={battle.name} data-starter-battle={battle.id} class="bg-bg-surface rounded-2xl border border-border-subtle p-5 shadow-sm" x-data="{ previewStarter: null }">
+    <h3 class="font-black text-text-primary"><GuideSectionIcon name="battle" />{battle.name}</h3>
+    {areaName && <p class="text-xs font-black text-action mt-1">{areaName}</p>}
+    <p class="text-sm text-text-secondary mt-2">{battle.description}</p>
+    <div role="group" aria-label="Your original starter for rival preview" class="flex flex-wrap gap-2 my-4">
+        {battle.variants.map((variant) => <button type="button" @click={`previewStarter = ${variant.playerStarterDexId}`} :aria-pressed={`${selected} === ${variant.playerStarterDexId}`} aria-controls={`${locationId}-${battle.id}-parties`} class="px-3 py-2 rounded-xl border text-xs font-black focus-visible:outline-2 focus-visible:outline-action focus-visible:outline-offset-2" :class={`${selected} === ${variant.playerStarterDexId} ? 'border-action bg-action-subtle text-action' : 'border-border-subtle bg-bg-elevated text-text-secondary'`}>You chose {starterNames[variant.playerStarterDexId]}</button>)}
+    </div>
+    <p x-show="!selectedStarter && previewStarter === null" x-cloak class="text-xs text-text-secondary mb-3">Showing the Bulbasaur choice by default. Choose your original starter above to see the matching rival party.</p>
+    <div id={`${locationId}-${battle.id}-parties`} aria-live="polite">
+        {battle.variants.map((variant) => <div x-show={`${selected} === ${variant.playerStarterDexId}`} x-cloak data-player-starter={variant.playerStarterDexId}>
+            <h4 class="font-black text-sm text-text-primary mb-3">Rival party if you chose {starterNames[variant.playerStarterDexId]}</h4>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {variant.party.map((member) => <GuidePokemonCard name={member.name} dexId={member.dexId} levelLabel={`Lv. ${member.level}`} moves={member.moves} />)}
+            </div>
+            <a href={`${base}/team/?opponent=${encodeURIComponent(`${stopId}:${battle.id}`)}&starter=${variant.playerStarterDexId}`} class="inline-block mt-3 text-xs font-bold text-action hover:underline">Compare your Team Lab moves with this Gen I party →</a>
+        </div>)}
+    </div>
+</section>

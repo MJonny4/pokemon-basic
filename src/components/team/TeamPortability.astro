@@ -1,0 +1,61 @@
+<section x-data="teamPortability" aria-label="Team import and backups" class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5 mt-5 space-y-5">
+    <div>
+        <h2 class="text-lg font-black text-text-primary">Team library &amp; backups</h2>
+        <p class="text-xs text-text-secondary mt-1">Your current six-slot team remains in the existing browser save. Named teams are snapshots; save again after editing one. Backups stay on your device.</p>
+    </div>
+    <p x-show="$store.team.storageError" x-text="$store.team.storageError" role="alert" class="text-sm font-bold text-amber-700 dark:text-amber-300"></p>
+    <p x-show="libraryError" x-text="libraryError" role="alert" class="text-sm font-bold text-amber-700 dark:text-amber-300"></p>
+    <p x-show="status" x-text="status" role="status" class="text-sm text-text-secondary"></p>
+
+    <div class="border-t border-border-subtle pt-4">
+        <h3 class="font-bold text-text-primary text-sm">Named snapshots</h3>
+        <div class="flex flex-wrap gap-2 mt-2">
+            <input type="text" maxlength="50" x-model="teamName" placeholder="Team name" aria-label="New team name" class="min-w-0 flex-1 rounded-xl border border-border bg-bg-elevated text-text-primary px-3 py-2 text-sm" />
+            <button type="button" @click="saveNamed()" class="rounded-xl bg-action text-white px-4 py-2 text-xs font-bold hover:bg-action-hover">Save current team</button>
+        </div>
+        <p x-show="library.teams.length === 0" class="text-xs text-text-tertiary mt-2">No named snapshots yet.</p>
+        <ul class="space-y-2 mt-3">
+            <template x-for="saved in library.teams" :key="saved.id">
+                <li class="flex flex-wrap items-center gap-2 rounded-xl bg-bg-elevated border border-border-subtle px-3 py-2">
+                    <span class="flex-1 min-w-0 text-sm font-semibold text-text-primary" x-text="saved.name"></span>
+                    <span class="text-xs text-text-tertiary" x-text="`${saved.slots.filter(Boolean).length}/6`"></span>
+                    <button type="button" @click="loadNamed(saved.id)" class="text-xs font-bold text-action hover:underline">Load</button>
+                    <button type="button" @click="deleteNamed(saved.id)" class="text-xs font-bold text-text-secondary hover:text-red-600">Delete</button>
+                </li>
+            </template>
+        </ul>
+    </div>
+
+    <div class="border-t border-border-subtle pt-4">
+        <h3 class="font-bold text-text-primary text-sm">Import Showdown text</h3>
+        <p class="text-xs text-text-secondary mt-1">Paste 1–6 sets. Supported: species, item, ability, Tera Type, level, EVs, nature, IVs and four moves. Unsupported fields are rejected so they cannot disappear silently. Pokémon details must be available from the cache or PokéAPI; this does not check game legality.</p>
+        <textarea x-model="showdownText" @input="pendingSlots = null" rows="6" maxlength="30000" aria-label="Showdown team text" placeholder="Pikachu @ Light Ball&#10;Ability: Static&#10;Level: 50&#10;EVs: 252 Atk / 252 Spe&#10;Jolly Nature&#10;- Thunderbolt" class="w-full mt-2 rounded-xl border border-border bg-bg-elevated text-text-primary px-3 py-2 text-xs font-mono"></textarea>
+        <button type="button" @click="reviewShowdown()" :disabled="importing" class="mt-2 rounded-xl border border-action text-action px-4 py-2 text-xs font-bold disabled:opacity-50">Review text</button>
+        <div x-show="pendingSlots" class="mt-3 rounded-xl border border-border-subtle bg-bg-elevated p-3">
+            <p class="text-xs font-bold text-text-primary" x-text="pendingSlots?.filter(Boolean).map(s => s.pokemonName.replace(/-/g, ' ')).join(' · ')"></p>
+            <p class="text-xs text-text-secondary mt-1">Import replaces the current team. A raw recovery copy downloads first; named snapshots remain.</p>
+            <button type="button" @click="applyShowdown()" class="mt-2 rounded-xl bg-action text-white px-4 py-2 text-xs font-bold">Import current team</button>
+        </div>
+    </div>
+
+    <div class="border-t border-border-subtle pt-4">
+        <h3 class="font-bold text-text-primary text-sm">JSON backup &amp; restore</h3>
+        <p class="text-xs text-text-secondary mt-1">Export includes the current team and all named snapshots. Restore validates the complete file before writing. A raw recovery copy downloads before merge or replace.</p>
+        <div class="flex flex-wrap items-center gap-2 mt-2">
+            <button type="button" @click="downloadBackup()" class="rounded-xl border border-action text-action px-4 py-2 text-xs font-bold">Download backup</button>
+            <button type="button" @click="downloadRawRecovery()" class="rounded-xl border border-border text-text-secondary px-4 py-2 text-xs font-bold">Download raw recovery</button>
+            <label class="rounded-xl border border-border text-text-secondary px-4 py-2 text-xs font-bold cursor-pointer">
+                Choose backup file
+                <input type="file" accept=".json,application/json" @change="reviewBackup($event)" class="sr-only" aria-label="Choose team backup JSON file" />
+            </label>
+        </div>
+        <div x-show="pendingBackup" class="mt-3 rounded-xl border border-border-subtle bg-bg-elevated p-3">
+            <p class="text-xs font-bold text-text-primary" x-text="backupFilename"></p>
+            <p class="text-xs text-text-secondary mt-1">Merge adds copies as named snapshots and keeps the current team. Replace sets the current team and named snapshots from this file.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+                <button type="button" @click="applyBackup('merge')" class="rounded-xl border border-action text-action px-4 py-2 text-xs font-bold">Merge snapshots</button>
+                <button type="button" @click="applyBackup('replace')" class="rounded-xl bg-action text-white px-4 py-2 text-xs font-bold">Replace team &amp; snapshots</button>
+            </div>
+        </div>
+    </div>
+</section>

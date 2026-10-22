@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import alpinejs from '@astrojs/alpinejs';
 import tailwindcss from '@tailwindcss/vite';
 import AstroPWA from '@vite-pwa/astro';
+import { offlineAssets, offlineData, offlineDocuments, offlinePrecacheIgnores, preserveDocumentPaths, runtimeCaching } from './scripts/pwa-policy.mjs';
 
 const BASE = '/pokemon-basic';
 
@@ -14,7 +15,9 @@ export default defineConfig({
   integrations: [
     alpinejs({ entrypoint: '/src/entrypoint' }),
     AstroPWA({
-      registerType: 'autoUpdate',
+      // Do not force-reload a tab containing unsaved team/guide edits.
+      registerType: 'prompt',
+      includeAssets: offlineAssets,
       manifest: {
         name: 'PokeBasic',
         short_name: 'PokeBasic',
@@ -32,17 +35,19 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Sprite CDNs are content-addressed by commit path — never change once
-        // fetched, so cache-and-serve beats revalidating on every visit.
-        runtimeCaching: [{
-          urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'sprite-cache',
-            expiration: { maxEntries: 1500, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            cacheableResponse: { statuses: [0, 200] },
-          },
-        }],
+        globPatterns: [...offlineDocuments, ...offlineData, '_astro/**/*.{js,css,woff2,png,svg}'],
+        globIgnores: offlinePrecacheIgnores,
+        // Never serve the homepage as a successful response for another route.
+        navigateFallback: null,
+        manifestTransforms: [preserveDocumentPaths],
+        // Every route/asset is static and query-independent. Hashed filenames
+        // still identify asset revisions; query-only links work offline too.
+        ignoreURLParametersMatching: [/.*/],
+        clientsClaim: true,
+        skipWaiting: false,
+        cleanupOutdatedCaches: true,
+        importScripts: ['pwa-runtime-cache.js'],
+        runtimeCaching,
       },
     }),
   ],

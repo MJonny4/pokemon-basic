@@ -36,8 +36,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Head west to Route 29 toward Cherrygrove City.',
             ],
             items: [
-                { name: 'Pokédex', location: 'Prof. Elm\'s Lab — given after choosing starter', icon: '📕' },
-                { name: 'Potion ×5', location: 'Given by Elm\'s aide after receiving Pokédex', icon: '💊' },
+                { name: 'Potion', location: 'Elm\'s aide in the lab, after choosing your starter', icon: '💊' },
             ],
             wildPokemon: [],
             tips: [
@@ -60,6 +59,8 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             items: [
                 { name: 'Pokégear Map Card', location: 'Old man\'s guided tour of Cherrygrove City', icon: '🗺️' },
                 { name: 'Mystery Egg', location: 'Mr. Pokémon\'s house on Route 30 — bring it to Prof. Elm', icon: '🥚' },
+                { name: 'Pokédex', location: 'Prof. Oak at Mr. Pokémon\'s house on Route 30', icon: '📕' },
+                { name: 'Poké Balls ×5', location: 'Elm\'s aide in the lab after returning the Mystery Egg', icon: '🔴' },
             ],
             wildPokemon: [
                 { name: 'rattata', id: 19, minLevel: 2, maxLevel: 5, method: 'grass', rarity: 'common' },
@@ -78,7 +79,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             ],
             items: [
                 { name: 'HM05 (Flash)', location: 'Sprout Tower — Elder Li at the top', icon: '💡' },
-                { name: 'Old Rod', location: 'Violet City — fisherman near the Gym', icon: '🎣' },
+                { name: 'Old Rod', location: 'Fisherman inside the Route 32 Pokémon Center, south of Violet City', icon: '🎣' },
             ],
             wildPokemon: [
                 { name: 'bellsprout', id: 69, minLevel: 3, maxLevel: 6, method: 'grass', rarity: 'common' },
@@ -261,10 +262,10 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 team: [
                     { name: 'Gastly', id: 92, level: 21 },
                     { name: 'Haunter', id: 93, level: 21 },
-                    { name: 'Haunter', id: 93, level: 23 },
                     { name: 'Gengar', id: 94, level: 25 },
+                    { name: 'Haunter', id: 93, level: 23 },
                 ],
-                strategy: 'Dark-type moves (Bite, Crunch) are super-effective. Shadow Ball from TM works great once you have it. Haunter and Gengar know Hypnosis — bring Awakening. Avoid using Normal or Fighting moves entirely. Espeon/Umbreon with Bite is strong here.',
+                strategy: 'Dark-type moves such as Bite are super-effective. His Lv21 Haunter and Gengar know Hypnosis, so bring Awakenings. Normal and Fighting attacks cannot hit his Ghost team. TM30 Shadow Ball is the reward after this battle.',
                 weaknesses: ['Dark', 'Ghost'],
             },
         },
@@ -274,13 +275,13 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'town',
             steps: [
                 'The Olivine Gym is closed — Jasmine is tending to a sick Ampharos at the top of the Lighthouse.',
-                'Surf west to Cianwood City — defeat the Cianwood Gym to get Surf.',
+                'Use HM03 (Surf), awarded by the Dance Theater gentleman after defeating the five Kimono Girls in Ecruteak, to cross west to Cianwood. Morty’s Fog Badge allows Surf outside battle.',
                 'Get the SecretPotion from the Cianwood pharmacy and return to Jasmine.',
                 'After healing Amphy, Jasmine returns to the gym.',
-                'Also pick up HM02 (Fly) from a woman in Cianwood City.',
+                'After beating Chuck, speak to the woman outside his Gym for HM02 (Fly).',
             ],
             items: [
-                { name: 'HM02 (Fly)', location: 'Cianwood City — woman on the west side of the city', icon: '✈️' },
+                { name: 'HM02 (Fly)', location: 'Chuck’s wife outside the Cianwood Gym, after beating Chuck', icon: '✈️' },
                 { name: 'SecretPotion', location: 'Cianwood Pharmacy — give to Jasmine at the Lighthouse', icon: '💊' },
             ],
             wildPokemon: [
@@ -295,7 +296,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             steps: [
                 'Chuck uses Fighting types — Psychic and Flying moves are super-effective.',
                 'His Poliwrath also knows Water moves — be careful with Fire types.',
-                'A waterfall outside the gym — Primeape is in the front.',
+                'His party starts with Primeape; Poliwrath follows with Hypnosis, Surf and DynamicPunch.',
             ],
             items: [
                 { name: 'TM01 (DynamicPunch)', location: 'Received from Chuck after defeating him', icon: '📀' },
@@ -337,7 +338,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Magnemite', id: 81, level: 30 },
                     { name: 'Steelix', id: 208, level: 35 },
                 ],
-                strategy: 'Fire types dominate — Typhlosion, Arcanine, or even Growlithe makes this easy. Fighting moves (Machamp, Heracross) also work great on Steelix. Ground moves hit Steelix but not Magnemite (they\'re Steel/Electric — immune to Ground). Bring plenty of healing items; Steelix has high Defense.',
+                strategy: 'Fire, Fighting and Ground attacks all threaten Jasmine’s Steel team. Her Electric/Steel Magnemite are four times weak to Ground; Steelix is also Ground weak and has high Defense, so strong special Fire or Water attacks can help. Keep healing supplies ready.',
                 weaknesses: ['Fire', 'Fighting', 'Ground'],
             },
         },
@@ -346,19 +347,19 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Mahogany Town',
             kind: 'town',
             steps: [
-                'The Mahogany Gym is blocked by a man selling Ragecandybars.',
+                'Before challenging Mahogany Gym, head north to the Lake of Rage and investigate the strange radio signal.',
                 'Head to the Lake of Rage north of town — Red Gyarados is there (a shiny, must-encounter).',
                 'Meet Lance at the Lake — together you raid the Team Rocket Hideout under the Mahogany shop.',
-                'Defeat the three Executives in the hideout to disable the radio signals.',
+                'Clear the Rocket Hideout and help Lance stop the radio signal.',
                 'The shop owner leaves and the Gym opens.',
             ],
             items: [
-                { name: 'Red Gyarados', location: 'Lake of Rage — encounter guaranteed, catch it (Shiny Gyarados)', icon: '🔴' },
+                { name: 'Red Gyarados', location: 'Lake of Rage — forced shiny Lv30 encounter; catching it is optional', icon: '🔴' },
                 { name: 'Red Scale', location: 'Lake of Rage — from Red Gyarados after battle/catch', icon: '✨' },
                 { name: 'HM06 (Whirlpool)', location: 'Team Rocket Hideout — Lance gives it after clearing the base', icon: '🌀' },
             ],
             wildPokemon: [
-                { name: 'gyarados', id: 130, minLevel: 20, maxLevel: 20, method: 'surf', rarity: 'rare' },
+                { name: 'gyarados', id: 130, minLevel: 30, maxLevel: 30, method: 'surf', rarity: 'rare', location: 'Fixed shiny battle at the Lake of Rage' },
                 { name: 'magikarp', id: 129, minLevel: 10, maxLevel: 15, method: 'fishing', rarity: 'common' },
             ],
             tips: [
@@ -372,7 +373,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             kind: 'gym',
             steps: [
                 'Pryce uses Ice types — Fire, Fighting, Rock, and Steel moves are super-effective.',
-                'The gym has an ice-puzzle floor — push ice blocks to navigate.',
+                'The Gym has a sliding ice floor; use the trainers and walls to stop your movement and reach Pryce.',
                 'Avoid Ground moves — Seel and Dewgong are Water type too.',
             ],
             items: [
@@ -389,7 +390,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Dewgong', id: 87, level: 29 },
                     { name: 'Piloswine', id: 221, level: 31 },
                 ],
-                strategy: 'Fire types destroy this gym (Typhlosion is ideal). Fighting moves also work. Piloswine is Ice/Ground — watch out for Earthquake. Electric moves hit Seel/Dewgong but not Piloswine. Rock Slide is solid against everything here.',
+                strategy: 'Electric attacks work against Seel and Dewgong but fail against Ground-type Piloswine. Fire is resisted by Seel and neutral against Dewgong, while Piloswine is weak to Fire and Fighting. Piloswine carries Blizzard, not Earthquake in this battle.',
                 weaknesses: ['Fire', 'Fighting', 'Rock', 'Steel'],
             },
         },
@@ -398,15 +399,16 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Goldenrod Radio Tower Takeover',
             kind: 'dungeon',
             steps: [
-                'After getting the 7th badge, Team Rocket takes over the Goldenrod Radio Tower. Note: the step description in your quest log references a "Clear Bell" — this is only in Crystal. In Gold you receive the Rainbow Wing; in Silver you receive the Silver Wing.',
+                'After the Mahogany Hideout and Pryce, Team Rocket takes over the Goldenrod Radio Tower.',
                 'Head to Goldenrod — fight through the Radio Tower and Underground.',
-                'Get the Basement Key from a Rocket in the Underground to access the Radio Tower basement.',
-                'Find the Director on the 5th floor of the Radio Tower and defeat the Rocket Executive.',
-                'The Director gives you the Clear Bell (Gold) / Rainbow Wing (Silver) to summon Lugia/Ho-Oh.',
+                'Defeat the false Director on Radio Tower 5F to get the Basement Key, then find the real Director in the Underground Warehouse.',
+                'Receive the Card Key from the real Director, return to the Radio Tower and defeat the remaining Rocket Executives.',
+                'The rescued Director gives the Rainbow Wing in Gold or the Silver Wing in Silver on Radio Tower 5F.',
             ],
             items: [
                 { name: 'Rainbow Wing (Gold) / Silver Wing (Silver)', location: 'Radio Tower 5F — Director gives it after rescue', icon: '🔔' },
-                { name: 'Basement Key', location: 'Goldenrod Underground — Rocket Grunt disguised as normal person', icon: '🔑' },
+                { name: 'Basement Key', location: 'False Director on Radio Tower 5F', icon: '🔑' },
+                { name: 'Card Key', location: 'Real Director in the Goldenrod Underground Warehouse', icon: '🔑' },
             ],
             wildPokemon: [],
             tips: [
@@ -422,12 +424,11 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Reach Blackthorn via Ice Path from Mahogany Town — solve the ice puzzles.',
                 'In Ice Path, pick up HM07 (Waterfall).',
                 'Challenge the final Johto gym.',
-                'After the gym, the Dragon Elder will give you HM06 (Rock Smash) — note it is HM06 in Gen 2, not HM08. Your rival is defeated again here as well.',
+                'After Clair, travel into Dragon’s Den and collect the Dragon Fang. In Gold/Silver, Clair gives the badge when you pick it up; there is no Elder quiz.',
             ],
             items: [
                 { name: 'HM07 (Waterfall)', location: 'Ice Path — item ball inside the cave', icon: '💦' },
-                { name: 'HM06 (Rock Smash)', location: 'Dragon\'s Den — Dragon Elder after getting 8 badges', icon: '💥' },
-                { name: 'Dratini', location: 'Dragon\'s Den — old man gives one if you answer his quiz correctly', icon: '🐲' },
+                { name: 'Dragon Fang', location: 'Dragon’s Den B1F — pick it up after defeating Clair', icon: '🐲' },
             ],
             wildPokemon: [
                 { name: 'jynx', id: 124, minLevel: 22, maxLevel: 30, method: 'cave', rarity: 'uncommon' },
@@ -443,7 +444,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 'Clair uses Dragon types — Ice and Dragon moves are super-effective.',
                 'The gym requires moving boulders into lava pits to cross.',
                 'After defeating Clair, she refuses to give the badge — complete the Dragon\'s Den challenge first.',
-                'Answer the Dragon Elder\'s quiz correctly to receive the Rising Badge and TM24 (DragonBreath).',
+                'Pick up the Dragon Fang in Dragon’s Den; Clair then gives the Rising Badge and TM24 (DragonBreath).',
             ],
             items: [
                 { name: 'TM24 (DragonBreath)', location: 'Received from Clair after completing the Dragon\'s Den challenge', icon: '📀' },
@@ -460,7 +461,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Dragonair', id: 148, level: 37 },
                     { name: 'Kingdra', id: 230, level: 40 },
                 ],
-                strategy: 'Ice moves are essential — Blizzard, Ice Beam, or even Icy Wind. Kingdra is Water/Dragon and only weak to Dragon moves in Gen 2 (no Fairy type). Use a Dragon type move or chip away with Ice. Dragonair can use Hyper Beam — keep your HP up.',
+                strategy: 'Ice attacks are super-effective against her Dragonair, but neutral against Water/Dragon Kingdra. Kingdra is only weak to Dragon attacks in Gen 2; otherwise use solid neutral damage. Kingdra, not Dragonair, carries Hyper Beam in this battle.',
                 weaknesses: ['Ice', 'Dragon'],
             },
         },
@@ -469,9 +470,9 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Johto Victory Road',
             kind: 'dungeon',
             steps: [
-                'Stock up in Blackthorn or New Bark before heading to Victory Road.',
+                'Stock up in Blackthorn or New Bark, then take Route 27 through Tohjo Falls with Waterfall and follow Route 26 toward the Pokémon League Reception Gate.',
                 'The cave is shorter than Kanto\'s — navigate to the Pokémon League.',
-                'Once you beat the Elite Four and Champion, Kanto opens up — all 8 Kanto gyms are accessible.',
+                'After beating the Elite Four and Champion, collect the S.S. Ticket from Elm to begin the Kanto chapter.',
             ],
             items: [
                 { name: 'Full Restore', location: 'Victory Road — item ball', icon: '💊' },
@@ -506,7 +507,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Slowbro', id: 80, level: 41 },
                     { name: 'Xatu', id: 178, level: 42 },
                 ],
-                strategy: 'Dark type moves (Bite, Crunch, Shadow Ball) are your best tools. Umbreon is an excellent lead. Bug moves work too — Heracross with Megahorn is phenomenal. Avoid Fighting and Poison types.',
+                strategy: 'Dark moves such as Bite or Crunch are reliable against Will’s Psychic team. Shadow Ball is Ghost-type and also hits Psychic effectively. Bug moves work too, but watch for Xatu’s Flying typing and Jynx’s Ice attacks.',
                 weaknesses: ['Dark', 'Bug', 'Ghost'],
             },
         },
@@ -517,7 +518,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             steps: [
                 'Koga was promoted from Gym Leader to Elite Four member.',
                 'Uses Poison types with heavy status moves — bring Antidotes and Awakening.',
-                'Ground, Psychic, and Fire moves are effective against Poison.',
+                'Psychic attacks threaten most of Koga’s team; Fire is especially strong against Forretress.',
             ],
             items: [],
             wildPokemon: [],
@@ -533,7 +534,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Muk', id: 89, level: 42 },
                     { name: 'Crobat', id: 169, level: 44 },
                 ],
-                strategy: 'Koga uses Mean Look + Baton Pass combos and toxic stalling. Fire types handle Forretress easily. Psychic moves handle most of his team. Crobat is very fast — use your own fast attacker. Bring Antidote and Full Heals for status conditions.',
+                strategy: 'Ariados carries Spider Web and Baton Pass; Muk, Venomoth and Crobat can spread status. Fire attacks are four times effective against Forretress. Psychic attacks help against Poison members except Forretress; Crobat is fast, so bring healing and status cures.',
                 weaknesses: ['Ground', 'Psychic', 'Fire'],
             },
         },
@@ -616,7 +617,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                     { name: 'Charizard', id: 6, level: 46 },
                     { name: 'Dragonite', id: 149, level: 50 },
                 ],
-                strategy: 'Ice Beam/Blizzard is your best friend — hits Gyarados, Dragonite, and Aerodactyl. Electric moves handle Gyarados. Rock Slide for Aerodactyl and Charizard. Lapras is perfect for this fight. Keep Revives handy — his Dragonite at Lv50 hits very hard.',
+                strategy: 'Ice attacks are especially strong against his three Dragonite. Electric attacks are four times effective against Gyarados and also threaten Aerodactyl; Rock attacks are four times effective against Charizard. Keep Revives handy — his final Dragonite is Lv50.',
                 weaknesses: ['Ice', 'Electric', 'Rock'],
             },
             tips: [
@@ -629,17 +630,19 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Kanto — All 8 Gyms',
             kind: 'town',
             steps: [
-                'Travel to Kanto via the Magnet Train (get the Pass from the girl in Saffron after delivering her lost Spearow).',
-                'Challenge all 8 Kanto Gyms — they are much harder than in Gen 1 (all leaders have stronger teams).',
+                'After becoming Johto Champion, collect the S.S. Ticket from Prof. Elm and board the S.S. Aqua at Olivine Port to reach Kanto.',
+                'For optional Magnet Train travel, restore power to the Kanto Power Plant, recover Copycat\'s lost Poké Doll from the Vermilion Pokémon Fan Club, and return it to her in Saffron for the Pass.',
+                'Challenge the eight Kanto Gym Leaders; you can visit them in a flexible order as routes become available.',
                 'Brock (Rock, Pewter) → Misty (Water, Cerulean) → Lt. Surge (Electric, Vermilion) → Erika (Grass, Celadon) → Janine (Poison, Fuchsia — replaces Koga) → Sabrina (Psychic, Saffron) → Blaine (Fire, Seafoam Islands) → Blue (Mixed, Viridian).',
                 'After all 16 badges total (8 Johto + 8 Kanto), Prof. Oak opens access to Mt. Silver.',
             ],
             items: [
-                { name: 'Magnet Train Pass', location: 'Saffron City — return the Spearow with a Mail to Goldenrod', icon: '🎟️' },
+                { name: 'S.S. Ticket', location: 'Prof. Elm after becoming Johto Champion; board at Olivine Port', icon: '🎟️' },
+                { name: 'Magnet Train Pass', location: 'Copycat in Saffron after returning her lost Poké Doll from the Vermilion Pokémon Fan Club', icon: '🎟️' },
             ],
             wildPokemon: [],
             tips: [
-                'All 8 Kanto leaders have Lv50–60 Pokémon — level your team to 50+ before challenging them.',
+                'Kanto leader levels vary; check each team and heal between cities.',
                 'Blue (Viridian Gym, Gen 2) is one of the hardest gym leaders in the series.',
             ],
         },
@@ -648,7 +651,7 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
             name: 'Mt. Silver — Red',
             kind: 'champion',
             steps: [
-                'Enter Mt. Silver via Route 28 on the western edge of Kanto after all 16 badges — it is not directly west of Pallet Town; reach it through the eastern Kanto routes.',
+                'After all 16 badges, speak to Prof. Oak. Travel to the Pokémon League Reception Gate and head west along Route 28 to Mt. Silver.',
                 'Navigate to the summit using cave traversal and Surf where needed.',
                 'Red stands at the peak — he says nothing. This is the ultimate challenge.',
                 'Red\'s team is the highest level of any trainer in Gen 1/2 — be ready.',
@@ -666,19 +669,19 @@ export const GOLD_SILVER_GUIDE: GameGuide = {
                 tmReward: '',
                 team: [
                     { name: 'Pikachu', id: 25, level: 81 },
-                    { name: 'Lapras', id: 131, level: 80 },
+                    { name: 'Espeon', id: 196, level: 73 },
                     { name: 'Snorlax', id: 143, level: 75 },
                     { name: 'Venusaur', id: 3, level: 77 },
                     { name: 'Charizard', id: 6, level: 77 },
                     { name: 'Blastoise', id: 9, level: 77 },
                 ],
-                strategy: 'Red\'s team is Lv75–81 — the highest levels in Gen 2. Pikachu has Light Ball — enormous Special Attack. Bring your strongest Pokémon at Lv70+. Electric moves for Lapras, Fighting for Snorlax, Ice for Charizard/Venusaur, Fire for Venusaur, Electric for Blastoise. This is the hardest battle in the game.',
+                strategy: 'Red\'s team ranges from Lv73 Espeon to Lv81 Pikachu. Ground attacks threaten Pikachu; Fighting handles Snorlax; Dark, Bug or Ghost pressure Espeon. Fire threatens Venusaur, Rock is especially strong against Charizard, and Electric or Grass helps against Blastoise. Bring a well-trained team and healing supplies.',
                 weaknesses: ['Fire', 'Ice', 'Electric', 'Fighting', 'Ground'],
             },
             tips: [
                 'Recommended team level: 70+. This is the hardest battle in Gen 1/2.',
                 'Stock up on Full Restores, Revives, and Max Potions — you\'ll need them.',
-                'Defeating Red is the true ending of Pokémon Gold and Silver.',
+                'Defeating Red is the postgame Mt. Silver capstone.',
             ],
         },
     ],

@@ -1,14 +1,13 @@
-// @ts-expect-error Bun provides this module when the test is run with `bun test`.
 import { describe, expect, test } from 'bun:test'
-import moveMachinesJson from '../data/move-machines.json'
-import { moveMachineHistory } from '../../ui/move-machine-history'
+import moveMachinesJson from '../../../../src/lib/data/move-machines.json'
+import { moveMachineHistory } from '../../../../src/ui/move-machine-history'
 import {
     formatMachineCode,
     machineSearchEntries,
     matchesMachineQuery,
     parseMachineQuery,
     type MoveMachineAssignment,
-} from './machines'
+} from '../../../../src/lib/logic/machines'
 
 const moves = moveMachinesJson as Record<string, MoveMachineAssignment[]>
 

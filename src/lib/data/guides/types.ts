@@ -1,5 +1,6 @@
 export type EncounterMethod = 'grass' | 'surf' | 'fishing' | 'cave' | 'gift' | 'trade'
 export type StopKind = 'town' | 'route' | 'gym' | 'dungeon' | 'elite-four' | 'champion'
+/** Legacy source field only. Public coverage/review comes from the registry. */
 export type GuideCompleteness = 'early-access' | 'full' | 'verified'
 
 export interface StarterChoice {
@@ -14,8 +15,12 @@ export interface WildEntry {
     id: number
     minLevel: number
     maxLevel: number
+    /** Exact levels when a min/max range would imply unavailable levels. */
+    levels?: number[]
     method: EncounterMethod
     rarity?: 'common' | 'uncommon' | 'rare'
+    location?: string
+    versionNote?: string
 }
 
 export interface GuideItem {
@@ -50,8 +55,12 @@ export interface GuideStop {
     steps: string[]
     items: GuideItem[]
     wildPokemon: WildEntry[]
+    encounterTitle?: string
+    encounterNote?: string
     gym?: GymInfo
     tips?: string[]
+    /** Rich pilot content is rendered as static HTML, not duplicated in Alpine. */
+    locationPilot?: true
 }
 
 export interface GameGuide {

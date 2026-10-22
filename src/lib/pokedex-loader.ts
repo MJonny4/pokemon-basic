@@ -131,10 +131,12 @@ export function setupPokedexLoader(): void {
             window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: urlName } }))
             return
         }
-        const autoSearch = sessionStorage.getItem('autoSearch')
-        if (autoSearch) {
-            sessionStorage.removeItem('autoSearch')
-            window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: autoSearch } }))
-        }
+        try {
+            const autoSearch = sessionStorage.getItem('autoSearch')
+            if (autoSearch) {
+                sessionStorage.removeItem('autoSearch')
+                window.dispatchEvent(new CustomEvent('pokemon-search', { detail: { name: autoSearch } }))
+            }
+        } catch { /* Manual search remains available when session storage is blocked. */ }
     })
 }

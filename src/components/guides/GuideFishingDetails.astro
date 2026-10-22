@@ -1,0 +1,31 @@
+---
+import type { GuideFishingSection } from '../../lib/data/guides/fishing-schema'
+import { itemSprite } from '../../ui/item-card'
+import GuidePokemonCard from './GuidePokemonCard.astro'
+import GuideSprite from './GuideSprite.astro'
+
+interface Props { section: GuideFishingSection }
+const { section } = Astro.props
+const rodNames = { 'old-rod': 'Old Rod', 'good-rod': 'Good Rod', 'super-rod': 'Super Rod' }
+---
+
+<section x-show={`activeStopId === ${JSON.stringify(section.stopId)}`} x-cloak aria-label="Fishing spots and return-visit requirements" data-guide-fishing={section.id} class="bg-bg-surface border border-border-subtle rounded-2xl p-5 shadow-sm space-y-4">
+    <div>
+        <h3 class="font-black text-text-primary text-sm">{section.title ?? 'Fishing spots · plan a return visit'}</h3>
+        <p class="text-sm text-text-secondary leading-relaxed mt-2">{section.notice}</p>
+    </div>
+    {section.spots.map((spot) => <details class="rounded-xl border border-border-subtle p-3 sm:p-4" data-fishing-spot={spot.id}>
+        <summary class="cursor-pointer font-black text-sm text-text-primary focus-visible:outline-2 focus-visible:outline-action focus-visible:outline-offset-4">{spot.name}</summary>
+        <p class="text-sm text-text-secondary leading-relaxed mt-3">{spot.directions}</p>
+        <div class="grid gap-3 xl:grid-cols-3 mt-4">
+            {spot.rods.map((rod) => <section class="bg-bg-elevated border border-border-subtle rounded-xl p-3 min-w-0" aria-label={`${spot.name}: ${rodNames[rod.id]}`} data-fishing-rod={rod.id}>
+                <h4 class="flex items-center gap-2 font-black text-text-primary text-sm"><GuideSprite src={itemSprite(rod.id)} size="item" />{rodNames[rod.id]}</h4>
+                <p class="text-xs text-text-secondary mt-2 mb-3 leading-relaxed"><strong>Get this rod:</strong> {rod.obtainedAt}</p>
+                <p class="text-[10px] text-text-secondary font-black uppercase tracking-wide mb-2">Possible catches</p>
+                <div class:list={['grid gap-2', rod.catches.length > 1 ? 'grid-cols-2' : 'grid-cols-1']}>
+                    {rod.catches.map((pokemon) => <GuidePokemonCard name={pokemon.name} dexId={pokemon.dexId} levelLabel={`Lv. ${pokemon.level}`} />)}
+                </div>
+            </section>)}
+        </div>
+    </details>)}
+</section>

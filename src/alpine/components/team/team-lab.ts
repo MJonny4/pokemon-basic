@@ -4,6 +4,9 @@ import { fetchPokemon, fetchPokemonList } from '../../../lib/api/pokeapi'
 import { TYPE_COLORS } from '../../../lib/data/constants'
 import { typeCardStyle } from '../../../ui/badges'
 import { validateTeamForBattle } from '../../../lib/logic/battle-engine'
+import { compareGen1Team } from '../../../lib/logic/gen1-matchup'
+import { exportShowdownTeam } from '../../../lib/logic/team-portability'
+import type { RedBlueOpponent, RedBlueOpponentManifest, RedBlueOpponentMember } from '../../../lib/data/guides/red-blue/opponents'
 
 export function registerTeamLab(): void {
     Alpine.data('teamLab', () => ({
@@ -16,6 +19,49 @@ export function registerTeamLab(): void {
         teamCopied: false,
         dragSource: null as number | null,
         toast: { show: false, message: '' } as { show: boolean; message: string },
+        opponentManifest: null as RedBlueOpponentManifest | null,
+        opponentId: '',
+        opponentStarterId: 1 as 1 | 4 | 7,
+        opponentMessage: '',
+
+        get currentOpponent(): RedBlueOpponent | null {
+            return this.opponentManifest?.opponents.find((opponent) => opponent.id === this.opponentId) ?? null
+        },
+
+        get opponentParty(): RedBlueOpponentMember[] {
+            const opponent = this.currentOpponent
+            return opponent?.party ?? opponent?.variants?.find((variant) => variant.playerStarterDexId === this.opponentStarterId)?.party ?? []
+        },
+
+        get opponentRows() {
+            if (!this.opponentManifest) return []
+            return compareGen1Team((Alpine.store('team') as any).slots, this.opponentParty, this.opponentManifest)
+        },
+
+        async loadOpponent(id: string, starter: string | null) {
+            if (!/^[a-z0-9-]+:[a-z0-9-]+$/.test(id)) { this.opponentMessage = 'This opponent link is invalid.'; return }
+            const chosen = Number(starter)
+            this.opponentStarterId = chosen === 4 || chosen === 7 ? chosen : 1
+            this.opponentId = id
+            this.opponentMessage = 'Loading source-checked Red/Blue opponent…'
+            try {
+                const response = await fetch(`${import.meta.env.BASE_URL}/data/red-blue-opponents.json`)
+                if (!response.ok) throw new Error('Opponent data unavailable')
+                const data: RedBlueOpponentManifest = await response.json()
+                if (data.schemaVersion !== 1 || data.guideId !== 'red-blue' || data.generation !== 1 || !Array.isArray(data.opponents) ||
+                    !data.species || !data.moves || !data.typeChart) throw new Error('Opponent data invalid')
+                this.opponentManifest = data
+                this.opponentMessage = this.currentOpponent ? '' : 'This opponent is not in the reviewed Red/Blue guide.'
+            } catch { this.opponentMessage = 'Opponent data could not be loaded. Try again when the page is online.' }
+        },
+
+        chooseOpponentStarter(id: 1 | 4 | 7) {
+            if (![1, 4, 7].includes(id)) return
+            this.opponentStarterId = id
+            const url = new URL(window.location.href)
+            url.searchParams.set('starter', String(id))
+            history.replaceState({}, '', url)
+        },
 
         async init() {
             ;(Alpine.store('team') as any).loadFromLocal()
@@ -24,9 +70,12 @@ export function registerTeamLab(): void {
             })
             // Handle ?add=pokemon-name URL param (from Pokédex "Add to Team Lab" button)
             const params = new URLSearchParams(window.location.search)
+            const opponentId = params.get('opponent')
+            if (opponentId) void this.loadOpponent(opponentId, params.get('starter'))
             const addName = params.get('add')
             if (addName) {
-                history.replaceState({}, '', window.location.pathname)
+                params.delete('add')
+                history.replaceState({}, '', window.location.pathname + (params.size ? `?${params}` : ''))
                 await this.addByName(addName.toLowerCase())
             }
         },
@@ -125,31 +174,7 @@ export function registerTeamLab(): void {
         },
 
         exportTeam(): string {
-            const LABELS: Record<string, string> = {
-                hp: 'HP', attack: 'Atk', defense: 'Def',
-                'special-attack': 'SpA', 'special-defense': 'SpD', speed: 'Spe',
-            }
-            const STAT_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
-            const cap = (s: string) => s.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('-')
-            const slots = (Alpine.store('team') as any).slots as any[]
-            return slots
-                .filter((s: any) => s && s.pokemonName)
-                .map((s: any) => {
-                    const lines: string[] = []
-                    lines.push(s.item ? `${cap(s.pokemonName)} @ ${s.item}` : cap(s.pokemonName))
-                    // Keep parity with the per-mon exportShowdown() in set-editor.ts
-                    if (s.ability) lines.push(`Ability: ${(s.ability as string).split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`)
-                    if (s.teraType) lines.push(`Tera Type: ${(s.teraType as string).charAt(0).toUpperCase() + (s.teraType as string).slice(1)}`)
-                    lines.push(`Level: ${s.level ?? 50}`)
-                    const evParts = STAT_KEYS.filter(k => (s.evs?.[k] ?? 0) > 0).map(k => `${s.evs[k]} ${LABELS[k]}`)
-                    if (evParts.length) lines.push(`EVs: ${evParts.join(' / ')}`)
-                    if (s.nature) lines.push(`${s.nature} Nature`)
-                    const ivParts = STAT_KEYS.filter(k => (s.ivs?.[k] ?? 31) < 31).map(k => `${s.ivs[k]} ${LABELS[k]}`)
-                    if (ivParts.length) lines.push(`IVs: ${ivParts.join(' / ')}`)
-                    ;(s.moves as (string | null)[]).filter(Boolean).forEach(m => lines.push(`- ${cap(m!)}`))
-                    return lines.join('\n')
-                })
-                .join('\n\n')
+            return exportShowdownTeam((Alpine.store('team') as any).slots)
         },
 
         async copyTeam() {

@@ -1,7 +1,8 @@
 import Alpine from 'alpinejs'
 import { gsap } from 'gsap'
-import { detectRole } from '../../../lib/logic/role-detect'
 import { fetchPokemonList } from '../../../lib/api/pokeapi'
+import { validateTeamSlots } from '../../../lib/logic/team-portability'
+import { makeSlot } from '../../stores/team'
 
 export function registerModal(): void {
     Alpine.data('modal', () => ({
@@ -163,9 +164,15 @@ export function registerModal(): void {
                 const raw = localStorage.getItem('team_lab')
                 if (raw) {
                     const saved = JSON.parse(raw)
-                    if (Array.isArray(saved) && saved.length === 6) slots = saved
+                    validateTeamSlots(saved)
+                    slots = saved
                 }
-            } catch {}
+            } catch {
+                window.dispatchEvent(new CustomEvent('team-toast', {
+                    detail: { message: 'Saved team data needs recovery. Open Team Lab before adding Pokémon.', type: 'error' },
+                }))
+                return
+            }
 
             const firstEmpty = slots.findIndex((s) => s === null)
             const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
@@ -191,25 +198,16 @@ export function registerModal(): void {
                 return
             }
 
-            const stats = Object.fromEntries(pokemon.stats.map((s: any) => [s.stat.name, s.base_stat]))
-            const role = detectRole(stats)
-            slots[firstEmpty] = {
-                pokemonName: pokemon.name,
-                pokemonId: pokemon.id,
-                types: pokemon.types.map((t: any) => t.type.name),
-                stats,
-                nature: null,
-                item: null,
-                moves: [null, null, null, null],
-                role: role.key,
-                evs: { hp: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, speed: 0 },
-                ivs: { hp: 31, attack: 31, defense: 31, 'special-attack': 31, 'special-defense': 31, speed: 31 },
-                level: 50,
-            }
+            slots[firstEmpty] = makeSlot(pokemon)
 
             try {
                 localStorage.setItem('team_lab', JSON.stringify(slots))
-            } catch {}
+            } catch {
+                window.dispatchEvent(new CustomEvent('team-toast', {
+                    detail: { message: 'Team could not be saved in this browser.', type: 'error' },
+                }))
+                return
+            }
 
             window.dispatchEvent(new CustomEvent('team-toast', {
                 detail: {

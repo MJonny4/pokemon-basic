@@ -1,40 +1,26 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import SiteHeader from '../../components/SiteHeader.astro'
-import { RED_BLUE_GUIDE } from '../../lib/data/guides/red-blue'
-import { GOLD_SILVER_GUIDE } from '../../lib/data/guides/gold-silver'
-import { RUBY_SAPPHIRE_GUIDE } from '../../lib/data/guides/ruby-sapphire'
-import { DIAMOND_PEARL_GUIDE } from '../../lib/data/guides/diamond-pearl'
-import type { GameGuide, GuideCompleteness } from '../../lib/data/guides/types'
+import { GUIDE_REGISTRY, type GuideRegistration } from '../../lib/data/guides/registry'
+import GuideLocationDetails from '../../components/guides/GuideLocationDetails.astro'
+import GuideFishingDetails from '../../components/guides/GuideFishingDetails.astro'
+import GuideOptionalLocation from '../../components/guides/GuideOptionalLocation.astro'
+import GuideSectionIcon from '../../components/guides/GuideSectionIcon.astro'
+import GuideStopIcon from '../../components/guides/GuideStopIcon.astro'
+import { buildGuideCollectionManifest } from '../../lib/data/guides/collection-manifest'
 
-// getStaticPaths() runs in its own isolated scope at build time — it can only see
-// imports, not other frontmatter consts — so it builds its own GAMES array here.
 export function getStaticPaths() {
-    const games: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE, DIAMOND_PEARL_GUIDE]
-    return games.map((g) => ({
-        params: { game: g.id },
-        props: { game: g },
+    return GUIDE_REGISTRY.map((entry) => ({
+        params: { game: entry.game.id },
+        props: { entry },
     }))
 }
 
-interface Props { game: GameGuide }
-const { game } = Astro.props as Props
+interface Props { entry: GuideRegistration }
+const { entry } = Astro.props
+const { game } = entry
+const collectionManifest = buildGuideCollectionManifest(entry)
 const base = import.meta.env.BASE_URL
-
-// Same list, for the in-page game-switcher row below (separate scope from getStaticPaths above)
-const GAMES: GameGuide[] = [RED_BLUE_GUIDE, GOLD_SILVER_GUIDE, RUBY_SAPPHIRE_GUIDE, DIAMOND_PEARL_GUIDE]
-
-// Moved out of guide.ts — static per-page content now, not client Alpine state
-function completenessLabel(level?: GuideCompleteness): string {
-    if (level === 'verified') return 'Verified'
-    if (level === 'full') return 'Full'
-    return 'Early Access'
-}
-function completenessClass(level?: GuideCompleteness): string {
-    if (level === 'verified') return 'bg-emerald-100 text-emerald-700 border-emerald-200'
-    if (level === 'full') return 'bg-violet-100 text-violet-700 border-violet-200'
-    return 'bg-amber-100 text-amber-700 border-amber-200'
-}
 ---
 
 <Layout
@@ -44,7 +30,7 @@ function completenessClass(level?: GuideCompleteness): string {
     <SiteHeader subtitle={`Game Guide · Gen ${game.gen}`} activeRoute="/games" />
 
     <!-- ══════════ MAIN ══════════ -->
-    <div x-data="guide" data-game={JSON.stringify(game)} x-cloak class="max-w-7xl mx-auto px-4 py-6">
+    <div x-data="guide" data-game={JSON.stringify(game)} data-collection={collectionManifest ? JSON.stringify(collectionManifest) : undefined} x-cloak class="max-w-7xl mx-auto px-4 py-6">
 
         <!-- Page title + game switcher -->
         <div class="mb-5 flex flex-col sm:flex-row sm:items-end gap-4">
@@ -53,36 +39,74 @@ function completenessClass(level?: GuideCompleteness): string {
                 <p class="text-sm text-text-tertiary font-medium">Step-by-step walkthrough. Mark stops as you complete them — progress saves automatically.</p>
             </div>
             <div class="flex gap-2 sm:ml-auto flex-wrap">
-                {GAMES.map((g) => (
+                {GUIDE_REGISTRY.map(({ game: g, coverage }) => (
                     <div class="flex items-center gap-1.5">
                         <a href={`${base}/games/${g.id}`} class:list={['fchip', g.id === game.id && 'fchip-active']}>
                             {g.title}
                         </a>
-                        <span class:list={['text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full border', completenessClass(g.completeness)]}>
-                            {completenessLabel(g.completeness)}
+                        <span class="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full border bg-amber-100 text-amber-700 border-amber-200">
+                            {coverage === 'main-story' ? 'Main story guide' : coverage === 'partial' ? 'Partial guide' : 'Story outline'}
                         </span>
                     </div>
                 ))}
             </div>
         </div>
 
+        <section aria-label="About this guide" class="bg-bg-surface rounded-2xl border border-border-subtle p-4 mb-5 text-sm text-text-secondary">
+            {game.id === 'red-blue'
+                ? <p><strong>Main story route complete.</strong> The 24 stops take you from Pallet Town to the Hall of Fame. Some optional trainers, items, encounters and activities are still being checked.</p>
+                : <p><strong>Guide in progress.</strong> Some details are still being checked, and not every item, encounter or optional activity is listed.</p>}
+            {game.id === 'red-blue' && <p class="mt-2 text-xs">For the original English Game Boy Red/Blue, not Yellow or remakes.</p>}
+        </section>
+
         <!-- Progress bar -->
         <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-4 mb-5">
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <span class="text-xs font-black text-text-tertiary uppercase tracking-widest">Progress</span>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold text-text-secondary" x-text="`${completedStops.length} / ${game.stops.length} stops completed`"></span>
-                    <button
-                        @click="resetProgress()"
-                        class="text-[10px] font-bold text-text-tertiary hover:text-brand transition uppercase tracking-wide">
-                        ✕ Reset
-                    </button>
-                </div>
+                <span class="text-xs font-bold text-text-secondary" x-text="`${completedStops.length} / ${game.stops.length} stops completed`"></span>
             </div>
-            <div class="stat-bar-track">
+            <div class="stat-bar-track" role="progressbar" aria-label="Guide stops completed" aria-valuemin="0" :aria-valuenow="completedStops.length" :aria-valuemax="game.stops.length">
                 <div class="stat-bar-fill bg-action transition-all duration-300" :style="`width:${progressPct}%`"></div>
             </div>
+            <div x-show="collectionManifest" x-cloak class="mt-3 border-t border-border-subtle pt-3 text-xs text-text-secondary">
+                <p class="font-bold">Separate checklist: <span x-text="`${collectionState.completedSteps.length}/${collectionTotals.steps} steps · ${collectionState.collectedItems.length}/${collectionTotals.items} listed items · ${collectionState.seenSpecies.length}/${collectionTotals.species} seen · ${collectionState.caughtSpecies.length}/${collectionTotals.species} caught`"></span></p>
+                <p class="mt-1">These are guide-listed entries across Red and Blue, not a complete Pokédex or item inventory. Some item choices are alternatives.</p>
+            </div>
+            <div class="flex flex-wrap justify-end items-center gap-2 mt-3">
+                <button type="button" @click="downloadBackup()" title="JSON backup for this guide, including recovery snapshots and current unsaved edits." class="min-h-9 px-3 py-2 rounded-lg bg-action-subtle text-xs font-bold text-action hover:underline focus-visible:outline-2 focus-visible:outline-action">Download save backup</button>
+                <button type="button" @click="resetProgress()" class="min-h-9 px-3 py-2 rounded-lg text-xs font-bold text-text-secondary hover:text-brand hover:bg-bg-elevated transition focus-visible:outline-2 focus-visible:outline-action">✕ Reset</button>
+            </div>
+            <details class="mt-4 border-t border-border-subtle pt-3 text-sm text-text-secondary">
+                <summary class="cursor-pointer font-bold text-action">Restore a guide backup</summary>
+                <div class="mt-3 space-y-3">
+                    <p>Choose a JSON backup for this guide. Review its saved values and its separate tab view before restoring. Older backups restore story progress and starter choice while leaving the collection checklist as it is.</p>
+                    <label class="block font-semibold" for="guide-restore-file">Backup file</label>
+                    <input id="guide-restore-file" type="file" accept=".json,application/json" @change="prepareRestoreFile($event)" class="block w-full max-w-full text-sm" />
+                    <div x-show="restorePreview" x-cloak class="space-y-3 rounded-xl border border-border-subtle bg-bg-elevated p-3">
+                        <p class="font-semibold">Backup from <span x-text="restorePreview?.exportedAt ? new Date(restorePreview.exportedAt).toLocaleString() : ''"></span></p>
+                        <fieldset class="space-y-1">
+                            <legend class="font-semibold">Which values should be restored?</legend>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-source" value="saved" x-model="restoreSource" :disabled="!restorePreview?.saved" /><span x-text="restorePreview?.saved ? `Saved values: ${restorePreview.saved.completedStops.length} completed stops; starter ${restorePreview.saved.selectedStarter?.name ?? 'none'}${restorePreview.saved.collection ? `; ${restorePreview.saved.collection.collectedItems.length} listed items` : ''}` : 'Saved values cannot be safely restored from this file'"></span></label>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-source" value="session" x-model="restoreSource" :disabled="!restorePreview?.session" /><span x-text="restorePreview?.session ? `Tab view: ${restorePreview.session.completedStops.length} completed stops; starter ${restorePreview.session.selectedStarter?.name ?? 'none'}${restorePreview.session.collection ? `; ${restorePreview.session.collection.collectedItems.length} listed items` : ''}` : 'No separate tab view in this file'"></span></label>
+                        </fieldset>
+                        <fieldset class="space-y-1">
+                            <legend class="font-semibold">How should it combine with this guide?</legend>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-mode" value="replace" x-model="restoreMode" /><span>Replace this guide's progress, starter and included collection checklist with the chosen values.</span></label>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-mode" value="merge" x-model="restoreMode" /><span>Keep marked entries from both saves. Keep the current starter if one is selected.</span></label>
+                        </fieldset>
+                        <p class="text-xs">Recovery copies are kept. Download your current save before applying this file.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" @click="downloadCurrentBeforeRestore()" class="min-h-9 rounded-lg bg-action-subtle px-3 py-2 font-bold text-action">1. Download current save</button>
+                            <button type="button" @click="restoreBackup()" :disabled="!restoreCurrentBackupDownloaded" class="min-h-9 rounded-lg bg-action px-3 py-2 font-bold text-white disabled:opacity-50">2. Restore selected backup</button>
+                        </div>
+                    </div>
+                </div>
+            </details>
         </div>
+
+        <section x-show="storageMessages.length > 0" x-cloak role="status" aria-live="polite" aria-label="Guide save status" class="mb-5 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-100 space-y-2">
+            <template x-for="message in storageMessages" :key="message"><p x-text="message"></p></template>
+        </section>
 
         <!-- Mobile stop selector -->
         <div class="lg:hidden w-full mb-4">
@@ -98,7 +122,7 @@ function completenessClass(level?: GuideCompleteness): string {
                                 'opacity-60': isCompleted(stop.id) && activeStopId !== stop.id
                             }"
                             class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
-                            <span x-text="stop.icon || stopIcon(stop.kind)"></span>
+                            <GuideStopIcon kind="stop.kind" text="stop.icon || stopIcon(stop.kind)" />
                             <span x-text="stop.name"></span>
                         </button>
                     </template>
@@ -130,7 +154,7 @@ function completenessClass(level?: GuideCompleteness): string {
                                     <span>✓</span>
                                 </template>
                             </span>
-                            <span x-text="stop.icon || stopIcon(stop.kind)" class="shrink-0"></span>
+                            <GuideStopIcon kind="stop.kind" text="stop.icon || stopIcon(stop.kind)" />
                             <span x-text="stop.name" class="leading-tight truncate" :class="isCompleted(stop.id) ? 'line-through text-text-tertiary' : ''"></span>
                         </button>
                     </template>
@@ -147,7 +171,7 @@ function completenessClass(level?: GuideCompleteness): string {
                             <div class="flex items-start justify-between gap-4 flex-wrap">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span x-text="currentStop.icon || stopIcon(currentStop.kind)" class="text-2xl"></span>
+                                        <GuideStopIcon kind="currentStop.kind" text="currentStop.icon || stopIcon(currentStop.kind)" large />
                                         <h2 class="text-xl font-black text-text-primary" x-text="currentStop.name"></h2>
                                     </div>
                                     <span class="text-[11px] font-black text-text-tertiary uppercase tracking-widest px-2 py-0.5 bg-bg-raised rounded-full" x-text="currentStop.kind.replace('-', ' ')"></span>
@@ -219,7 +243,8 @@ function completenessClass(level?: GuideCompleteness): string {
                                 <ol class="space-y-3">
                                     <template x-for="(step, i) in currentStop.steps" :key="i">
                                         <li class="flex gap-3 text-sm text-text-primary leading-relaxed">
-                                            <span class="w-6 h-6 rounded-full bg-action-subtle text-action font-black text-xs flex items-center justify-center shrink-0 mt-0.5" x-text="i + 1"></span>
+                                            <span x-show="!collectionManifest" class="w-6 h-6 rounded-full bg-action-subtle text-action font-black text-xs flex items-center justify-center shrink-0 mt-0.5" x-text="i + 1"></span>
+                                            <input x-show="collectionManifest" type="checkbox" :checked="collectionState.completedSteps.includes(currentCollectionStop?.stepIds[i])" @change="toggleCollectionStep(currentCollectionStop?.stepIds[i])" :aria-label="`Mark step ${i + 1} complete: ${step}`" class="mt-1 h-4 w-4 shrink-0 accent-action" />
                                             <span x-text="step"></span>
                                         </li>
                                     </template>
@@ -227,10 +252,52 @@ function completenessClass(level?: GuideCompleteness): string {
                             </div>
                         </template>
 
+                        <template x-if="collectionManifest && currentCollectionStop && (currentCollectionStop.items.length || currentCollectionStop.species.length)">
+                            <section aria-label="Guide-listed collection checklist" class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-2">Guide-listed collection</h3>
+                                <p class="text-xs text-text-secondary mb-4">Mark what you actually collected, saw or caught. This checklist is separate from finishing the story stop.</p>
+                                <div class="grid gap-5 md:grid-cols-2">
+                                    <div x-show="currentCollectionStop.items.length">
+                                        <h4 class="font-bold text-sm text-text-primary mb-2">Items &amp; rewards</h4>
+                                        <div class="space-y-2">
+                                            <template x-for="item in currentCollectionStop.items" :key="item.id">
+                                                <label class="flex items-start gap-2 text-sm text-text-secondary"><input type="checkbox" :checked="collectionState.collectedItems.includes(item.id)" @change="toggleCollectedItem(item.id)" :aria-label="`Mark ${item.name} collected`" class="mt-0.5 h-4 w-4 shrink-0 accent-action" /><span x-text="item.name"></span></label>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div x-show="currentCollectionStop.species.length">
+                                        <h4 class="font-bold text-sm text-text-primary mb-2">Pokémon</h4>
+                                        <div class="space-y-2">
+                                            <template x-for="pokemon in currentCollectionStop.species" :key="pokemon.id">
+                                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary">
+                                                    <span class="min-w-20 capitalize" x-text="pokemon.name"></span>
+                                                    <label class="flex items-center gap-1"><input type="checkbox" :checked="collectionState.seenSpecies.includes(pokemon.id)" @change="toggleSeenSpecies(pokemon.id)" :aria-label="`Mark ${pokemon.name} seen`" class="h-4 w-4 accent-action" />Seen</label>
+                                                    <label class="flex items-center gap-1"><input type="checkbox" :checked="collectionState.caughtSpecies.includes(pokemon.id)" @change="toggleCaughtSpecies(pokemon.id)" :aria-label="`Mark ${pokemon.name} caught`" class="h-4 w-4 accent-action" />Caught</label>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </template>
+
+                        <!-- Keep inactive rich content inert; Alpine mounts only the selected stop. -->
+                        {entry.locations.map((location) => (
+                            <template x-if={`activeStopId === ${JSON.stringify(location.stopId)}`}>
+                                <GuideLocationDetails location={location} />
+                            </template>
+                        ))}
+
+                        {entry.optionalLocations.map((location) => (
+                            <template x-if={`activeStopId === ${JSON.stringify(location.stopId)}`}>
+                                <GuideOptionalLocation location={location} />
+                            </template>
+                        ))}
+
                         <!-- Gym battle -->
-                        <template x-if="currentStop.gym">
+                        <template x-if="!currentStop.locationPilot && currentStop.gym">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
-                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🏟️ Gym Battle</h3>
+                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4"><GuideSectionIcon name="gym" />Gym Battle</h3>
 
                                 <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
                                     <div>
@@ -298,7 +365,7 @@ function completenessClass(level?: GuideCompleteness): string {
                         </template>
 
                         <!-- Items -->
-                        <template x-if="currentStop.items && currentStop.items.length > 0">
+                        <template x-if="!currentStop.locationPilot && currentStop.items && currentStop.items.length > 0">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
                                 <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🎒 Items</h3>
                                 <div class="space-y-2">
@@ -316,14 +383,19 @@ function completenessClass(level?: GuideCompleteness): string {
                         </template>
 
                         <!-- Wild Pokémon -->
-                        <template x-if="currentStop.wildPokemon && currentStop.wildPokemon.length > 0">
+                        <template x-if="!currentStop.locationPilot && currentStop.wildPokemon && currentStop.wildPokemon.length > 0">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
-                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🌿 Wild Pokémon</h3>
+                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-3" x-text="currentStop.encounterTitle || 'Pokémon to find along the way'"></h3>
+                                <template x-if="currentStop.encounterNote">
+                                    <p class="text-sm text-text-secondary mb-4 leading-relaxed" x-text="currentStop.encounterNote"></p>
+                                </template>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
                                     <template x-for="entry in currentStop.wildPokemon" :key="entry.name + entry.method">
-                                        <div
+                                        <button
+                                            type="button"
                                             @click="openPokedex(entry.name)"
-                                            class="flex flex-col items-center gap-1.5 bg-bg-elevated rounded-xl p-3 border border-border-subtle cursor-pointer hover:border-action hover:bg-action-subtle transition">
+                                            :aria-label="`View ${entry.name} in Pokédex`"
+                                            class="flex flex-col items-center gap-1.5 bg-bg-elevated rounded-xl p-3 border border-border-subtle cursor-pointer hover:border-action hover:bg-action-subtle transition focus-visible:outline-2 focus-visible:outline-action focus-visible:outline-offset-2">
                                             <img
                                                 :src="spriteUrl(entry.id)"
                                                 :alt="entry.name"
@@ -331,7 +403,13 @@ function completenessClass(level?: GuideCompleteness): string {
                                                 style="image-rendering:pixelated"
                                                 loading="lazy">
                                             <span class="text-[11px] font-black text-text-primary capitalize" x-text="entry.name"></span>
-                                            <span class="text-[10px] text-text-secondary font-semibold" x-text="`Lv. ${entry.minLevel}–${entry.maxLevel}`"></span>
+                                            <span class="text-[10px] text-text-secondary font-semibold" x-text="entry.levels ? `Lv. ${entry.levels.join(', ')}` : `Lv. ${entry.minLevel}–${entry.maxLevel}`"></span>
+                                            <template x-if="entry.location">
+                                                <span class="text-[10px] text-action font-bold text-center" x-text="entry.location"></span>
+                                            </template>
+                                            <template x-if="entry.versionNote">
+                                                <span class="text-[10px] text-text-secondary font-semibold text-center" x-text="entry.versionNote"></span>
+                                            </template>
                                             <span
                                                 class="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize"
                                                 :class="{
@@ -355,14 +433,20 @@ function completenessClass(level?: GuideCompleteness): string {
                                                 </span>
                                             </template>
                                             <span class="text-[9px] text-action font-semibold">View in Pokédex</span>
-                                        </div>
+                                        </button>
                                     </template>
                                 </div>
                             </div>
                         </template>
 
+                        {entry.fishing.map((section) => (
+                            <template x-if={`activeStopId === ${JSON.stringify(section.stopId)}`}>
+                                <GuideFishingDetails section={section} />
+                            </template>
+                        ))}
+
                         <!-- Tips -->
-                        <template x-if="currentStop.tips && currentStop.tips.length > 0">
+                        <template x-if="!currentStop.locationPilot && currentStop.tips && currentStop.tips.length > 0">
                             <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
                                 <h3 class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-3">💡 Tips</h3>
                                 <ul class="space-y-2">
@@ -402,5 +486,6 @@ function completenessClass(level?: GuideCompleteness): string {
                 </template>
             </main>
         </div>
+        <p class="mt-6 text-xs text-text-tertiary leading-relaxed">Gym icon: <a class="underline hover:text-action" href="https://commons.wikimedia.org/wiki/File:GymIcon.png">“GymIcon” by Lukehewitt4</a> · <a class="underline hover:text-action" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Image unmodified.</p>
     </div>
 </Layout>
