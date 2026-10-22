@@ -4,11 +4,12 @@ import { recommendItems } from '../../../lib/logic/items'
 import { NATURES } from '../../../lib/data/natures'
 import { fetchPokemon, fetchMoves, fetchPokemonList, type MoveDetail } from '../../../lib/api/pokeapi'
 import { calcStat } from '../../../lib/logic/stat-calc'
-import { calcDamageRange } from '../../../lib/logic/damage-calc'
-import type { AttackerState, DefenderState, FieldState, DamageResult } from '../../../lib/logic/damage-calc'
+import type { Gen9PanelResult } from '../../../lib/logic/gen9-damage'
 import itemsCatalogJson from '../../../lib/data/items-catalog.json'
 import { itemSpriteImg, categoryLabel } from '../../../ui/item-card'
 import { TYPE_COLORS } from '../../../lib/data/constants'
+import { exportShowdownSet } from '../../../lib/logic/team-portability'
+import type { TeamSlot } from '../../stores/team'
 
 interface CatalogItem { name: string; slug: string; category: string; pocket: string; effect: string }
 
@@ -37,12 +38,6 @@ const STAT_LABELS: Record<string, string> = {
     'special-attack': 'SpA',
     'special-defense': 'SpD',
     speed: 'Spd',
-}
-
-// Showdown uses "Spe" for speed in export strings
-const SHOWDOWN_LABELS: Record<string, string> = {
-    hp: 'HP', attack: 'Atk', defense: 'Def',
-    'special-attack': 'SpA', 'special-defense': 'SpD', speed: 'Spe',
 }
 
 const STAT_COLORS: Record<string, string> = {
@@ -83,6 +78,9 @@ export function registerSetEditor(): void {
 
         // ── damage calculator state ───────────────────────────────
         calcOpen: false,
+        calcLoading: false,
+        calcMessage: '',
+        calcRequestId: 0,
         calcDefenderQuery: '',
         calcDefenderSuggestions: [] as Array<{ name: string; id: number }>,
         calcDefenderPokemon: null as any,
@@ -96,7 +94,7 @@ export function registerSetEditor(): void {
         calcDefenderEvSpd: 0,
         calcDefenderIv: 31,
         calcDefenderNature: null as string | null,
-        calcResults: [] as Array<{ move: MoveDetail | null; moveName: string; result: DamageResult | null }>,
+        calcResults: [] as Array<{ move: MoveDetail | null; moveName: string; result: Gen9PanelResult | null; reason: string | null }>,
         allPokemonList: [] as Array<{ name: string; id: number }>,
 
         // ── reactive slot getter ─────────────────────────────────
@@ -201,6 +199,7 @@ export function registerSetEditor(): void {
             this.$watch('calcDefenderEvSpd', () => this.runDamageCalc())
             this.$watch('calcDefenderIv', () => this.runDamageCalc())
             this.$watch('calcDefenderNature', () => this.runDamageCalc())
+            this.$watch('$store.team.slots', () => { if (this.calcOpen) void this.runDamageCalc() })
         },
 
         async loadMoves() {
@@ -211,6 +210,7 @@ export function registerSetEditor(): void {
                 const pokemon = await fetchPokemon(s.pokemonName)
                 this.availableMoves = await fetchMoves(pokemon.moves, 200)
                 this.slotAbilities = (pokemon.abilities as any[]).map((a: any) => a.ability.name as string)
+                if (this.calcOpen) void this.runDamageCalc()
             } finally {
                 this.movesLoading = false
             }
@@ -233,81 +233,46 @@ export function registerSetEditor(): void {
                 .catch(() => { this.calcDefenderPokemon = null })
         },
 
-        runDamageCalc() {
+        openDamageCalc() {
+            this.calcOpen = !this.calcOpen
+            if (this.calcOpen) void this.runDamageCalc()
+            else { this.calcRequestId++; this.calcLoading = false }
+        },
+
+        async runDamageCalc() {
+            const requestId = ++this.calcRequestId
             const s = this.slot as any
-            if (!s || !this.calcDefenderPokemon) { this.calcResults = []; return }
-
-            const def = this.calcDefenderPokemon as any
-            const defStats = Object.fromEntries((def.stats as any[]).map((st: any) => [st.stat.name, st.base_stat])) as Record<string, number>
-            const defTypes = (def.types as any[]).map((t: any) => t.type.name as string)
-
-            const field: FieldState = {
-                weather: this.calcWeather as FieldState['weather'],
-                reflect: this.calcReflect as boolean,
-                lightScreen: this.calcLightScreen as boolean,
-                isCrit: this.calcCrit as boolean,
+            if (!this.calcOpen || !s || !this.calcDefenderPokemon) { this.calcResults = []; this.calcLoading = false; return }
+            this.calcLoading = true
+            this.calcMessage = ''
+            try {
+                const { calculateGen9PanelDamage } = await import('../../../lib/logic/gen9-damage')
+                if (requestId !== this.calcRequestId) return
+                const defender = this.calcDefenderPokemon as any
+                const results: typeof this.calcResults = []
+                for (const moveName of s.moves as (string | null)[]) {
+                    if (!moveName) { results.push({ move: null, moveName: '—', result: null, reason: null }); continue }
+                    const move = (this.availableMoves as MoveDetail[]).find((entry) => entry.name === moveName) ?? null
+                    const outcome = calculateGen9PanelDamage(s, {
+                        name: defender.name,
+                        level: this.calcDefenderLevel as number,
+                        defenseEv: this.calcDefenderEvDef as number,
+                        specialDefenseEv: this.calcDefenderEvSpd as number,
+                        defenseIv: this.calcDefenderIv as number,
+                    }, moveName, {
+                        weather: this.calcWeather,
+                        reflect: this.calcReflect,
+                        lightScreen: this.calcLightScreen,
+                        critical: this.calcCrit,
+                    })
+                    results.push({ move, moveName, result: outcome.ok ? outcome.result : null, reason: outcome.ok ? null : outcome.reason })
+                }
+                if (requestId === this.calcRequestId) this.calcResults = results
+            } catch {
+                if (requestId === this.calcRequestId) { this.calcResults = []; this.calcMessage = 'The Gen 9 calculator could not load. Try again when the page is online.' }
+            } finally {
+                if (requestId === this.calcRequestId) this.calcLoading = false
             }
-
-            const results: Array<{ move: MoveDetail | null; moveName: string; result: DamageResult | null }> = []
-
-            for (let mi = 0; mi < 4; mi++) {
-                const moveName = (s.moves as (string | null)[])[mi]
-                if (!moveName) { results.push({ move: null, moveName: '—', result: null }); continue }
-
-                const moveDetail = (this.availableMoves as MoveDetail[]).find(m => m.name === moveName)
-                if (!moveDetail) { results.push({ move: null, moveName, result: null }); continue }
-
-                if (!moveDetail.power || moveDetail.damage_class?.name === 'status') {
-                    results.push({ move: moveDetail, moveName, result: null })
-                    continue
-                }
-
-                const category = moveDetail.damage_class.name as 'physical' | 'special'
-                const atkStatKey: 'attack' | 'special-attack' = category === 'physical' ? 'attack' : 'special-attack'
-                const defStatKey: 'defense' | 'special-defense' = category === 'physical' ? 'defense' : 'special-defense'
-
-                const attackerState: AttackerState = {
-                    level: s.level ?? 50,
-                    baseStat: s.stats[atkStatKey] ?? 50,
-                    iv: s.ivs?.[atkStatKey] ?? 31,
-                    ev: s.evs?.[atkStatKey] ?? 0,
-                    nature: s.nature,
-                    statKey: atkStatKey,
-                    types: s.types as string[],
-                    item: s.item,
-                    isBurned: false,
-                }
-
-                const defEvValue = defStatKey === 'defense'
-                    ? (this.calcDefenderEvDef as number)
-                    : (this.calcDefenderEvSpd as number)
-
-                const defenderState: DefenderState = {
-                    level: this.calcDefenderLevel as number,
-                    baseDef: defStats[defStatKey] ?? 50,
-                    iv: this.calcDefenderIv as number,
-                    ev: defEvValue,
-                    nature: this.calcDefenderNature as string | null,
-                    defKey: defStatKey,
-                    types: defTypes,
-                    item: null,
-                    baseHp: defStats.hp ?? 45,
-                    hpIv: 31,
-                    hpEv: 0,
-                }
-
-                const moveInfo = {
-                    name: moveDetail.name,
-                    type: moveDetail.type?.name ?? 'normal',
-                    category,
-                    power: moveDetail.power,
-                }
-
-                const result = calcDamageRange(moveInfo, attackerState, defenderState, field)
-                results.push({ move: moveDetail, moveName, result })
-            }
-
-            this.calcResults = results
         },
 
         effectivenessLabel(eff: number): string {
@@ -479,31 +444,7 @@ export function registerSetEditor(): void {
 
         // ── Showdown export ───────────────────────────────────────
         exportShowdown(): string {
-            const s = this.slot as any
-            if (!s) return ''
-            const name = (s.pokemonName as string)
-                .split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('-')
-            const lines: string[] = []
-            lines.push(s.item ? `${name} @ ${s.item}` : name)
-            if (s.ability) lines.push(`Ability: ${(s.ability as string).split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`)
-            if (s.teraType) lines.push(`Tera Type: ${(s.teraType as string).charAt(0).toUpperCase() + (s.teraType as string).slice(1)}`)
-            lines.push(`Level: ${s.level ?? 50}`)
-
-            const evParts = STAT_KEYS.filter((k) => (s.evs[k] ?? 0) > 0).map((k) => `${s.evs[k]} ${SHOWDOWN_LABELS[k]}`)
-            if (evParts.length) lines.push(`EVs: ${evParts.join(' / ')}`)
-
-            if (s.nature) lines.push(`${s.nature} Nature`)
-
-            const ivParts = STAT_KEYS.filter((k) => (s.ivs?.[k] ?? 31) !== 31).map((k) => `${s.ivs[k]} ${SHOWDOWN_LABELS[k]}`)
-            if (ivParts.length) lines.push(`IVs: ${ivParts.join(' / ')}`)
-
-            for (const m of s.moves as (string | null)[]) {
-                if (m) {
-                    const moveName = m.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('-')
-                    lines.push(`- ${moveName}`)
-                }
-            }
-            return lines.join('\n')
+            return this.slot ? exportShowdownSet(this.slot as TeamSlot) : ''
         },
 
         async copyShowdown() {
