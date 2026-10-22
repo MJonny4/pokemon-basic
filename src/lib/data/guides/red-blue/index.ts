@@ -1,10 +1,10 @@
-import type { GameGuide } from './types'
+import type { GameGuide } from '../types'
 
 export const RED_BLUE_GUIDE: GameGuide = {
     id: 'red-blue',
     title: 'Red / Blue',
     gen: 1,
-    completeness: 'partial',
+    completeness: 'early-access',
     starters: [
         {
             name: 'Bulbasaur',
@@ -84,10 +84,17 @@ export const RED_BLUE_GUIDE: GameGuide = {
             items: [
                 { name: 'Poké Ball ×5', location: 'Oak\'s Lab — given by Prof. Oak after returning the Parcel', icon: '🔴' },
             ],
+            encounterTitle: 'Pokémon on nearby Route 22',
+            encounterNote: 'Optional detour: leave Viridian City through the west exit to reach Route 22’s tall grass. The Pokémon below are found on that route, not in the city streets.',
+            // English Red/Blue grass tables and west connection, checked 2026-10-18:
+            // https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/wild/maps/Route22.asm
+            // https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianCity.asm
+            // These four cards cover grass only, not fishing or all city content.
             wildPokemon: [
-                { name: 'rattata', id: 19, minLevel: 3, maxLevel: 5, method: 'grass', rarity: 'common' },
-                { name: 'nidoran-m', id: 32, minLevel: 3, maxLevel: 5, method: 'grass', rarity: 'uncommon' },
-                { name: 'nidoran-f', id: 29, minLevel: 3, maxLevel: 5, method: 'grass', rarity: 'uncommon' },
+                { name: 'rattata', id: 19, minLevel: 2, maxLevel: 4, method: 'grass', location: 'Route 22 · tall grass' },
+                { name: 'spearow', id: 21, minLevel: 3, maxLevel: 5, levels: [3, 5], method: 'grass', location: 'Route 22 · tall grass' },
+                { name: 'nidoran-m', id: 32, minLevel: 2, maxLevel: 4, method: 'grass', location: 'Route 22 · tall grass', versionNote: 'Red: Lv. 2–4 · Blue: Lv. 3–4' },
+                { name: 'nidoran-f', id: 29, minLevel: 2, maxLevel: 4, method: 'grass', location: 'Route 22 · tall grass', versionNote: 'Red: Lv. 3–4 · Blue: Lv. 2–4' },
             ],
         },
         {

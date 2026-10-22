@@ -107,7 +107,6 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 tmReward: 'TM39 (Rock Tomb)',
                 team: [
                     { name: 'Geodude', id: 74, level: 14 },
-                    { name: 'Geodude', id: 74, level: 14 },
                     { name: 'Nosepass', id: 299, level: 15 },
                 ],
                 strategy: 'Water and Grass moves trivialize this gym. Nosepass can stall with high Defense, so avoid weak neutral physical attacks. Keep Potions ready and focus one target at a time.',
@@ -169,7 +168,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 weaknesses: ['Flying', 'Psychic'],
                 starterHints: {
                     treecko: 'Use Absorb chip and support, but rely on Flying teammates for cleaner knockouts.',
-                    torchic: 'Combusken is not online yet, so use Flying support and avoid trading hits with Makuhita.',
+                    torchic: 'Torchic can evolve into Combusken at Lv16. Its Fighting typing does not resist Brawly\'s attacks, so use Flying or Psychic support if needed.',
                     mudkip: 'Mudkip is bulky enough to stabilize, but this is still a Flying/Psychic matchup fight.',
                 },
                 recommendedLevel: 18,
@@ -186,7 +185,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
             ],
             items: [
                 { name: 'Mach Bike / Acro Bike', location: 'Mauville Bike Shop — choose one', icon: '🚲' },
-                { name: 'Coin Case', location: 'Mauville house near the Game Corner area', icon: '🪙' },
+                { name: 'Coin Case', location: 'Trade Harbor Mail (sold in Slateport) to the woman in Mauville City House 2', icon: '🪙' },
             ],
             wildPokemon: [
                 { name: 'electrike', id: 309, minLevel: 12, maxLevel: 14, method: 'grass', rarity: 'uncommon' },
@@ -204,7 +203,7 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
             kind: 'gym',
             steps: [
                 'Wattson uses Electric types, so Ground is the cleanest counter.',
-                'Use the trash can switch puzzle to unlock the leader room.',
+                'Step on the floor switches to change the electric barriers and reach Wattson.',
                 'Magneton can be bulky; avoid trying to brute force with weak neutral moves.',
             ],
             items: [
@@ -217,12 +216,11 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 badge: 'Dynamo Badge',
                 tmReward: 'TM34 (Shock Wave)',
                 team: [
+                    { name: 'Magnemite', id: 81, level: 22 },
                     { name: 'Voltorb', id: 100, level: 20 },
-                    { name: 'Electrike', id: 309, level: 20 },
-                    { name: 'Magneton', id: 82, level: 22 },
-                    { name: 'Manectric', id: 310, level: 24 },
+                    { name: 'Magneton', id: 82, level: 23 },
                 ],
-                strategy: 'Ground moves remove most of Wattson\'s pressure by threatening quick KOs. Magneton has good defenses and Manectric is fast, so prioritize targets and heal proactively. Geodude/Graveler or Marshtomp are excellent in this matchup.',
+                strategy: 'Ground moves remove most of Wattson\'s pressure by threatening quick KOs. Magneton has good defenses and Voltorb can use Self-Destruct, so keep healthy teammates ready. Geodude/Graveler or Marshtomp are strong options.',
                 weaknesses: ['Ground'],
                 starterHints: {
                     treecko: 'Bring a Ground teammate because Electric resists your best options here.',
@@ -273,10 +271,9 @@ export const RUBY_SAPPHIRE_GUIDE: GameGuide = {
                 badge: 'Heat Badge',
                 tmReward: 'TM50 (Overheat)',
                 team: [
-                    { name: 'Numel', id: 322, level: 24 },
-                    { name: 'Slugma', id: 218, level: 24 },
                     { name: 'Slugma', id: 218, level: 26 },
-                    { name: 'Torkoal', id: 324, level: 29 },
+                    { name: 'Slugma', id: 218, level: 26 },
+                    { name: 'Torkoal', id: 324, level: 28 },
                 ],
                 strategy: 'Water users are safest here, especially against Torkoal. Torkoal can survive hits and punish with Overheat/Body Slam, so avoid greedy setups and heal early. Ground or Rock coverage also works if your levels are solid.',
                 weaknesses: ['Water', 'Ground', 'Rock'],

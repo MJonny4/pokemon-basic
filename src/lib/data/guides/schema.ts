@@ -95,7 +95,7 @@ export const guideChapterSchema = z.strictObject({
             ...sourcedFields,
         })).min(1),
         // Replaces, rather than merges, the stop's listed items; [] clears them.
-        items: z.array(itemSchema.extend(sourcedFields)),
+        items: z.array(itemSchema.extend({ id: stableId, ...sourcedFields })),
     })).min(1),
 }).superRefine((chapter, ctx) => {
     const issue = (path: (string | number)[], message: string) =>
@@ -117,6 +117,11 @@ export const guideChapterSchema = z.strictObject({
     chapter.stops.forEach((stop, i) => {
         if (stopIds.has(stop.id)) issue(['stops', i, 'id'], 'Duplicate stop ID')
         stopIds.add(stop.id)
+        const itemIds = new Set<string>()
+        stop.items.forEach((item, j) => {
+            if (itemIds.has(item.id)) issue(['stops', i, 'items', j, 'id'], 'Duplicate item ID within stop')
+            itemIds.add(item.id)
+        })
         for (const [field, records] of [['steps', stop.steps], ['items', stop.items]] as const) {
             records.forEach((record, j) => {
                 const path = ['stops', i, field, j]

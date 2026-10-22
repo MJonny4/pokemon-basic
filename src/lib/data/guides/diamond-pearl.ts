@@ -106,7 +106,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
             steps: [
                 'Move north through Floaroma Meadow and clear Team Galactic events at Valley Windworks.',
                 'Continue through Eterna Forest with Cheryl for safe training and item collection.',
-                'Reach Eterna City, clear the Galactic building event, then prepare for gym 2.',
+                'Reach Eterna City and challenge Gardenia. After earning her badge, use Cut to enter the Galactic building and free the bicycle shop owner.',
             ],
             items: [
                 { name: 'Works Key', location: 'Floaroma Meadow Galactic grunt sequence', icon: '🔑' },
@@ -141,7 +141,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
                 tmReward: 'TM86 (Grass Knot)',
                 team: [
                     { name: 'Cherubi', id: 420, level: 19 },
-                    { name: 'Turtwig', id: 387, level: 22 },
+                    { name: 'Turtwig', id: 387, level: 19 },
                     { name: 'Roserade', id: 407, level: 22 },
                 ],
                 strategy: 'Fast offensive pressure with Fire/Flying users keeps this gym safe. Roserade is the only true threat; focus it quickly and heal before it snowballs with status/chip damage.',
@@ -161,7 +161,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
             steps: [
                 'Progress through Cycling Road side routes and reach Hearthome for contest/story progression.',
                 'Continue east toward Veilstone, battling trainers and improving team coverage.',
-                'In Veilstone, clear Galactic warehouse setup and prep for Maylene.',
+                'In Veilstone, prepare for Maylene; the Galactic warehouse pursuit follows the Gym battle.',
             ],
             items: [
                 { name: 'Coin Case', location: 'Veilstone City side building', icon: '🪙' },
@@ -199,7 +199,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
                     { name: 'Machoke', id: 67, level: 27 },
                     { name: 'Lucario', id: 448, level: 30 },
                 ],
-                strategy: 'Flying/Psychic damage handles most of this gym cleanly. Lucario can survive and retaliate hard, so save your strongest counter for it and avoid unnecessary chip damage earlier in the fight.',
+                strategy: 'Flying/Psychic damage handles Meditite and Machoke. Lucario’s Fighting/Steel typing makes those hits neutral, so save a strong Fire, Fighting or Ground answer for it.',
                 weaknesses: ['Flying', 'Psychic'],
                 starterHints: {
                     turtwig: 'Use support and switch to Flying/Psychic teammates to avoid bad trades.',
@@ -214,7 +214,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
             name: 'Pastoria & Great Marsh',
             kind: 'town',
             steps: [
-                'Head south to Pastoria and clear rival + Galactic bomb event chain.',
+                'Head south to Pastoria, face your rival near the Gym, then challenge Crasher Wake. The Galactic bomb pursuit begins after his badge.',
                 'Use Great Marsh as an optional catch point for utility Water/Poison/Grass options.',
                 'Prepare for Crasher Wake and keep Electric/Grass coverage ready.',
             ],
@@ -266,29 +266,68 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
         },
         {
             id: 'celestic-canalave',
-            name: 'Celestic Route Arc & Canalave',
+            name: 'Celestic Town & Return to Hearthome',
             kind: 'dungeon',
             steps: [
-                'Clear Psyduck roadblock and Celestic Town story event with Cynthia.',
-                'Move west to Canalave, cross to Iron Island for optional training with Riley.',
-                'Return and challenge Byron after preparing strong special attackers.',
+                'After Crasher Wake, pursue the Galactic grunt and use Cynthia’s SecretPotion to clear the Psyduck on Route 210.',
+                'Take the Old Charm to Cynthia’s grandmother in Celestic Town, defeat the Galactic grunt and receive HM03 (Surf).',
+                'Return to Hearthome City. Fantina is now available as the fifth Gym Leader; her Relic Badge lets you use Surf outside battle.',
             ],
             items: [
                 { name: 'HM03 (Surf)', location: 'Given by Cynthia\'s grandmother sequence', icon: '🌊' },
-                { name: 'Riolu Egg', location: 'Iron Island from Riley', icon: '🥚' },
+            ],
+            wildPokemon: [],
+        },
+        {
+            id: 'gym-5-hearthome',
+            name: 'Hearthome Gym — Fantina',
+            kind: 'gym',
+            steps: [
+                'Challenge Fantina after the Celestic Town story event; she is the fifth Gym Leader in Diamond/Pearl.',
+                'Choose the correct answer at each math question to advance through her Gym.',
+                'Her Ghost team includes Gengar and Mismagius; bring Dark or Ghost attacks and healing supplies.',
+            ],
+            items: [
+                { name: 'TM65 (Shadow Claw)', location: 'Received from Fantina after winning', icon: '📀' },
+            ],
+            wildPokemon: [],
+            gym: {
+                leader: 'Fantina',
+                type: 'Ghost',
+                badge: 'Relic Badge',
+                tmReward: 'TM65 (Shadow Claw)',
+                team: [
+                    { name: 'Drifblim', id: 426, level: 32 },
+                    { name: 'Gengar', id: 94, level: 34 },
+                    { name: 'Mismagius', id: 429, level: 36 },
+                ],
+                strategy: 'Dark attacks hit all three Ghost Pokémon effectively. Be prepared for Gengar and Mismagius to move quickly and use healing when needed. The Relic Badge enables Surf outside battle.',
+                weaknesses: ['Dark', 'Ghost'],
+                recommendedLevel: 35,
+            },
+        },
+        {
+            id: 'canalave-approach',
+            name: 'Canalave City & Iron Island',
+            kind: 'town',
+            steps: [
+                'With the Relic Badge, use Surf west of Jubilife City to cross Route 218 into Canalave.',
+                'Battle your rival on the Canalave bridge, then prepare for Byron.',
+                'Optionally visit Iron Island and help Riley; he offers a Riolu Egg after you clear Team Galactic there.',
+            ],
+            items: [
+                { name: 'Riolu Egg', location: 'Iron Island from Riley after the Galactic encounter, if you have a free party slot', icon: '🥚' },
             ],
             wildPokemon: [
                 { name: 'steelix', id: 208, minLevel: 28, maxLevel: 32, method: 'cave', rarity: 'uncommon' },
                 { name: 'graveler', id: 75, minLevel: 28, maxLevel: 32, method: 'cave', rarity: 'common' },
                 { name: 'onix', id: 95, minLevel: 28, maxLevel: 32, method: 'cave', rarity: 'common' },
             ],
-            tips: [
-                'Team core target: Riolu/Lucario can be a strong long-term attacker if leveled consistently.',
-            ],
+            tips: ['Riolu can become a strong long-term attacker if you choose to train it.'],
         },
         {
             id: 'gym-5-canalave',
-            name: 'Canalave Gym — Byron',
+            name: 'Canalave Gym — Byron (Gym 6)',
             kind: 'gym',
             steps: [
                 'Byron uses Steel types; Fire, Ground, and Fighting are ideal.',
@@ -343,7 +382,7 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
         },
         {
             id: 'gym-6-snowpoint',
-            name: 'Snowpoint Gym — Candice',
+            name: 'Snowpoint Gym — Candice (Gym 7)',
             kind: 'gym',
             steps: [
                 'Candice uses Ice types; Fire, Fighting, Rock, and Steel are strong.',
@@ -399,11 +438,11 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
         },
         {
             id: 'gym-7-sunyshore',
-            name: 'Sunyshore Gym — Volkner',
+            name: 'Sunyshore Gym — Volkner (Gym 8)',
             kind: 'gym',
             steps: [
                 'Volkner uses Electric types with mixed coverage.',
-                'Ground attacks are premium, but watch for Water/Flying variants on his team.',
+                'Ground attacks are premium against Raichu and Luxray, but Octillery is Water-type and Ambipom is Normal-type.',
                 'Gym puzzle uses rotating gear bridges.',
             ],
             items: [
@@ -499,9 +538,9 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
                 tmReward: '',
                 team: [
                     { name: 'Quagsire', id: 195, level: 55 },
-                    { name: 'Whiscash', id: 340, level: 55 },
                     { name: 'Sudowoodo', id: 185, level: 56 },
                     { name: 'Golem', id: 76, level: 56 },
+                    { name: 'Whiscash', id: 340, level: 55 },
                     { name: 'Hippowdon', id: 450, level: 59 },
                 ],
                 strategy: 'Water/Grass moves are the safest route here. Keep enough resources for Hippowdon at the end, which can tank hits and punish mistakes with strong physical damage.',
@@ -528,8 +567,8 @@ export const DIAMOND_PEARL_GUIDE: GameGuide = {
                 team: [
                     { name: 'Rapidash', id: 78, level: 58 },
                     { name: 'Steelix', id: 208, level: 57 },
-                    { name: 'Lopunny', id: 428, level: 57 },
                     { name: 'Drifblim', id: 426, level: 58 },
+                    { name: 'Lopunny', id: 428, level: 57 },
                     { name: 'Infernape', id: 392, level: 61 },
                 ],
                 strategy: 'Scout each matchup and avoid tunnel vision on Water-only answers. Infernape is the closer threat, so preserve your best counter and enter this room with enough healing resources.',

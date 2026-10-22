@@ -4,6 +4,10 @@ import SiteHeader from '../../components/SiteHeader.astro'
 import { GUIDE_REGISTRY, type GuideRegistration } from '../../lib/data/guides/registry'
 import GuideLocationDetails from '../../components/guides/GuideLocationDetails.astro'
 import GuideFishingDetails from '../../components/guides/GuideFishingDetails.astro'
+import GuideOptionalLocation from '../../components/guides/GuideOptionalLocation.astro'
+import GuideSectionIcon from '../../components/guides/GuideSectionIcon.astro'
+import GuideStopIcon from '../../components/guides/GuideStopIcon.astro'
+import { buildGuideCollectionManifest } from '../../lib/data/guides/collection-manifest'
 
 export function getStaticPaths() {
     return GUIDE_REGISTRY.map((entry) => ({
@@ -15,6 +19,7 @@ export function getStaticPaths() {
 interface Props { entry: GuideRegistration }
 const { entry } = Astro.props
 const { game } = entry
+const collectionManifest = buildGuideCollectionManifest(entry)
 const base = import.meta.env.BASE_URL
 ---
 
@@ -25,7 +30,7 @@ const base = import.meta.env.BASE_URL
     <SiteHeader subtitle={`Game Guide · Gen ${game.gen}`} activeRoute="/games" />
 
     <!-- ══════════ MAIN ══════════ -->
-    <div x-data="guide" data-game={JSON.stringify(game)} x-cloak class="max-w-7xl mx-auto px-4 py-6">
+    <div x-data="guide" data-game={JSON.stringify(game)} data-collection={collectionManifest ? JSON.stringify(collectionManifest) : undefined} x-cloak class="max-w-7xl mx-auto px-4 py-6">
 
         <!-- Page title + game switcher -->
         <div class="mb-5 flex flex-col sm:flex-row sm:items-end gap-4">
@@ -40,7 +45,7 @@ const base = import.meta.env.BASE_URL
                             {g.title}
                         </a>
                         <span class="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full border bg-amber-100 text-amber-700 border-amber-200">
-                            {coverage === 'partial' ? 'Partial guide' : 'Story outline'}
+                            {coverage === 'main-story' ? 'Main story guide' : coverage === 'partial' ? 'Partial guide' : 'Story outline'}
                         </span>
                     </div>
                 ))}
@@ -48,7 +53,9 @@ const base = import.meta.env.BASE_URL
         </div>
 
         <section aria-label="About this guide" class="bg-bg-surface rounded-2xl border border-border-subtle p-4 mb-5 text-sm text-text-secondary">
-            <p><strong>Guide in progress.</strong> Some details are still being checked, and not every item, encounter or optional activity is listed.</p>
+            {game.id === 'red-blue'
+                ? <p><strong>Main story route complete.</strong> The 24 stops take you from Pallet Town to the Hall of Fame. Some optional trainers, items, encounters and activities are still being checked.</p>
+                : <p><strong>Guide in progress.</strong> Some details are still being checked, and not every item, encounter or optional activity is listed.</p>}
             {game.id === 'red-blue' && <p class="mt-2 text-xs">For the original English Game Boy Red/Blue, not Yellow or remakes.</p>}
         </section>
 
@@ -61,10 +68,40 @@ const base = import.meta.env.BASE_URL
             <div class="stat-bar-track" role="progressbar" aria-label="Guide stops completed" aria-valuemin="0" :aria-valuenow="completedStops.length" :aria-valuemax="game.stops.length">
                 <div class="stat-bar-fill bg-action transition-all duration-300" :style="`width:${progressPct}%`"></div>
             </div>
+            <div x-show="collectionManifest" x-cloak class="mt-3 border-t border-border-subtle pt-3 text-xs text-text-secondary">
+                <p class="font-bold">Separate checklist: <span x-text="`${collectionState.completedSteps.length}/${collectionTotals.steps} steps · ${collectionState.collectedItems.length}/${collectionTotals.items} listed items · ${collectionState.seenSpecies.length}/${collectionTotals.species} seen · ${collectionState.caughtSpecies.length}/${collectionTotals.species} caught`"></span></p>
+                <p class="mt-1">These are guide-listed entries across Red and Blue, not a complete Pokédex or item inventory. Some item choices are alternatives.</p>
+            </div>
             <div class="flex flex-wrap justify-end items-center gap-2 mt-3">
-                <button type="button" @click="downloadBackup()" title="JSON backup for this guide, including recovery snapshots and current unsaved edits. Restore/import is not available yet." class="min-h-9 px-3 py-2 rounded-lg bg-action-subtle text-xs font-bold text-action hover:underline focus-visible:outline-2 focus-visible:outline-action">Download save backup</button>
+                <button type="button" @click="downloadBackup()" title="JSON backup for this guide, including recovery snapshots and current unsaved edits." class="min-h-9 px-3 py-2 rounded-lg bg-action-subtle text-xs font-bold text-action hover:underline focus-visible:outline-2 focus-visible:outline-action">Download save backup</button>
                 <button type="button" @click="resetProgress()" class="min-h-9 px-3 py-2 rounded-lg text-xs font-bold text-text-secondary hover:text-brand hover:bg-bg-elevated transition focus-visible:outline-2 focus-visible:outline-action">✕ Reset</button>
             </div>
+            <details class="mt-4 border-t border-border-subtle pt-3 text-sm text-text-secondary">
+                <summary class="cursor-pointer font-bold text-action">Restore a guide backup</summary>
+                <div class="mt-3 space-y-3">
+                    <p>Choose a JSON backup for this guide. Review its saved values and its separate tab view before restoring. Older backups restore story progress and starter choice while leaving the collection checklist as it is.</p>
+                    <label class="block font-semibold" for="guide-restore-file">Backup file</label>
+                    <input id="guide-restore-file" type="file" accept=".json,application/json" @change="prepareRestoreFile($event)" class="block w-full max-w-full text-sm" />
+                    <div x-show="restorePreview" x-cloak class="space-y-3 rounded-xl border border-border-subtle bg-bg-elevated p-3">
+                        <p class="font-semibold">Backup from <span x-text="restorePreview?.exportedAt ? new Date(restorePreview.exportedAt).toLocaleString() : ''"></span></p>
+                        <fieldset class="space-y-1">
+                            <legend class="font-semibold">Which values should be restored?</legend>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-source" value="saved" x-model="restoreSource" :disabled="!restorePreview?.saved" /><span x-text="restorePreview?.saved ? `Saved values: ${restorePreview.saved.completedStops.length} completed stops; starter ${restorePreview.saved.selectedStarter?.name ?? 'none'}${restorePreview.saved.collection ? `; ${restorePreview.saved.collection.collectedItems.length} listed items` : ''}` : 'Saved values cannot be safely restored from this file'"></span></label>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-source" value="session" x-model="restoreSource" :disabled="!restorePreview?.session" /><span x-text="restorePreview?.session ? `Tab view: ${restorePreview.session.completedStops.length} completed stops; starter ${restorePreview.session.selectedStarter?.name ?? 'none'}${restorePreview.session.collection ? `; ${restorePreview.session.collection.collectedItems.length} listed items` : ''}` : 'No separate tab view in this file'"></span></label>
+                        </fieldset>
+                        <fieldset class="space-y-1">
+                            <legend class="font-semibold">How should it combine with this guide?</legend>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-mode" value="replace" x-model="restoreMode" /><span>Replace this guide's progress, starter and included collection checklist with the chosen values.</span></label>
+                            <label class="flex items-start gap-2"><input type="radio" name="guide-restore-mode" value="merge" x-model="restoreMode" /><span>Keep marked entries from both saves. Keep the current starter if one is selected.</span></label>
+                        </fieldset>
+                        <p class="text-xs">Recovery copies are kept. Download your current save before applying this file.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" @click="downloadCurrentBeforeRestore()" class="min-h-9 rounded-lg bg-action-subtle px-3 py-2 font-bold text-action">1. Download current save</button>
+                            <button type="button" @click="restoreBackup()" :disabled="!restoreCurrentBackupDownloaded" class="min-h-9 rounded-lg bg-action px-3 py-2 font-bold text-white disabled:opacity-50">2. Restore selected backup</button>
+                        </div>
+                    </div>
+                </div>
+            </details>
         </div>
 
         <section x-show="storageMessages.length > 0" x-cloak role="status" aria-live="polite" aria-label="Guide save status" class="mb-5 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-100 space-y-2">
@@ -85,7 +122,7 @@ const base = import.meta.env.BASE_URL
                                 'opacity-60': isCompleted(stop.id) && activeStopId !== stop.id
                             }"
                             class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
-                            <span x-text="stop.icon || stopIcon(stop.kind)"></span>
+                            <GuideStopIcon kind="stop.kind" text="stop.icon || stopIcon(stop.kind)" />
                             <span x-text="stop.name"></span>
                         </button>
                     </template>
@@ -117,7 +154,7 @@ const base = import.meta.env.BASE_URL
                                     <span>✓</span>
                                 </template>
                             </span>
-                            <span x-text="stop.icon || stopIcon(stop.kind)" class="shrink-0"></span>
+                            <GuideStopIcon kind="stop.kind" text="stop.icon || stopIcon(stop.kind)" />
                             <span x-text="stop.name" class="leading-tight truncate" :class="isCompleted(stop.id) ? 'line-through text-text-tertiary' : ''"></span>
                         </button>
                     </template>
@@ -134,7 +171,7 @@ const base = import.meta.env.BASE_URL
                             <div class="flex items-start justify-between gap-4 flex-wrap">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span x-text="currentStop.icon || stopIcon(currentStop.kind)" class="text-2xl"></span>
+                                        <GuideStopIcon kind="currentStop.kind" text="currentStop.icon || stopIcon(currentStop.kind)" large />
                                         <h2 class="text-xl font-black text-text-primary" x-text="currentStop.name"></h2>
                                     </div>
                                     <span class="text-[11px] font-black text-text-tertiary uppercase tracking-widest px-2 py-0.5 bg-bg-raised rounded-full" x-text="currentStop.kind.replace('-', ' ')"></span>
@@ -206,12 +243,42 @@ const base = import.meta.env.BASE_URL
                                 <ol class="space-y-3">
                                     <template x-for="(step, i) in currentStop.steps" :key="i">
                                         <li class="flex gap-3 text-sm text-text-primary leading-relaxed">
-                                            <span class="w-6 h-6 rounded-full bg-action-subtle text-action font-black text-xs flex items-center justify-center shrink-0 mt-0.5" x-text="i + 1"></span>
+                                            <span x-show="!collectionManifest" class="w-6 h-6 rounded-full bg-action-subtle text-action font-black text-xs flex items-center justify-center shrink-0 mt-0.5" x-text="i + 1"></span>
+                                            <input x-show="collectionManifest" type="checkbox" :checked="collectionState.completedSteps.includes(currentCollectionStop?.stepIds[i])" @change="toggleCollectionStep(currentCollectionStop?.stepIds[i])" :aria-label="`Mark step ${i + 1} complete: ${step}`" class="mt-1 h-4 w-4 shrink-0 accent-action" />
                                             <span x-text="step"></span>
                                         </li>
                                     </template>
                                 </ol>
                             </div>
+                        </template>
+
+                        <template x-if="collectionManifest && currentCollectionStop && (currentCollectionStop.items.length || currentCollectionStop.species.length)">
+                            <section aria-label="Guide-listed collection checklist" class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
+                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-2">Guide-listed collection</h3>
+                                <p class="text-xs text-text-secondary mb-4">Mark what you actually collected, saw or caught. This checklist is separate from finishing the story stop.</p>
+                                <div class="grid gap-5 md:grid-cols-2">
+                                    <div x-show="currentCollectionStop.items.length">
+                                        <h4 class="font-bold text-sm text-text-primary mb-2">Items &amp; rewards</h4>
+                                        <div class="space-y-2">
+                                            <template x-for="item in currentCollectionStop.items" :key="item.id">
+                                                <label class="flex items-start gap-2 text-sm text-text-secondary"><input type="checkbox" :checked="collectionState.collectedItems.includes(item.id)" @change="toggleCollectedItem(item.id)" :aria-label="`Mark ${item.name} collected`" class="mt-0.5 h-4 w-4 shrink-0 accent-action" /><span x-text="item.name"></span></label>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div x-show="currentCollectionStop.species.length">
+                                        <h4 class="font-bold text-sm text-text-primary mb-2">Pokémon</h4>
+                                        <div class="space-y-2">
+                                            <template x-for="pokemon in currentCollectionStop.species" :key="pokemon.id">
+                                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary">
+                                                    <span class="min-w-20 capitalize" x-text="pokemon.name"></span>
+                                                    <label class="flex items-center gap-1"><input type="checkbox" :checked="collectionState.seenSpecies.includes(pokemon.id)" @change="toggleSeenSpecies(pokemon.id)" :aria-label="`Mark ${pokemon.name} seen`" class="h-4 w-4 accent-action" />Seen</label>
+                                                    <label class="flex items-center gap-1"><input type="checkbox" :checked="collectionState.caughtSpecies.includes(pokemon.id)" @change="toggleCaughtSpecies(pokemon.id)" :aria-label="`Mark ${pokemon.name} caught`" class="h-4 w-4 accent-action" />Caught</label>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                         </template>
 
                         <!-- Keep inactive rich content inert; Alpine mounts only the selected stop. -->
@@ -221,10 +288,16 @@ const base = import.meta.env.BASE_URL
                             </template>
                         ))}
 
+                        {entry.optionalLocations.map((location) => (
+                            <template x-if={`activeStopId === ${JSON.stringify(location.stopId)}`}>
+                                <GuideOptionalLocation location={location} />
+                            </template>
+                        ))}
+
                         <!-- Gym battle -->
                         <template x-if="!currentStop.locationPilot && currentStop.gym">
                             <div class="bg-bg-surface rounded-2xl border border-border-subtle shadow-sm p-5">
-                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4">🏟️ Gym Battle</h3>
+                                <h3 class="text-xs font-black text-text-tertiary uppercase tracking-widest mb-4"><GuideSectionIcon name="gym" />Gym Battle</h3>
 
                                 <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
                                     <div>
@@ -413,5 +486,6 @@ const base = import.meta.env.BASE_URL
                 </template>
             </main>
         </div>
+        <p class="mt-6 text-xs text-text-tertiary leading-relaxed">Gym icon: <a class="underline hover:text-action" href="https://commons.wikimedia.org/wiki/File:GymIcon.png">“GymIcon” by Lukehewitt4</a> · <a class="underline hover:text-action" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Image unmodified.</p>
     </div>
 </Layout>

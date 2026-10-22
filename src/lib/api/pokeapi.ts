@@ -107,6 +107,7 @@ export interface EvolutionNode {
 import { HM_MOVES } from '../data/constants'
 import movesDataJson from '../data/moves-data.json'
 import { idbGet, idbSet, TTL } from './idb-cache'
+import { LOCAL_POKEMON_COUNT, localPokemonList, type PokemonSummary } from '../data/pokemon-index'
 
 interface LocalMoveData {
     power: number | null
@@ -125,7 +126,7 @@ const cache = {
     pokemon: new Map<string, Pokemon>(),
     species: new Map<string, Species>(),
     evolution: new Map<string, EvolutionChain>(),
-    pokemonList: null as Array<{ name: string; id: number }> | null,
+    pokemonLists: new Map<number, PokemonSummary[]>(),
 }
 
 export async function fetchPokemon(name: string): Promise<Pokemon> {
@@ -217,11 +218,16 @@ export async function fetchItemInfo(item: string): Promise<ItemInfo> {
     return result
 }
 
-export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: string; id: number }>> {
-    if (cache.pokemonList) return cache.pokemonList
+/** Existing selectors need only the committed catalog, even without API/IDB. */
+export async function fetchPokemonList(limit = LOCAL_POKEMON_COUNT): Promise<PokemonSummary[]> {
+    if (Number.isSafeInteger(limit) && limit > 0 && limit <= LOCAL_POKEMON_COUNT) {
+        return localPokemonList(limit)
+    }
+    // Preserve the API path for explicit requests outside local catalog coverage.
+    if (cache.pokemonLists.has(limit)) return cache.pokemonLists.get(limit)!
     const idbKey = `pokemon-list/${limit}`
     const cached = await idbGet<Array<{ name: string; id: number }>>(idbKey)
-    if (cached) { cache.pokemonList = cached; return cached }
+    if (cached) { cache.pokemonLists.set(limit, cached); return cached }
     const r = await fetch(`${BASE}/pokemon?limit=${limit}`)
     if (!r.ok) throw new Error(`Failed to fetch Pokémon list (${r.status})`)
     const d = await r.json()
@@ -229,7 +235,7 @@ export async function fetchPokemonList(limit = 1025): Promise<Array<{ name: stri
         name: p.name,
         id: parseInt(p.url.split('/').filter(Boolean).pop() ?? '0'),
     })).filter((p: { id: number }) => p.id > 0)
-    cache.pokemonList = result
+    cache.pokemonLists.set(limit, result)
     idbSet(idbKey, result, TTL.POKEMON_LIST)
     return result
 }
